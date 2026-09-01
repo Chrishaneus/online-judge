@@ -1,0 +1,136 @@
+# Online Judge: full stack.
+#
+#   browser ──> webapp (nginx :8080) ──> rest (:8000) ──> midlayer (:8003) ──> dao (:8001) ──> postgres
+#                                                              │
+#                                                              └─ unix socket ─> runner (no network)
+#
+# Service repositories are expected as siblings of this one (../oj-*).
+
+name: online-judge
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  postgres:
+    <<: *restart
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: oj
+      POSTGRES_USER: oj
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oj-dev-password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [db]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oj -d oj"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  dao:
+    <<: *restart
+    build: ../oj-dao
+    image: online-judge/dao:latest
+    environment:
+      DAO_ADDR: ":8001"
+      DATABASE_URL: postgres://oj:${POSTGRES_PASSWORD:-oj-dev-password}@postgres:5432/oj?sslmode=disable
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [db, backend]
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  runner:
+    <<: *restart
+    build: ../oj-runner
+    image: online-judge/runner:latest
+    # Untrusted code runs here: no network at all. The API is served on a unix
+    # socket in a volume shared only with the midlayer.
+    network_mode: none
+    environment:
+      RUNNER_ADDR: unix:///run/oj-runner/runner.sock
+      RUNNER_SOCKET_GID: "10001"
+      RUNNER_WORKERS: ${RUNNER_WORKERS:-2}
+      RUNNER_SANDBOX_DIR: /sandbox
+    volumes:
+      - runner-sock:/run/oj-runner
+    tmpfs:
+      - /sandbox:size=512m,mode=0711,exec,nosuid,nodev
+      - /tmp:size=64m,nosuid,nodev
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID, KILL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 512
+    mem_limit: ${RUNNER_MEM_LIMIT:-2g}
+    cpus: ${RUNNER_CPUS:-2}
+
+  midlayer:
+    <<: *restart
+    build: ../oj-midlayer
+    image: online-judge/midlayer:latest
+    environment:
+      DAO_URL: http://dao:8001
+      RUNNER_URL: unix:///run/oj-runner/runner.sock
+      JUDGE_WORKERS: ${JUDGE_WORKERS:-4}
+    volumes:
+      - runner-sock:/run/oj-runner
+    depends_on:
+      dao: { condition: service_healthy }
+      runner: { condition: service_healthy }
+    networks: [backend]
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  rest:
+    <<: *restart
+    build: ../oj-rest
+    image: online-judge/rest:latest
+    environment:
+      REST_ADDR: ":8000"
+      MIDLAYER_URL: http://midlayer:8003
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      RATE_LIMIT_PER_MIN: ${RATE_LIMIT_PER_MIN:-20}
+      RATE_LIMIT_BURST: ${RATE_LIMIT_BURST:-5}
+      TRUST_PROXY_HEADERS: "true"
+    depends_on:
+      midlayer: { condition: service_healthy }
+    networks: [backend, frontend]
+    ports:
+      - "${REST_PORT:-127.0.0.1:8000}:8000"
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  webapp:
+    <<: *restart
+    build: ../oj-webapp
+    image: online-judge/webapp:latest
+    environment:
+      REST_UPSTREAM: http://rest:8000
+    depends_on:
+      rest: { condition: service_healthy }
+    networks: [frontend]
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    tmpfs:
+      - /tmp
+      - /etc/nginx/conf.d:mode=1777  # entrypoint renders the config template here as uid 101
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+networks:
+  db:
+    internal: true
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  pgdata: {}
+  runner-sock: {}
