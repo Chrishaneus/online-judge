@@ -18,7 +18,19 @@ ok()   { echo "  ✓ $*"; pass=$((pass + 1)); }
 bad()  { echo "  ✗ $*"; fail=$((fail + 1)); }
 json() { python3 -c "import json,sys; d=json.load(sys.stdin); print(eval(sys.argv[1], {'d': d}))" "$1"; }
 
-post() { curl -sS -X POST "$API$1" -H 'Content-Type: application/json' -d "$2"; }
+# POST with JSON; honours 429 Retry-After so the test works with the
+# gateway's rate limiter enabled.
+post() {
+  local out code wait
+  for _ in $(seq 1 30); do
+    out=$(curl -sS -D /tmp/oj-smoke-headers -X POST "$API$1" -H 'Content-Type: application/json' -d "$2")
+    code=$(head -1 /tmp/oj-smoke-headers | awk '{print $2}')
+    if [[ "$code" != 429 ]]; then echo "$out"; return; fi
+    wait=$(grep -i '^retry-after:' /tmp/oj-smoke-headers | tr -dc '0-9')
+    sleep "${wait:-1}"
+  done
+  echo "$out"
+}
 
 # submit <problem_id> <language> <source>  -> prints final verdict
 submit() {
