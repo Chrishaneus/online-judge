@@ -4,7 +4,7 @@
 #                                                              │
 #                                                              └─ unix socket ─> runner (no network)
 #
-# Repositories are expected as siblings of this one: ../oj-backend, ../oj-runner, ../oj-webapp.
+# Service repositories are expected as siblings of this one (../oj-*).
 
 name: online-judge
 
@@ -30,7 +30,7 @@ services:
 
   dao:
     <<: *restart
-    build: ../oj-backend/dao
+    build: ../oj-dao
     image: online-judge/dao:latest
     environment:
       DAO_ADDR: ":8001"
@@ -69,7 +69,7 @@ services:
 
   midlayer:
     <<: *restart
-    build: ../oj-backend/midlayer
+    build: ../oj-midlayer
     image: online-judge/midlayer:latest
     environment:
       DAO_URL: http://dao:8001
@@ -87,7 +87,7 @@ services:
 
   rest:
     <<: *restart
-    build: ../oj-backend/rest
+    build: ../oj-rest
     image: online-judge/rest:latest
     environment:
       REST_ADDR: ":8000"

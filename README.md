@@ -4,23 +4,21 @@ Docker Compose deployment for the Online Judge.
 
 ## Repositories
 
-| Repo / directory        | Language        | Role                                                        |
-|-------------------------|-----------------|-------------------------------------------------------------|
-| `oj-webapp`             | HTML/CSS/JS     | Web UI, served by nginx; proxies `/api/`                    |
-| `oj-backend/rest`       | Go              | Public REST API: routing allowlist, auth, rate limits, CORS |
-| `oj-backend/midlayer`   | Python/FastAPI  | Business logic: judging queue, verdicts, data shaping       |
-| `oj-backend/dao`        | Go + PostgreSQL | Repository layer: the only service that touches the DB      |
-| `oj-runner`             | Go              | Sandboxed compile & execute (Python, C, C++, JavaScript)    |
-| `oj-deploy`             | Compose         | This repo: wiring, networks, hardening, smoke test          |
+| Repo          | Language        | Role                                                        |
+|---------------|-----------------|-------------------------------------------------------------|
+| `oj-webapp`   | HTML/CSS/JS     | Web UI, served by nginx; proxies `/api/`                    |
+| `oj-rest`     | Go              | Public REST API: routing allowlist, auth, rate limits, CORS |
+| `oj-midlayer` | Python/FastAPI  | Business logic: judging queue, verdicts, data shaping       |
+| `oj-runner`   | Go              | Sandboxed compile & execute (Python, C, C++, JavaScript)    |
+| `oj-dao`      | Go + PostgreSQL | Repository layer: the only service that touches the DB      |
+| `oj-deploy`   | Compose         | This repo: wiring, networks, hardening, smoke test          |
 
 Clone them side by side:
 
 ```
 online-judge/
-├── oj-backend/   (dao/, midlayer/, rest/)
-├── oj-runner/
-├── oj-webapp/
-└── oj-deploy/    <- run commands here
+├── oj-dao/  oj-runner/  oj-midlayer/  oj-rest/  oj-webapp/
+└── oj-deploy/   <- run commands here
 ```
 
 ## Architecture
