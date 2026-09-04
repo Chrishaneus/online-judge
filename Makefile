@@ -1,14 +1,22 @@
 COMPOSE := docker compose
 
-.PHONY: env up down logs ps smoke clean
+.PHONY: env up down logs ps smoke proto-check clean
 
-## env: create .env with random secrets (won't overwrite an existing one)
+SECRETS := POSTGRES_PASSWORD RABBITMQ_MIDLAYER_PASSWORD RABBITMQ_RUNNER_PASSWORD ADMIN_TOKEN
+
+## env: create .env, or add keys missing from an older one; every secret still
+##      set to "change-me..." gets a random value. Existing values are kept.
 env:
-	@test -f .env && echo ".env already exists" || { \
-	  cp .env.example .env; \
-	  sed -i "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$$(openssl rand -hex 16)/" .env; \
-	  sed -i "s/^ADMIN_TOKEN=.*/ADMIN_TOKEN=$$(openssl rand -hex 24)/" .env; \
-	  echo "wrote .env (admin token: $$(grep ^ADMIN_TOKEN .env | cut -d= -f2))"; }
+	@test -f .env || cp .env.example .env
+	@grep -E '^[A-Z_]+=' .env.example | while IFS== read -r key _; do \
+	  grep -q "^$$key=" .env || { grep "^$$key=" .env.example >> .env; echo "added $$key"; }; \
+	done
+	@for key in $(SECRETS); do \
+	  if grep -qE "^$$key=change-me" .env; then \
+	    sed -i "s/^$$key=.*/$$key=$$(openssl rand -hex 24)/" .env; echo "generated $$key"; \
+	  fi; \
+	done
+	@echo ".env ready (admin token: $$(grep ^ADMIN_TOKEN= .env | cut -d= -f2))"
 
 ## up: build and start the whole stack, waiting until healthy
 up:
@@ -25,8 +33,12 @@ ps:
 
 ## smoke: end-to-end test against the running stack
 smoke:
-	./scripts/smoke.sh
+	python3 scripts/smoke.py
 
-## clean: stop and delete all data (database volume included)
+## proto-check: fail if any service's generated code is stale vs ../oj-proto
+proto-check:
+	$(MAKE) -C ../oj-proto check
+
+## clean: stop and delete all data (database and broker volumes included)
 clean:
 	$(COMPOSE) down -v
