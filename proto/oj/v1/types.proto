@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package oj.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// Domain types shared by every Online Judge service.
+//
+// Over HTTP (webapp <-> oj-rest) these travel as canonical proto JSON: camelCase
+// field names, enum values by name ("LANGUAGE_PYTHON"), int64 as JSON strings,
+// Timestamps as RFC 3339. Between services they travel as binary protobuf over
+// gRPC or RabbitMQ. Regenerate code with `make gen` in oj-proto.
+
+enum Language {
+  LANGUAGE_UNSPECIFIED = 0;
+  LANGUAGE_PYTHON = 1; // CPython 3
+  LANGUAGE_C = 2; // gcc, -O2 -std=c17
+  LANGUAGE_CPP = 3; // g++, -O2 -std=c++17
+  LANGUAGE_JAVASCRIPT = 4; // Node.js
+}
+
+enum Difficulty {
+  DIFFICULTY_UNSPECIFIED = 0;
+  DIFFICULTY_EASY = 1;
+  DIFFICULTY_MEDIUM = 2;
+  DIFFICULTY_HARD = 3;
+}
+
+// Lifecycle of a submission: PENDING -> JUDGING -> FINISHED, or FAILED when
+// judging itself broke (runner crash loop, dead-lettered job, ...).
+enum SubmissionStatus {
+  SUBMISSION_STATUS_UNSPECIFIED = 0;
+  SUBMISSION_STATUS_PENDING = 1;
+  SUBMISSION_STATUS_JUDGING = 2;
+  SUBMISSION_STATUS_FINISHED = 3;
+  SUBMISSION_STATUS_FAILED = 4;
+}
+
+// Judging outcome. UNSPECIFIED until a submission has been judged. The overall
+// verdict is the verdict of the first failing test, else ACCEPTED.
+enum Verdict {
+  VERDICT_UNSPECIFIED = 0;
+  VERDICT_ACCEPTED = 1;
+  VERDICT_WRONG_ANSWER = 2;
+  VERDICT_TIME_LIMIT_EXCEEDED = 3;
+  VERDICT_MEMORY_LIMIT_EXCEEDED = 4;
+  VERDICT_OUTPUT_LIMIT_EXCEEDED = 5;
+  VERDICT_RUNTIME_ERROR = 6;
+  VERDICT_COMPILATION_ERROR = 7;
+  VERDICT_INTERNAL_ERROR = 8;
+}
+
+// Raw status of one execution as reported by the runner (no expected output
+// involved). COMPILATION_ERROR only appears on custom runs.
+enum RunStatus {
+  RUN_STATUS_UNSPECIFIED = 0;
+  RUN_STATUS_OK = 1;
+  RUN_STATUS_TIME_LIMIT_EXCEEDED = 2;
+  RUN_STATUS_MEMORY_LIMIT_EXCEEDED = 3;
+  RUN_STATUS_OUTPUT_LIMIT_EXCEEDED = 4;
+  RUN_STATUS_RUNTIME_ERROR = 5;
+  RUN_STATUS_COMPILATION_ERROR = 6;
+}
+
+message Problem {
+  int64 id = 1 [jstype = JS_NUMBER];
+  // Lowercase kebab-case, unique, at most 64 characters.
+  string slug = 2;
+  string title = 3;
+  // Markdown.
+  string statement = 4;
+  Difficulty difficulty = 5;
+  int32 time_limit_ms = 6;
+  int32 memory_limit_mb = 7;
+  google.protobuf.Timestamp create_time = 8;
+}
+
+message TestCase {
+  int64 id = 1 [jstype = JS_NUMBER];
+  int64 problem_id = 2 [jstype = JS_NUMBER];
+  string input = 3;
+  string expected_output = 4;
+  // Sample tests are shown to everyone; the others are hidden.
+  bool is_sample = 5;
+  // 1-based position in the problem's test list.
+  int32 ordinal = 6;
+}
+
+// A sample test as shown on the problem page.
+message Sample {
+  string input = 1;
+  string output = 2;
+}
+
+// Per-test outcome of a judged submission. Never contains test data.
+message TestResult {
+  // 1-based test number.
+  int32 test = 1;
+  Verdict verdict = 2;
+  int32 time_ms = 3;
+  int64 memory_kb = 4 [jstype = JS_NUMBER];
+  bool sample = 5;
+}
+
+message Submission {
+  int64 id = 1 [jstype = JS_NUMBER];
+  int64 problem_id = 2 [jstype = JS_NUMBER];
+  string username = 3;
+  Language language = 4;
+  // Empty in list responses.
+  string source = 5;
+  SubmissionStatus status = 6;
+  Verdict verdict = 7;
+  int32 passed = 8;
+  int32 total = 9;
+  // Slowest test, in milliseconds.
+  int32 time_ms = 10;
+  // Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
+  // Empty in list responses.
+  string message = 11;
+  // Empty in list responses.
+  repeated TestResult results = 12;
+  google.protobuf.Timestamp create_time = 13;
+  google.protobuf.Timestamp update_time = 14;
+}
+
+// Body of every non-2xx HTTP response from oj-rest.
+message ErrorResponse {
+  string error = 1;
+  repeated string details = 2;
+}

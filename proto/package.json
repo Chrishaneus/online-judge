@@ -1,0 +1,9 @@
+{
+	"name": "oj-proto",
+	"private": true,
+	"description": "Code generators for the Online Judge protobuf contract (versions pinned).",
+	"devDependencies": {
+		"@bufbuild/buf": "1.75.0",
+		"@bufbuild/protoc-gen-es": "2.17.0"
+	}
+}
