@@ -20,10 +20,18 @@ import "oj/v1/types.proto";
 //                    x-dead-letter-exchange="", x-dead-letter-routing-key=judge.jobs.dead
 //                    midlayer publishes ExecuteJob; runners consume with
 //                    prefetch = their worker count and ack only after the
-//                    final JobEvent is published (at-least-once).
-//   judge.jobs.dead  quorum queue. Jobs that crashed a runner 3 times, or
-//                    expired before a runner took them. midlayer consumes it
-//                    and marks the submission FAILED / INTERNAL_ERROR.
+//                    final JobEvent is published (at-least-once). A job may
+//                    therefore be delivered (and report `started`) more than
+//                    once: event handling must be idempotent.
+//                    Note: on RabbitMQ 4.x the broker's delivery limit only
+//                    counts deliveries lost with a closed channel (a crashed
+//                    runner), not nack(requeue=true). So runners also count
+//                    attempts themselves (x-delivery-count + x-acquired-count
+//                    headers) and nack(requeue=false) on the 3rd failed attempt.
+//   judge.jobs.dead  quorum queue. Jobs that failed 3 times, were malformed
+//                    (missing type / reply_to, undecodable), or expired before
+//                    a runner took them. midlayer consumes it and marks the
+//                    submission FAILED / INTERNAL_ERROR.
 //   judge.events     quorum queue. Runners publish JobEvents for submissions
 //                    here; midlayer consumes, judges and stores the verdict.
 //
