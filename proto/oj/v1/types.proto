@@ -63,7 +63,7 @@ enum RunStatus {
 }
 
 message Problem {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
   // Lowercase kebab-case, unique, at most 64 characters.
   string slug = 2;
   string title = 3;
@@ -76,8 +76,8 @@ message Problem {
 }
 
 message TestCase {
-  int64 id = 1 [jstype = JS_NUMBER];
-  int64 problem_id = 2 [jstype = JS_NUMBER];
+  int64 id = 1;
+  int64 problem_id = 2;
   string input = 3;
   string expected_output = 4;
   // Sample tests are shown to everyone; the others are hidden.
@@ -98,16 +98,16 @@ message TestResult {
   int32 test = 1;
   Verdict verdict = 2;
   int32 time_ms = 3;
-  int64 memory_kb = 4 [jstype = JS_NUMBER];
+  int64 memory_kb = 4;
   bool sample = 5;
 }
 
 message Submission {
-  int64 id = 1 [jstype = JS_NUMBER];
-  int64 problem_id = 2 [jstype = JS_NUMBER];
+  int64 id = 1;
+  int64 problem_id = 2;
   string username = 3;
   Language language = 4;
-  // Empty in list responses.
+  // Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
   string source = 5;
   SubmissionStatus status = 6;
   Verdict verdict = 7;
@@ -116,9 +116,9 @@ message Submission {
   // Slowest test, in milliseconds.
   int32 time_ms = 10;
   // Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
-  // Empty in list responses.
+  // Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
   string message = 11;
-  // Empty in list responses.
+  // Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
   repeated TestResult results = 12;
   google.protobuf.Timestamp create_time = 13;
   google.protobuf.Timestamp update_time = 14;

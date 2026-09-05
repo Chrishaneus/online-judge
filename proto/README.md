@@ -29,11 +29,12 @@ browser ─> oj-webapp (SvelteKit, node :3000)
 ```
 
 * **Edge (webapp ⇄ oj-rest): HTTP + canonical proto JSON.** camelCase fields,
-  enums by name (`"LANGUAGE_PYTHON"`), int64 as strings (the TS types use
-  `number` via `jstype = JS_NUMBER`), Timestamps as RFC 3339. Each route's body
+  enums by name (`"LANGUAGE_PYTHON"`), int64 as JSON strings (`bigint` in
+  the generated TS; protoc-gen-es v2 ignores `jstype`), Timestamps as RFC 3339. Each route's body
   is the RPC request message, its response is the RPC response message, and
   errors are `ErrorResponse`.
-* **Inside: gRPC.** Every gRPC server also serves the standard
+* **Inside: gRPC.** `GET /api/v1/admin/verify` is the only route without an RPC: oj-rest
+  answers it itself (`{"admin": true}`) to validate the admin token. Every gRPC server also serves the standard
   `grpc.health.v1.Health` service. Docker healthchecks use it.
 * **Judging: RabbitMQ.** The midlayer publishes an `ExecuteJob` per
   submission to `judge.jobs`. Runners consume it, compile once, run every test

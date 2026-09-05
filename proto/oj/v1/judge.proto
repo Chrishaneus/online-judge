@@ -66,7 +66,7 @@ message GetStatusResponse {
   string dao = 2;
   string broker = 3;
   // Judging jobs waiting in RabbitMQ.
-  int64 queue_depth = 4 [jstype = JS_NUMBER];
+  int64 queue_depth = 4;
   // Runner processes currently consuming jobs.
   int32 runners = 5;
 }
@@ -86,7 +86,7 @@ message ListLanguagesResponse {
 // ---------- problems ----------
 
 message ProblemSummary {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
   string slug = 2;
   string title = 3;
   Difficulty difficulty = 4;
@@ -95,7 +95,7 @@ message ProblemSummary {
 }
 
 message ProblemDetail {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
   string slug = 2;
   string title = 3;
   Difficulty difficulty = 4;
@@ -114,7 +114,7 @@ message ListProblemSummariesResponse {
 }
 
 message GetProblemDetailRequest {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
 }
 
 message GetProblemDetailResponse {
@@ -124,7 +124,7 @@ message GetProblemDetailResponse {
 // ---------- submissions ----------
 
 message SubmitRequest {
-  int64 problem_id = 1 [jstype = JS_NUMBER];
+  int64 problem_id = 1;
   Language language = 2;
   // 1..262144 characters.
   string source = 3;
@@ -138,7 +138,7 @@ message SubmitResponse {
 }
 
 message ListSubmissionSummariesRequest {
-  int64 problem_id = 1 [jstype = JS_NUMBER];
+  int64 problem_id = 1;
   string username = 2;
   // 1..200; 0 means 50.
   int32 limit = 3;
@@ -151,7 +151,7 @@ message ListSubmissionSummariesResponse {
 }
 
 message GetSubmissionDetailRequest {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
 }
 
 message GetSubmissionDetailResponse {
@@ -166,7 +166,7 @@ message RunCodeRequest {
   // At most 1 MiB.
   string stdin = 3;
   // When set, use this problem's time and memory limits (else 2000 ms / 256 MB).
-  int64 problem_id = 4 [jstype = JS_NUMBER];
+  int64 problem_id = 4;
 }
 
 message RunCodeResponse {
@@ -177,7 +177,7 @@ message RunCodeResponse {
   string stderr = 4;
   int32 exit_code = 5;
   int32 time_ms = 6;
-  int64 memory_kb = 7 [jstype = JS_NUMBER];
+  int64 memory_kb = 7;
 }
 
 // ---------- admin ----------
@@ -207,7 +207,7 @@ message AddProblemResponse {
 }
 
 message EditProblemRequest {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
   string slug = 2;
   string title = 3;
   string statement = 4;
@@ -221,13 +221,13 @@ message EditProblemResponse {
 }
 
 message RemoveProblemRequest {
-  int64 id = 1 [jstype = JS_NUMBER];
+  int64 id = 1;
 }
 
 message RemoveProblemResponse {}
 
 message ListProblemTestCasesRequest {
-  int64 problem_id = 1 [jstype = JS_NUMBER];
+  int64 problem_id = 1;
 }
 
 message ListProblemTestCasesResponse {
@@ -235,7 +235,7 @@ message ListProblemTestCasesResponse {
 }
 
 message AddTestCaseRequest {
-  int64 problem_id = 1 [jstype = JS_NUMBER];
+  int64 problem_id = 1;
   NewTestCase test_case = 2;
 }
 
@@ -244,8 +244,8 @@ message AddTestCaseResponse {
 }
 
 message RemoveTestCaseRequest {
-  int64 problem_id = 1 [jstype = JS_NUMBER];
-  int64 id = 2 [jstype = JS_NUMBER];
+  int64 problem_id = 1;
+  int64 id = 2;
 }
 
 message RemoveTestCaseResponse {}

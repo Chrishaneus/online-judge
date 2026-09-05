@@ -10,6 +10,6 @@ it is the architecture and contract reference for the whole Online Judge.
 - `make check` must pass. `buf lint` uses the STANDARD rules: `<Rpc>Request` /
   `<Rpc>Response` per RPC, enum values prefixed with the enum name, zero value
   `*_UNSPECIFIED`.
-- Wire compatibility: never renumber, reuse or retype a field. Mark int64 ids
-  that the webapp sees with `[jstype = JS_NUMBER]`.
+- Wire compatibility: never renumber, reuse or retype a field. int64 fields
+  are `bigint` in the webapp's TS (protoc-gen-es v2 ignores `jstype`).
 - Never hand-edit generated code in any repo.
