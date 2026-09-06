@@ -1,0 +1,251 @@
+syntax = "proto3";
+
+package oj.v1;
+
+import "oj/v1/types.proto";
+
+// JudgeService is oj-midlayer's gRPC API: the business logic of the Online
+// Judge. oj-rest exposes it to clients at /api/v1 (see oj-rest's README for
+// the HTTP mapping); authentication, rate limits and CORS live there, not here.
+//
+// The HTTP body of each route is the request message (minus path parameters)
+// and its response is the response message, both as canonical proto JSON.
+//
+// Errors (gRPC status codes, mapped to HTTP by oj-rest):
+//   INVALID_ARGUMENT     validation failed (message says which field)  -> 422
+//   NOT_FOUND            problem / submission / test case not found    -> 404
+//   ALREADY_EXISTS       duplicate problem slug                        -> 409
+//   RESOURCE_EXHAUSTED   judging queue is full                         -> 429
+//   DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
+//   UNAVAILABLE          oj-dao or RabbitMQ unreachable                -> 503
+// Liveness/readiness: the standard grpc.health.v1.Health service.
+service JudgeService {
+  // GET /api/v1/status
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
+  // GET /api/v1/languages
+  rpc ListLanguages(ListLanguagesRequest) returns (ListLanguagesResponse);
+
+  // GET /api/v1/problems
+  rpc ListProblemSummaries(ListProblemSummariesRequest) returns (ListProblemSummariesResponse);
+  // GET /api/v1/problems/{id}
+  rpc GetProblemDetail(GetProblemDetailRequest) returns (GetProblemDetailResponse);
+
+  // POST /api/v1/submissions (rate limited)
+  rpc Submit(SubmitRequest) returns (SubmitResponse);
+  // GET /api/v1/submissions?problemId=&username=&limit=&offset=
+  rpc ListSubmissionSummaries(ListSubmissionSummariesRequest) returns (ListSubmissionSummariesResponse);
+  // GET /api/v1/submissions/{id}
+  rpc GetSubmissionDetail(GetSubmissionDetailRequest) returns (GetSubmissionDetailResponse);
+
+  // POST /api/v1/run (rate limited). Runs code against custom input, no judging.
+  rpc RunCode(RunCodeRequest) returns (RunCodeResponse);
+
+  // Admin (oj-rest requires the admin bearer token for these).
+  // POST   /api/v1/admin/problems
+  rpc AddProblem(AddProblemRequest) returns (AddProblemResponse);
+  // PUT    /api/v1/admin/problems/{id}
+  rpc EditProblem(EditProblemRequest) returns (EditProblemResponse);
+  // DELETE /api/v1/admin/problems/{id}
+  rpc RemoveProblem(RemoveProblemRequest) returns (RemoveProblemResponse);
+  // GET    /api/v1/admin/problems/{problemId}/testcases
+  rpc ListProblemTestCases(ListProblemTestCasesRequest) returns (ListProblemTestCasesResponse);
+  // POST   /api/v1/admin/problems/{problemId}/testcases
+  rpc AddTestCase(AddTestCaseRequest) returns (AddTestCaseResponse);
+  // DELETE /api/v1/admin/problems/{problemId}/testcases/{id}
+  rpc RemoveTestCase(RemoveTestCaseRequest) returns (RemoveTestCaseResponse);
+}
+
+// ---------- status ----------
+
+message GetStatusRequest {}
+
+message GetStatusResponse {
+  // True when oj-dao and RabbitMQ are both reachable.
+  bool healthy = 1;
+  // "ok" or "error: <reason>".
+  string dao = 2;
+  string broker = 3;
+  // Judging jobs waiting in RabbitMQ.
+  int64 queue_depth = 4;
+  // Runner processes currently consuming jobs.
+  int32 runners = 5;
+}
+
+message LanguageInfo {
+  Language language = 1;
+  // Display name, e.g. "Python 3".
+  string name = 2;
+}
+
+message ListLanguagesRequest {}
+
+message ListLanguagesResponse {
+  repeated LanguageInfo languages = 1;
+}
+
+// ---------- problems ----------
+
+message ProblemSummary {
+  int64 id = 1;
+  string slug = 2;
+  string title = 3;
+  Difficulty difficulty = 4;
+  int32 time_limit_ms = 5;
+  int32 memory_limit_mb = 6;
+}
+
+message ProblemDetail {
+  int64 id = 1;
+  string slug = 2;
+  string title = 3;
+  Difficulty difficulty = 4;
+  int32 time_limit_ms = 5;
+  int32 memory_limit_mb = 6;
+  // Markdown.
+  string statement = 7;
+  // Only sample tests; hidden tests are never exposed.
+  repeated Sample samples = 8;
+}
+
+message ListProblemSummariesRequest {}
+
+message ListProblemSummariesResponse {
+  repeated ProblemSummary problems = 1;
+}
+
+message GetProblemDetailRequest {
+  int64 id = 1;
+}
+
+message GetProblemDetailResponse {
+  ProblemDetail problem = 1;
+}
+
+// ---------- submissions ----------
+
+message SubmitRequest {
+  int64 problem_id = 1;
+  Language language = 2;
+  // 1..262144 characters.
+  string source = 3;
+  // [A-Za-z0-9_.-]{1,32}; empty means "anonymous".
+  string username = 4;
+}
+
+message SubmitResponse {
+  // Status PENDING; poll GetSubmissionDetail for the verdict.
+  Submission submission = 1;
+}
+
+message ListSubmissionSummariesRequest {
+  int64 problem_id = 1;
+  string username = 2;
+  // 1..200; 0 means 50.
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListSubmissionSummariesResponse {
+  // source, message and results are empty.
+  repeated Submission submissions = 1;
+}
+
+message GetSubmissionDetailRequest {
+  int64 id = 1;
+}
+
+message GetSubmissionDetailResponse {
+  Submission submission = 1;
+}
+
+// ---------- custom run ----------
+
+message RunCodeRequest {
+  Language language = 1;
+  string source = 2;
+  // At most 1 MiB.
+  string stdin = 3;
+  // When set, use this problem's time and memory limits (else 2000 ms / 256 MB).
+  int64 problem_id = 4;
+}
+
+message RunCodeResponse {
+  RunStatus status = 1;
+  // Set when status is COMPILATION_ERROR.
+  string compile_output = 2;
+  string stdout = 3;
+  string stderr = 4;
+  int32 exit_code = 5;
+  int32 time_ms = 6;
+  int64 memory_kb = 7;
+}
+
+// ---------- admin ----------
+
+message NewTestCase {
+  string input = 1;
+  string expected_output = 2;
+  bool is_sample = 3;
+}
+
+message AddProblemRequest {
+  string slug = 1;
+  string title = 2;
+  string statement = 3;
+  // UNSPECIFIED means EASY.
+  Difficulty difficulty = 4;
+  // 100..15000; 0 means 2000.
+  int32 time_limit_ms = 5;
+  // 16..1024; 0 means 256.
+  int32 memory_limit_mb = 6;
+  // 1..200 test cases, each input/output at most 8 MiB.
+  repeated NewTestCase test_cases = 7;
+}
+
+message AddProblemResponse {
+  ProblemDetail problem = 1;
+}
+
+message EditProblemRequest {
+  int64 id = 1;
+  string slug = 2;
+  string title = 3;
+  string statement = 4;
+  Difficulty difficulty = 5;
+  int32 time_limit_ms = 6;
+  int32 memory_limit_mb = 7;
+}
+
+message EditProblemResponse {
+  ProblemSummary problem = 1;
+}
+
+message RemoveProblemRequest {
+  int64 id = 1;
+}
+
+message RemoveProblemResponse {}
+
+message ListProblemTestCasesRequest {
+  int64 problem_id = 1;
+}
+
+message ListProblemTestCasesResponse {
+  repeated TestCase test_cases = 1;
+}
+
+message AddTestCaseRequest {
+  int64 problem_id = 1;
+  NewTestCase test_case = 2;
+}
+
+message AddTestCaseResponse {
+  TestCase test_case = 1;
+}
+
+message RemoveTestCaseRequest {
+  int64 problem_id = 1;
+  int64 id = 2;
+}
+
+message RemoveTestCaseResponse {}

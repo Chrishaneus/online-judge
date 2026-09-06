@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package oj.v1;
+
+import "oj/v1/types.proto";
+
+// Messages exchanged between oj-midlayer and oj-runner through RabbitMQ.
+// There is no gRPC service: runners are queue consumers, so they need no
+// listening port and scale by adding replicas.
+//
+// Every message body is binary protobuf with AMQP properties
+//   content_type = "application/x-protobuf"
+//   type         = the full message name ("oj.v1.ExecuteJob" / "oj.v1.JobEvent")
+//   delivery_mode = 2 (persistent)
+//
+// Topology (all on the default exchange; declared by the broker's definitions
+// file in oj-deploy, and re-declared with identical arguments by oj-midlayer):
+//
+//   judge.jobs       quorum queue. x-delivery-limit=3,
+//                    x-dead-letter-exchange="", x-dead-letter-routing-key=judge.jobs.dead
+//                    midlayer publishes ExecuteJob; runners consume with
+//                    prefetch = their worker count and ack only after the
+//                    final JobEvent is published (at-least-once). A job may
+//                    therefore be delivered (and report `started`) more than
+//                    once: event handling must be idempotent.
+//                    Note: on RabbitMQ 4.x the broker's delivery limit only
+//                    counts deliveries lost with a closed channel (a crashed
+//                    runner), not nack(requeue=true). So runners also count
+//                    attempts themselves (x-delivery-count + x-acquired-count
+//                    headers) and nack(requeue=false) on the 3rd failed attempt.
+//   judge.jobs.dead  quorum queue. Jobs that failed 3 times, were malformed
+//                    (missing type / reply_to, undecodable), or expired before
+//                    a runner took them. midlayer consumes it and marks the
+//                    submission FAILED / INTERNAL_ERROR.
+//   judge.events     quorum queue. Runners publish JobEvents for submissions
+//                    here; midlayer consumes, judges and stores the verdict.
+//
+// Routing of JobEvents: the runner publishes to the default exchange with
+// routing key = the job's AMQP reply_to and correlation_id = the job's
+// correlation_id. Submissions use reply_to=judge.events; custom runs use the
+// midlayer instance's exclusive reply queue (RPC) and set an AMQP expiration
+// so a stale run is dropped instead of executed.
+//
+// Permissions: runners may only read judge.jobs and write to the default
+// exchange. They never see expected outputs: judging happens in the midlayer.
+
+// A batch to compile once and run against every test input.
+message ExecuteJob {
+  // Unique per job; echoed in every JobEvent. "submission-<id>" or a UUID.
+  string job_id = 1;
+  // 0 for custom runs.
+  int64 submission_id = 2;
+  Language language = 3;
+  string source = 4;
+  // 1..200 tests.
+  repeated TestInput tests = 5;
+  // 100..15000
+  int32 time_limit_ms = 6;
+  // 16..1024
+  int32 memory_limit_mb = 7;
+}
+
+message TestInput {
+  // Opaque id echoed in TestRun.id (the midlayer uses the test case id).
+  string id = 1;
+  string stdin = 2;
+}
+
+enum ExecuteStatus {
+  EXECUTE_STATUS_UNSPECIFIED = 0;
+  // Compiled (or no compile step); see per-test results.
+  EXECUTE_STATUS_OK = 1;
+  // Compilation failed; compile_output holds the diagnostics, results are empty.
+  EXECUTE_STATUS_COMPILATION_ERROR = 2;
+  // The job was malformed (unknown language, limits out of range, ...).
+  // Not retried. error says why.
+  EXECUTE_STATUS_REJECTED = 3;
+  // The runner failed for a reason unrelated to the submitted code.
+  EXECUTE_STATUS_INTERNAL_ERROR = 4;
+}
+
+message ExecuteResult {
+  ExecuteStatus status = 1;
+  string compile_output = 2;
+  // One entry per TestInput, in the same order.
+  repeated TestRun results = 3;
+  // Set for REJECTED / INTERNAL_ERROR.
+  string error = 4;
+}
+
+message TestRun {
+  string id = 1;
+  // Never COMPILATION_ERROR here.
+  RunStatus status = 2;
+  string stdout = 3;
+  string stderr = 4;
+  int32 exit_code = 5;
+  int32 time_ms = 6;
+  int64 memory_kb = 7;
+}
+
+// Published by a runner to the job's reply_to: first `started` when it takes
+// the job, then exactly one `finished`.
+message JobEvent {
+  string job_id = 1;
+  int64 submission_id = 2;
+  // Hostname of the runner that handled the job (for logs).
+  string runner_id = 3;
+  oneof event {
+    JobStarted started = 4;
+    ExecuteResult finished = 5;
+  }
+}
+
+message JobStarted {}
