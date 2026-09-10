@@ -32,7 +32,7 @@ Migrations (including seed problems) are embedded in the binary and run on start
 | GET    | `/problems/{id}/testcases`             | List test cases (`?samples_only=true`)    |
 | POST   | `/problems/{id}/testcases`             | Add a test case                           |
 | DELETE | `/problems/{id}/testcases/{tcid}`      | Delete a test case                        |
-| GET    | `/submissions`                         | List (`?problem_id=&username=&limit=&offset=`) |
+| GET    | `/submissions`                         | List (`?problem_id=&username=&status=&limit=&offset=`) |
 | POST   | `/submissions`                         | Create submission                         |
 | GET    | `/submissions/{id}`                    | Get submission                            |
 | PATCH  | `/submissions/{id}`                    | Partial update (status, verdict, results…) |

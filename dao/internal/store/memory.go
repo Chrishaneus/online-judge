@@ -190,6 +190,9 @@ func (m *Memory) ListSubmissions(_ context.Context, f SubmissionFilter) ([]Submi
 		if f.Username != "" && s.Username != f.Username {
 			continue
 		}
+		if f.Status != "" && s.Status != f.Status {
+			continue
+		}
 		out = append(out, s)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID > out[j].ID })

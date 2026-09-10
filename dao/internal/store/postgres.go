@@ -227,6 +227,10 @@ func (p *Postgres) ListSubmissions(ctx context.Context, f SubmissionFilter) ([]S
 		args = append(args, f.Username)
 		where = append(where, fmt.Sprintf("username = $%d", len(args)))
 	}
+	if f.Status != "" {
+		args = append(args, f.Status)
+		where = append(where, fmt.Sprintf("status = $%d", len(args)))
+	}
 	q := "SELECT " + submissionCols + " FROM submissions"
 	if len(where) > 0 {
 		q += " WHERE " + strings.Join(where, " AND ")

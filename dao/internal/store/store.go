@@ -76,6 +76,7 @@ type SubmissionUpdate struct {
 type SubmissionFilter struct {
 	ProblemID int64
 	Username  string
+	Status    string
 	Limit     int
 	Offset    int
 }

@@ -65,6 +65,11 @@ func (s *Server) listSubmissions(w http.ResponseWriter, r *http.Request) {
 		f.ProblemID = id
 	}
 	f.Username = r.URL.Query().Get("username")
+	f.Status = r.URL.Query().Get("status")
+	if f.Status != "" && !validStatuses[f.Status] {
+		writeError(w, http.StatusBadRequest, "invalid status")
+		return
+	}
 	var err error
 	if f.Limit, err = queryInt(r, "limit", 50); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())

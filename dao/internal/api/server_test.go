@@ -146,4 +146,10 @@ func TestSubmissions(t *testing.T) {
 		t.Fatalf("want newest first with limit 1: %+v", list)
 	}
 	expectStatus(t, do(t, h, "GET", "/submissions?limit=-1", nil), http.StatusBadRequest)
+	expectStatus(t, do(t, h, "GET", "/submissions?status=WAT", nil), http.StatusBadRequest)
+
+	list = decodeInto[[]store.Submission](t, do(t, h, "GET", "/submissions?status=PENDING", nil))
+	if len(list) != 1 || list[0].Username != "bob" {
+		t.Fatalf("status filter failed: %+v", list)
+	}
 }
