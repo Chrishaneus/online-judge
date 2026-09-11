@@ -2,14 +2,14 @@ package store
 
 import (
 	"context"
-	"encoding/json"
+	"slices"
 	"sort"
 	"sync"
-	"time"
 )
 
 // Memory is a thread-safe in-memory Store. It is intended for tests and
-// local development without a database.
+// local development without a database. It mirrors the semantics of the
+// Postgres store.
 type Memory struct {
 	mu          sync.RWMutex
 	problems    map[int64]Problem
@@ -60,16 +60,24 @@ func (m *Memory) slugTaken(slug string, exceptID int64) bool {
 	return false
 }
 
-func (m *Memory) CreateProblem(_ context.Context, p Problem) (Problem, error) {
+func (m *Memory) CreateProblem(_ context.Context, p Problem, tcs []TestCase) (Problem, []TestCase, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.slugTaken(p.Slug, 0) {
-		return Problem{}, ErrConflict
+		return Problem{}, nil, ErrConflict
 	}
 	p.ID = m.id()
-	p.CreatedAt = time.Now().UTC()
+	p.CreatedAt = now()
 	m.problems[p.ID] = p
-	return p, nil
+	out := make([]TestCase, 0, len(tcs))
+	for i, tc := range tcs {
+		tc.ID = m.id()
+		tc.ProblemID = p.ID
+		tc.Ordinal = i + 1
+		m.testCases[tc.ID] = tc
+		out = append(out, tc)
+	}
+	return p, out, nil
 }
 
 func (m *Memory) UpdateProblem(_ context.Context, p Problem) (Problem, error) {
@@ -134,7 +142,14 @@ func (m *Memory) CreateTestCase(_ context.Context, tc TestCase) (TestCase, error
 	if _, ok := m.problems[tc.ProblemID]; !ok {
 		return TestCase{}, ErrNotFound
 	}
+	maxOrdinal := 0
+	for _, other := range m.testCases {
+		if other.ProblemID == tc.ProblemID && other.Ordinal > maxOrdinal {
+			maxOrdinal = other.Ordinal
+		}
+	}
 	tc.ID = m.id()
+	tc.Ordinal = maxOrdinal + 1
 	m.testCases[tc.ID] = tc
 	return tc, nil
 }
@@ -157,16 +172,14 @@ func (m *Memory) CreateSubmission(_ context.Context, s Submission) (Submission, 
 		return Submission{}, ErrNotFound
 	}
 	s.ID = m.id()
-	if s.Status == "" {
-		s.Status = StatusPending
-	}
-	if len(s.Results) == 0 {
-		s.Results = json.RawMessage("[]")
-	}
-	now := time.Now().UTC()
-	s.CreatedAt, s.UpdatedAt = now, now
+	s.Status = StatusPending
+	s.Verdict = VerdictNone
+	s.Passed, s.Total, s.TimeMs, s.Message = 0, 0, 0, ""
+	s.Results = []TestResult{}
+	t := now()
+	s.CreatedAt, s.UpdatedAt = t, t
 	m.submissions[s.ID] = s
-	return s, nil
+	return clone(s), nil
 }
 
 func (m *Memory) GetSubmission(_ context.Context, id int64) (Submission, error) {
@@ -176,7 +189,7 @@ func (m *Memory) GetSubmission(_ context.Context, id int64) (Submission, error) 
 	if !ok {
 		return Submission{}, ErrNotFound
 	}
-	return s, nil
+	return clone(s), nil
 }
 
 func (m *Memory) ListSubmissions(_ context.Context, f SubmissionFilter) ([]Submission, error) {
@@ -190,18 +203,25 @@ func (m *Memory) ListSubmissions(_ context.Context, f SubmissionFilter) ([]Submi
 		if f.Username != "" && s.Username != f.Username {
 			continue
 		}
-		if f.Status != "" && s.Status != f.Status {
+		if len(f.Statuses) > 0 && !slices.Contains(f.Statuses, s.Status) {
 			continue
 		}
-		out = append(out, s)
+		if !f.UpdatedBefore.IsZero() && !s.UpdatedAt.Before(f.UpdatedBefore) {
+			continue
+		}
+		out = append(out, clone(s))
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID > out[j].ID })
 	if f.Offset >= len(out) {
 		return []Submission{}, nil
 	}
 	out = out[f.Offset:]
-	if f.Limit > 0 && f.Limit < len(out) {
-		out = out[:f.Limit]
+	limit := f.Limit
+	if limit <= 0 {
+		limit = DefaultListLimit
+	}
+	if limit < len(out) {
+		out = out[:limit]
 	}
 	return out, nil
 }
@@ -212,6 +232,9 @@ func (m *Memory) UpdateSubmission(_ context.Context, id int64, u SubmissionUpdat
 	s, ok := m.submissions[id]
 	if !ok {
 		return Submission{}, ErrNotFound
+	}
+	if len(u.ExpectedStatuses) > 0 && !slices.Contains(u.ExpectedStatuses, s.Status) {
+		return Submission{}, ErrPrecondition
 	}
 	if u.Status != nil {
 		s.Status = *u.Status
@@ -232,9 +255,15 @@ func (m *Memory) UpdateSubmission(_ context.Context, id int64, u SubmissionUpdat
 		s.Message = *u.Message
 	}
 	if u.Results != nil {
-		s.Results = *u.Results
+		s.Results = append([]TestResult{}, (*u.Results)...)
 	}
-	s.UpdatedAt = time.Now().UTC()
+	s.UpdatedAt = now()
 	m.submissions[id] = s
-	return s, nil
+	return clone(s), nil
+}
+
+// clone copies the results slice so callers cannot mutate stored state.
+func clone(s Submission) Submission {
+	s.Results = append([]TestResult{}, s.Results...)
+	return s
 }

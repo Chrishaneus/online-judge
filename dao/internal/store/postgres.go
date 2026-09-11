@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
+	"net"
 	"strings"
 	"time"
 
@@ -47,7 +49,7 @@ func NewPostgres(ctx context.Context, dsn string) (*Postgres, error) {
 
 func (p *Postgres) Close() { p.pool.Close() }
 
-func (p *Postgres) Ping(ctx context.Context) error { return p.pool.Ping(ctx) }
+func (p *Postgres) Ping(ctx context.Context) error { return mapErr(p.pool.Ping(ctx)) }
 
 // mapErr translates driver errors into store sentinel errors.
 func mapErr(err error) error {
@@ -57,14 +59,29 @@ func mapErr(err error) error {
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return err
+	}
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
-		switch pgErr.Code {
-		case "23505": // unique_violation
+		switch {
+		case pgErr.Code == "23505": // unique_violation
 			return ErrConflict
-		case "23503": // foreign_key_violation
+		case pgErr.Code == "23503": // foreign_key_violation
 			return ErrNotFound
+		case strings.HasPrefix(pgErr.Code, "08"), // connection_exception
+			pgErr.Code == "57P01", // admin_shutdown
+			pgErr.Code == "57P02", // crash_shutdown
+			pgErr.Code == "57P03", // cannot_connect_now
+			pgErr.Code == "53300": // too_many_connections
+			return fmt.Errorf("%w: %v", ErrUnavailable, err)
 		}
+		return err
+	}
+	var connErr *pgconn.ConnectError
+	var netErr net.Error
+	if errors.As(err, &connErr) || errors.As(err, &netErr) || pgconn.SafeToRetry(err) {
+		return fmt.Errorf("%w: %v", ErrUnavailable, err)
 	}
 	return err
 }
@@ -77,13 +94,14 @@ func scanProblem(row pgx.Row) (Problem, error) {
 	var p Problem
 	err := row.Scan(&p.ID, &p.Slug, &p.Title, &p.Statement, &p.Difficulty,
 		&p.TimeLimitMs, &p.MemoryLimitMb, &p.CreatedAt)
+	p.CreatedAt = p.CreatedAt.UTC()
 	return p, mapErr(err)
 }
 
 func (p *Postgres) ListProblems(ctx context.Context) ([]Problem, error) {
 	rows, err := p.pool.Query(ctx, "SELECT "+problemCols+" FROM problems ORDER BY id")
 	if err != nil {
-		return nil, err
+		return nil, mapErr(err)
 	}
 	defer rows.Close()
 	out := []Problem{}
@@ -94,19 +112,44 @@ func (p *Postgres) ListProblems(ctx context.Context) ([]Problem, error) {
 		}
 		out = append(out, pr)
 	}
-	return out, rows.Err()
+	return out, mapErr(rows.Err())
 }
 
 func (p *Postgres) GetProblem(ctx context.Context, id int64) (Problem, error) {
 	return scanProblem(p.pool.QueryRow(ctx, "SELECT "+problemCols+" FROM problems WHERE id = $1", id))
 }
 
-func (p *Postgres) CreateProblem(ctx context.Context, pr Problem) (Problem, error) {
-	return scanProblem(p.pool.QueryRow(ctx, `
+func (p *Postgres) CreateProblem(ctx context.Context, pr Problem, tcs []TestCase) (Problem, []TestCase, error) {
+	tx, err := p.pool.Begin(ctx)
+	if err != nil {
+		return Problem{}, nil, mapErr(err)
+	}
+	defer tx.Rollback(context.Background()) //nolint:errcheck // no-op after Commit
+
+	created, err := scanProblem(tx.QueryRow(ctx, `
 		INSERT INTO problems (slug, title, statement, difficulty, time_limit_ms, memory_limit_mb)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING `+problemCols,
 		pr.Slug, pr.Title, pr.Statement, pr.Difficulty, pr.TimeLimitMs, pr.MemoryLimitMb))
+	if err != nil {
+		return Problem{}, nil, err
+	}
+	out := make([]TestCase, 0, len(tcs))
+	for i, tc := range tcs {
+		tc, err := scanTestCase(tx.QueryRow(ctx, `
+			INSERT INTO test_cases (problem_id, input, expected_output, is_sample, ordinal)
+			VALUES ($1, $2, $3, $4, $5)
+			RETURNING `+testCaseCols,
+			created.ID, tc.Input, tc.ExpectedOutput, tc.IsSample, i+1))
+		if err != nil {
+			return Problem{}, nil, err
+		}
+		out = append(out, tc)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return Problem{}, nil, mapErr(err)
+	}
+	return created, out, nil
 }
 
 func (p *Postgres) UpdateProblem(ctx context.Context, pr Problem) (Problem, error) {
@@ -149,7 +192,7 @@ func (p *Postgres) ListTestCases(ctx context.Context, problemID int64, samplesOn
 		WHERE problem_id = $1 AND (NOT $2 OR is_sample)
 		ORDER BY ordinal, id`, problemID, samplesOnly)
 	if err != nil {
-		return nil, err
+		return nil, mapErr(err)
 	}
 	defer rows.Close()
 	out := []TestCase{}
@@ -160,15 +203,38 @@ func (p *Postgres) ListTestCases(ctx context.Context, problemID int64, samplesOn
 		}
 		out = append(out, tc)
 	}
-	return out, rows.Err()
+	return out, mapErr(rows.Err())
 }
 
+// CreateTestCase locks the parent problem row (FOR NO KEY UPDATE, which does
+// not block concurrent submission inserts) so concurrent appends to the same
+// problem get distinct ordinals.
 func (p *Postgres) CreateTestCase(ctx context.Context, tc TestCase) (TestCase, error) {
-	return scanTestCase(p.pool.QueryRow(ctx, `
+	tx, err := p.pool.Begin(ctx)
+	if err != nil {
+		return TestCase{}, mapErr(err)
+	}
+	defer tx.Rollback(context.Background()) //nolint:errcheck // no-op after Commit
+
+	var locked int64
+	if err := tx.QueryRow(ctx,
+		"SELECT id FROM problems WHERE id = $1 FOR NO KEY UPDATE", tc.ProblemID,
+	).Scan(&locked); err != nil {
+		return TestCase{}, mapErr(err)
+	}
+	created, err := scanTestCase(tx.QueryRow(ctx, `
 		INSERT INTO test_cases (problem_id, input, expected_output, is_sample, ordinal)
-		VALUES ($1, $2, $3, $4, $5)
+		SELECT $1, $2, $3, $4, COALESCE(MAX(ordinal), 0) + 1
+		FROM test_cases WHERE problem_id = $1
 		RETURNING `+testCaseCols,
-		tc.ProblemID, tc.Input, tc.ExpectedOutput, tc.IsSample, tc.Ordinal))
+		tc.ProblemID, tc.Input, tc.ExpectedOutput, tc.IsSample))
+	if err != nil {
+		return TestCase{}, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return TestCase{}, mapErr(err)
+	}
+	return created, nil
 }
 
 func (p *Postgres) DeleteTestCase(ctx context.Context, problemID, id int64) error {
@@ -190,24 +256,44 @@ const submissionCols = `id, problem_id, username, language, source, status, verd
 func scanSubmission(row pgx.Row) (Submission, error) {
 	var s Submission
 	var results []byte
-	err := row.Scan(&s.ID, &s.ProblemID, &s.Username, &s.Language, &s.Source, &s.Status,
-		&s.Verdict, &s.Passed, &s.Total, &s.TimeMs, &s.Message, &results, &s.CreatedAt, &s.UpdatedAt)
-	s.Results = json.RawMessage(results)
-	return s, mapErr(err)
+	if err := row.Scan(&s.ID, &s.ProblemID, &s.Username, &s.Language, &s.Source, &s.Status,
+		&s.Verdict, &s.Passed, &s.Total, &s.TimeMs, &s.Message, &results, &s.CreatedAt, &s.UpdatedAt); err != nil {
+		return Submission{}, mapErr(err)
+	}
+	s.CreatedAt, s.UpdatedAt = s.CreatedAt.UTC(), s.UpdatedAt.UTC()
+	s.Results = decodeResults(s.ID, results)
+	return s, nil
+}
+
+// decodeResults parses the results JSONB column. Rows written by older
+// versions may not match the current format; those are logged and returned
+// as empty instead of failing the whole request.
+func decodeResults(id int64, raw []byte) []TestResult {
+	out := []TestResult{}
+	if len(raw) == 0 {
+		return out
+	}
+	if err := json.Unmarshal(raw, &out); err != nil {
+		slog.Warn("ignoring malformed submission results", "submission_id", id, "err", err)
+		return []TestResult{}
+	}
+	return out
+}
+
+func encodeResults(rs []TestResult) (string, error) {
+	if rs == nil {
+		rs = []TestResult{}
+	}
+	b, err := json.Marshal(rs)
+	return string(b), err
 }
 
 func (p *Postgres) CreateSubmission(ctx context.Context, s Submission) (Submission, error) {
-	if s.Status == "" {
-		s.Status = StatusPending
-	}
-	if len(s.Results) == 0 {
-		s.Results = json.RawMessage("[]")
-	}
 	return scanSubmission(p.pool.QueryRow(ctx, `
-		INSERT INTO submissions (problem_id, username, language, source, status, results)
-		VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+		INSERT INTO submissions (problem_id, username, language, source, status)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING `+submissionCols,
-		s.ProblemID, s.Username, s.Language, s.Source, s.Status, string(s.Results)))
+		s.ProblemID, s.Username, s.Language, s.Source, StatusPending))
 }
 
 func (p *Postgres) GetSubmission(ctx context.Context, id int64) (Submission, error) {
@@ -219,17 +305,21 @@ func (p *Postgres) ListSubmissions(ctx context.Context, f SubmissionFilter) ([]S
 		where []string
 		args  []any
 	)
+	add := func(cond string, v any) {
+		args = append(args, v)
+		where = append(where, fmt.Sprintf(cond, len(args)))
+	}
 	if f.ProblemID != 0 {
-		args = append(args, f.ProblemID)
-		where = append(where, fmt.Sprintf("problem_id = $%d", len(args)))
+		add("problem_id = $%d", f.ProblemID)
 	}
 	if f.Username != "" {
-		args = append(args, f.Username)
-		where = append(where, fmt.Sprintf("username = $%d", len(args)))
+		add("username = $%d", f.Username)
 	}
-	if f.Status != "" {
-		args = append(args, f.Status)
-		where = append(where, fmt.Sprintf("status = $%d", len(args)))
+	if len(f.Statuses) > 0 {
+		add("status = ANY($%d::text[])", f.Statuses)
+	}
+	if !f.UpdatedBefore.IsZero() {
+		add("updated_at < $%d", f.UpdatedBefore)
 	}
 	q := "SELECT " + submissionCols + " FROM submissions"
 	if len(where) > 0 {
@@ -237,14 +327,14 @@ func (p *Postgres) ListSubmissions(ctx context.Context, f SubmissionFilter) ([]S
 	}
 	limit := f.Limit
 	if limit <= 0 {
-		limit = 50
+		limit = DefaultListLimit
 	}
 	args = append(args, limit, f.Offset)
 	q += fmt.Sprintf(" ORDER BY id DESC LIMIT $%d OFFSET $%d", len(args)-1, len(args))
 
 	rows, err := p.pool.Query(ctx, q, args...)
 	if err != nil {
-		return nil, err
+		return nil, mapErr(err)
 	}
 	defer rows.Close()
 	out := []Submission{}
@@ -255,16 +345,27 @@ func (p *Postgres) ListSubmissions(ctx context.Context, f SubmissionFilter) ([]S
 		}
 		out = append(out, s)
 	}
-	return out, rows.Err()
+	return out, mapErr(rows.Err())
 }
 
+// UpdateSubmission applies the update in a single statement; the
+// compare-and-set on ExpectedStatuses is part of its WHERE clause, so it is
+// atomic. When no row matches, a follow-up query tells "missing" apart from
+// "status did not match".
 func (p *Postgres) UpdateSubmission(ctx context.Context, id int64, u SubmissionUpdate) (Submission, error) {
 	var results *string
 	if u.Results != nil {
-		r := string(*u.Results)
+		r, err := encodeResults(*u.Results)
+		if err != nil {
+			return Submission{}, err
+		}
 		results = &r
 	}
-	return scanSubmission(p.pool.QueryRow(ctx, `
+	expected := u.ExpectedStatuses
+	if expected == nil {
+		expected = []string{}
+	}
+	s, err := scanSubmission(p.pool.QueryRow(ctx, `
 		UPDATE submissions SET
 			status     = COALESCE($2::text, status),
 			verdict    = COALESCE($3::text, verdict),
@@ -274,7 +375,20 @@ func (p *Postgres) UpdateSubmission(ctx context.Context, id int64, u SubmissionU
 			message    = COALESCE($7::text, message),
 			results    = COALESCE($8::jsonb, results),
 			updated_at = now()
-		WHERE id = $1
+		WHERE id = $1 AND (cardinality($9::text[]) = 0 OR status = ANY($9::text[]))
 		RETURNING `+submissionCols,
-		id, u.Status, u.Verdict, u.Passed, u.Total, u.TimeMs, u.Message, results))
+		id, u.Status, u.Verdict, u.Passed, u.Total, u.TimeMs, u.Message, results, expected))
+	if !errors.Is(err, ErrNotFound) || len(u.ExpectedStatuses) == 0 {
+		return s, err
+	}
+	var exists bool
+	if err := p.pool.QueryRow(ctx,
+		"SELECT EXISTS (SELECT 1 FROM submissions WHERE id = $1)", id,
+	).Scan(&exists); err != nil {
+		return Submission{}, mapErr(err)
+	}
+	if exists {
+		return Submission{}, ErrPrecondition
+	}
+	return Submission{}, ErrNotFound
 }
