@@ -1,18 +1,20 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.23-alpine AS build
+FROM golang:1.27-bookworm AS build
 WORKDIR /src
+ENV CGO_ENABLED=0 GOTOOLCHAIN=local
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/dao ./cmd/dao
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go build -trimpath -ldflags="-s -w" -o /out/dao ./cmd/dao
 
-FROM alpine:3.20
-RUN adduser -D -H -u 10001 app && apk add --no-cache wget
+FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/dao /usr/local/bin/dao
-USER app
-EXPOSE 8001
-ENV DAO_ADDR=:8001
-HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:8001/healthz || exit 1
+USER nonroot:nonroot
+ENV DAO_ADDR=:50052
+EXPOSE 50052
+# Calls grpc.health.v1.Health/Check on DAO_ADDR; SERVING iff the DB is reachable.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+  CMD ["/usr/local/bin/dao", "healthcheck"]
 ENTRYPOINT ["/usr/local/bin/dao"]

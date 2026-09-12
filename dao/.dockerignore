@@ -3,3 +3,6 @@ bin
 *.md
 Dockerfile
 .dockerignore
+*.test
+*.out
+.env
