@@ -46,7 +46,7 @@ const (
 //	NOT_FOUND            the entity, or a referenced parent, does not exist
 //	ALREADY_EXISTS       a uniqueness constraint was violated (problem slug)
 //	INVALID_ARGUMENT     malformed request (missing id, unknown enum, ...)
-//	FAILED_PRECONDITION  UpdateSubmission.expected_status did not match
+//	FAILED_PRECONDITION  UpdateSubmission.expected_statuses did not match
 //	UNAVAILABLE          the database is unreachable
 //
 // Liveness/readiness: the standard grpc.health.v1.Health service (it pings the DB).
@@ -210,7 +210,7 @@ func (c *daoServiceClient) UpdateSubmission(ctx context.Context, in *UpdateSubmi
 //	NOT_FOUND            the entity, or a referenced parent, does not exist
 //	ALREADY_EXISTS       a uniqueness constraint was violated (problem slug)
 //	INVALID_ARGUMENT     malformed request (missing id, unknown enum, ...)
-//	FAILED_PRECONDITION  UpdateSubmission.expected_status did not match
+//	FAILED_PRECONDITION  UpdateSubmission.expected_statuses did not match
 //	UNAVAILABLE          the database is unreachable
 //
 // Liveness/readiness: the standard grpc.health.v1.Health service (it pings the DB).

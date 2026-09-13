@@ -643,7 +643,7 @@ type Submission struct {
 	ProblemId int64                  `protobuf:"varint,2,opt,name=problem_id,json=problemId,proto3" json:"problem_id,omitempty"`
 	Username  string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	Language  Language               `protobuf:"varint,4,opt,name=language,proto3,enum=oj.v1.Language" json:"language,omitempty"`
-	// Empty in list responses.
+	// Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
 	Source  string           `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`
 	Status  SubmissionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=oj.v1.SubmissionStatus" json:"status,omitempty"`
 	Verdict Verdict          `protobuf:"varint,7,opt,name=verdict,proto3,enum=oj.v1.Verdict" json:"verdict,omitempty"`
@@ -652,9 +652,9 @@ type Submission struct {
 	// Slowest test, in milliseconds.
 	TimeMs int32 `protobuf:"varint,10,opt,name=time_ms,json=timeMs,proto3" json:"time_ms,omitempty"`
 	// Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
-	// Empty in list responses.
+	// Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
 	Message string `protobuf:"bytes,11,opt,name=message,proto3" json:"message,omitempty"`
-	// Empty in list responses.
+	// Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
 	Results       []*TestResult          `protobuf:"bytes,12,rep,name=results,proto3" json:"results,omitempty"`
 	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
@@ -847,9 +847,9 @@ var File_oj_v1_types_proto protoreflect.FileDescriptor
 
 const file_oj_v1_types_proto_rawDesc = "" +
 	"\n" +
-	"\x11oj/v1/types.proto\x12\x05oj.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa1\x02\n" +
-	"\aProblem\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\x12\x12\n" +
+	"\x11oj/v1/types.proto\x12\x05oj.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9d\x02\n" +
+	"\aProblem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x1c\n" +
 	"\tstatement\x18\x04 \x01(\tR\tstatement\x121\n" +
@@ -859,30 +859,30 @@ const file_oj_v1_types_proto_rawDesc = "" +
 	"\rtime_limit_ms\x18\x06 \x01(\x05R\vtimeLimitMs\x12&\n" +
 	"\x0fmemory_limit_mb\x18\a \x01(\x05R\rmemoryLimitMb\x12;\n" +
 	"\vcreate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\"\xb7\x01\n" +
-	"\bTestCase\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\x12!\n" +
+	"createTime\"\xaf\x01\n" +
+	"\bTestCase\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x02 \x01(\x03B\x020\x02R\tproblemId\x12\x14\n" +
+	"problem_id\x18\x02 \x01(\x03R\tproblemId\x12\x14\n" +
 	"\x05input\x18\x03 \x01(\tR\x05input\x12'\n" +
 	"\x0fexpected_output\x18\x04 \x01(\tR\x0eexpectedOutput\x12\x1b\n" +
 	"\tis_sample\x18\x05 \x01(\bR\bisSample\x12\x18\n" +
 	"\aordinal\x18\x06 \x01(\x05R\aordinal\"6\n" +
 	"\x06Sample\x12\x14\n" +
 	"\x05input\x18\x01 \x01(\tR\x05input\x12\x16\n" +
-	"\x06output\x18\x02 \x01(\tR\x06output\"\x9c\x01\n" +
+	"\x06output\x18\x02 \x01(\tR\x06output\"\x98\x01\n" +
 	"\n" +
 	"TestResult\x12\x12\n" +
 	"\x04test\x18\x01 \x01(\x05R\x04test\x12(\n" +
 	"\averdict\x18\x02 \x01(\x0e2\x0e.oj.v1.VerdictR\averdict\x12\x17\n" +
-	"\atime_ms\x18\x03 \x01(\x05R\x06timeMs\x12\x1f\n" +
-	"\tmemory_kb\x18\x04 \x01(\x03B\x020\x02R\bmemoryKb\x12\x16\n" +
-	"\x06sample\x18\x05 \x01(\bR\x06sample\"\x87\x04\n" +
+	"\atime_ms\x18\x03 \x01(\x05R\x06timeMs\x12\x1b\n" +
+	"\tmemory_kb\x18\x04 \x01(\x03R\bmemoryKb\x12\x16\n" +
+	"\x06sample\x18\x05 \x01(\bR\x06sample\"\xff\x03\n" +
 	"\n" +
-	"Submission\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\x12!\n" +
+	"Submission\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x02 \x01(\x03B\x020\x02R\tproblemId\x12\x1a\n" +
+	"problem_id\x18\x02 \x01(\x03R\tproblemId\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12+\n" +
 	"\blanguage\x18\x04 \x01(\x0e2\x0f.oj.v1.LanguageR\blanguage\x12\x16\n" +
 	"\x06source\x18\x05 \x01(\tR\x06source\x12/\n" +
