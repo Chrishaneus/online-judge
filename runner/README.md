@@ -65,6 +65,10 @@ Defense in depth, without needing a privileged container:
 * Container capabilities are dropped to the minimum (`CHOWN`, `DAC_OVERRIDE`,
   `FOWNER`, `SETUID`, `SETGID`, `KILL`) in the compose file.
 
+If you mount `/sandbox` as a tmpfs (recommended), it **must** be mounted with
+the `exec` option. Docker mounts tmpfs `noexec` by default, which makes
+every compiled C/C++ program fail with `Permission denied`.
+
 When the process is not root (e.g. `go test` on a dev box) UID switching and
 the process-count limit are skipped automatically.
 
