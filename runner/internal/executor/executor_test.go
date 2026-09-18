@@ -187,3 +187,25 @@ func TestWorkDirCleanedUp(t *testing.T) {
 		t.Fatalf("work dirs left behind: %v", entries)
 	}
 }
+
+// Sandboxed code must never see the runner's environment (it holds the
+// broker credentials in RABBITMQ_URL until startup unsets it).
+func TestSubmissionCannotSeeParentEnvironment(t *testing.T) {
+	need(t, "python3")
+	t.Setenv("RABBITMQ_URL", "amqp://runner:s3cret@rabbitmq:5672/")
+	resp := run(t, newExec(t, 1), Request{
+		Language: "python",
+		Source:   "import os\nfor k, v in os.environ.items(): print(k + '=' + v)\n",
+		Tests:    []TestInput{{ID: "1"}},
+	})
+	if resp.Status != StatusOK || resp.Results[0].Status != StatusOK {
+		t.Fatalf("unexpected response %+v", resp)
+	}
+	out := resp.Results[0].Stdout
+	if strings.Contains(out, "s3cret") || strings.Contains(out, "RABBITMQ_URL") {
+		t.Fatalf("submission saw the parent's environment:\n%s", out)
+	}
+	if !strings.Contains(out, "PATH=/usr/local/bin:/usr/bin:/bin") {
+		t.Fatalf("expected the explicit sandbox environment, got:\n%s", out)
+	}
+}

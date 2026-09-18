@@ -31,9 +31,11 @@ type Limits struct {
 }
 
 type Spec struct {
-	Args   []string
-	Dir    string
-	Stdin  []byte
+	Args  []string
+	Dir   string
+	Stdin []byte
+	// Env is the complete environment of the process. The parent's
+	// environment is never inherited: nil means an empty environment.
 	Env    []string
 	UID    int // < 0 keeps the current user
 	GID    int
@@ -133,7 +135,9 @@ func Run(ctx context.Context, s Spec) (Result, error) {
 	args := prlimitArgs(s.Limits, s.Args)
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = s.Dir
-	cmd.Env = s.Env
+	// exec.Cmd inherits the parent's environment (which may hold credentials)
+	// when Env is nil, so always pass an explicit, possibly empty, slice.
+	cmd.Env = append([]string{}, s.Env...)
 	cmd.Stdin = bytes.NewReader(s.Stdin)
 	cmd.WaitDelay = 250 * time.Millisecond // don't hang on pipes held by orphans
 

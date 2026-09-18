@@ -134,3 +134,25 @@ func TestBackgroundChildDoesNotHang(t *testing.T) {
 		t.Fatal("orphaned child kept Run blocked")
 	}
 }
+
+func TestParentEnvironmentNotInherited(t *testing.T) {
+	requirePrlimit(t)
+	t.Setenv("OJ_TEST_SECRET", "hunter2")
+	for _, env := range [][]string{nil, {"PATH=/usr/bin:/bin"}} {
+		s := spec("/usr/bin/env")
+		s.Env = env
+		r, err := Run(context.Background(), s)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if r.ExitCode != 0 {
+			t.Fatalf("env failed: %+v", r)
+		}
+		if strings.Contains(string(r.Stdout), "hunter2") || strings.Contains(string(r.Stdout), "OJ_TEST_SECRET") {
+			t.Fatalf("sandboxed process saw the parent's environment (Env=%v):\n%s", env, r.Stdout)
+		}
+		if env == nil && strings.TrimSpace(string(r.Stdout)) != "" {
+			t.Fatalf("nil Env should give an empty environment, got:\n%s", r.Stdout)
+		}
+	}
+}

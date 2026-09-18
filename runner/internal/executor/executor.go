@@ -294,6 +294,8 @@ func classify(r sandbox.Result, cpuLimit time.Duration, memLimitKB int64) string
 // signals all processes of that uid (except itself).
 func killAllOf(uid int) {
 	cmd := exec.Command("sh", "-c", "kill -9 -1 2>/dev/null; true")
+	// Runs as the sandbox UID: never hand it the runner's environment.
+	cmd.Env = []string{"PATH=/usr/bin:/bin"}
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Credential: &syscall.Credential{Uid: uint32(uid), Gid: uint32(uid), Groups: []uint32{}},
 	}
