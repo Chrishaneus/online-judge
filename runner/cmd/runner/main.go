@@ -84,7 +84,7 @@ func run(healthFile string) error {
 		RunnerID:        runnerID,
 		ShutdownTimeout: time.Duration(envInt("RUNNER_SHUTDOWN_TIMEOUT_S", 60)) * time.Second,
 		HealthFile:      healthFile,
-	}, &consumer.Handler{Exec: ex, RunnerID: runnerID})
+	}, &consumer.Handler{Exec: ex, RunnerID: runnerID, MaxEvent: envInt("RUNNER_MAX_EVENT_BYTES", consumer.DefaultMaxEventBytes)})
 	err = c.Run(ctx)
 	slog.Info("runner stopped")
 	return err
