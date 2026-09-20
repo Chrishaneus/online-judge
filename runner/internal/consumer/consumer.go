@@ -77,7 +77,7 @@ func (c *Consumer) Run(ctx context.Context) error {
 		if consumed {
 			backoff = c.cfg.MinBackoff
 		}
-		c.log.Warn("broker session ended; reconnecting", "err", err, "in", backoff)
+		c.log.Warn("broker session ended; reconnecting", "err", err, "retry_in", backoff.String())
 		select {
 		case <-ctx.Done():
 			return nil
