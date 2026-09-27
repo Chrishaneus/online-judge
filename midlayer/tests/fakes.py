@@ -1,158 +1,207 @@
-"""In-memory fakes for oj-dao and oj-runner used by the tests."""
+"""In-memory fakes of the repositories (DaoRepository, JobQueue). Mimic oj-dao's semantics incl. CAS."""
 
-from __future__ import annotations
+from google.protobuf.timestamp_pb2 import Timestamp
 
-import copy
-import itertools
-from datetime import datetime, timezone
+from app.errors import AlreadyExists, NotFound, PreconditionFailed, Unavailable
+from app.gen.oj.v1 import dao_pb2, runner_pb2, types_pb2
 
-from app.clients import Conflict, NotFound, Unavailable
-
-
-def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+UPDATABLE = ("status", "verdict", "passed", "total", "time_ms", "message")
 
 
 class FakeDao:
     def __init__(self):
-        self.problems: dict[int, dict] = {}
-        self.testcases: dict[int, dict] = {}
-        self.submissions: dict[int, dict] = {}
-        self._ids = itertools.count(1)
+        self.problems: dict[int, types_pb2.Problem] = {}
+        self.test_cases: dict[int, types_pb2.TestCase] = {}
+        self.submissions: dict[int, types_pb2.Submission] = {}
+        self.updates: list[dao_pb2.UpdateSubmissionRequest] = []
+        self.list_requests: list[dao_pb2.ListSubmissionsRequest] = []
         self.down = False
+        self._next = 0
+
+    def _id(self) -> int:
+        self._next += 1
+        return self._next
 
     def _check(self):
         if self.down:
-            raise Unavailable("dao down")
+            raise Unavailable("oj-dao unavailable: fake is down")
 
-    async def aclose(self):
+    async def close(self):
         pass
 
-    async def health(self):
+    async def ping(self):
         self._check()
-        return {"status": "ok"}
+
+    # ---------- problems ----------
 
     async def list_problems(self):
         self._check()
-        return [copy.deepcopy(p) for _, p in sorted(self.problems.items())]
+        return [self.problems[k] for k in sorted(self.problems)]
 
-    async def get_problem(self, pid):
+    async def get_problem(self, problem_id):
         self._check()
-        if pid not in self.problems:
-            raise NotFound(404, "not found")
-        return copy.deepcopy(self.problems[pid])
+        if problem_id not in self.problems:
+            raise NotFound(f"problem {problem_id} not found")
+        return self.problems[problem_id]
 
-    async def create_problem(self, data):
-        if any(p["slug"] == data["slug"] for p in self.problems.values()):
-            raise Conflict(409, "already exists")
-        pid = next(self._ids)
-        self.problems[pid] = {"id": pid, "created_at": _now(), **data}
-        return copy.deepcopy(self.problems[pid])
-
-    async def update_problem(self, pid, data):
-        if pid not in self.problems:
-            raise NotFound(404, "not found")
-        self.problems[pid].update(data)
-        return copy.deepcopy(self.problems[pid])
-
-    async def delete_problem(self, pid):
-        if self.problems.pop(pid, None) is None:
-            raise NotFound(404, "not found")
-        self.testcases = {k: v for k, v in self.testcases.items() if v["problem_id"] != pid}
-
-    async def list_testcases(self, pid, samples_only=False):
-        await self.get_problem(pid)
-        out = [
-            copy.deepcopy(tc)
-            for tc in self.testcases.values()
-            if tc["problem_id"] == pid and (tc["is_sample"] or not samples_only)
-        ]
-        return sorted(out, key=lambda t: (t["ordinal"], t["id"]))
-
-    async def create_testcase(self, pid, data):
-        await self.get_problem(pid)
-        tid = next(self._ids)
-        self.testcases[tid] = {"id": tid, "problem_id": pid, **data}
-        return copy.deepcopy(self.testcases[tid])
-
-    async def delete_testcase(self, pid, tcid):
-        tc = self.testcases.get(tcid)
-        if tc is None or tc["problem_id"] != pid:
-            raise NotFound(404, "not found")
-        del self.testcases[tcid]
-
-    async def create_submission(self, data):
-        await self.get_problem(data["problem_id"])
-        sid = next(self._ids)
-        self.submissions[sid] = {
-            "id": sid, "status": "PENDING", "verdict": "", "passed": 0, "total": 0,
-            "time_ms": 0, "message": "", "results": [], "created_at": _now(), "updated_at": _now(),
-            **data,
-        }
-        return copy.deepcopy(self.submissions[sid])
-
-    async def get_submission(self, sid):
-        if sid not in self.submissions:
-            raise NotFound(404, "not found")
-        return copy.deepcopy(self.submissions[sid])
-
-    async def list_submissions(self, problem_id=None, username=None, status=None, limit=50, offset=0):
+    async def create_problem(self, problem, test_cases):
         self._check()
-        out = [
-            s for s in self.submissions.values()
-            if (not problem_id or s["problem_id"] == problem_id)
-            and (not username or s["username"] == username)
-            and (not status or s["status"] == status)
-        ]
-        out.sort(key=lambda s: -s["id"])
-        return copy.deepcopy(out[offset: offset + limit])
+        if any(p.slug == problem.slug for p in self.problems.values()):
+            raise AlreadyExists(f"slug {problem.slug!r} already exists")
+        p = types_pb2.Problem()
+        p.CopyFrom(problem)
+        p.id = self._id()
+        self.problems[p.id] = p
+        created = []
+        for i, tc in enumerate(test_cases, start=1):
+            t = types_pb2.TestCase()
+            t.CopyFrom(tc)
+            t.id, t.problem_id, t.ordinal = self._id(), p.id, i
+            self.test_cases[t.id] = t
+            created.append(t)
+        return p, created
 
-    async def update_submission(self, sid, **fields):
-        if sid not in self.submissions:
-            raise NotFound(404, "not found")
-        self.submissions[sid].update(fields, updated_at=_now())
-        return copy.deepcopy(self.submissions[sid])
+    async def update_problem(self, problem):
+        await self.get_problem(problem.id)
+        p = types_pb2.Problem()
+        p.CopyFrom(problem)
+        self.problems[p.id] = p
+        return p
+
+    async def delete_problem(self, problem_id):
+        await self.get_problem(problem_id)
+        del self.problems[problem_id]
+        self.test_cases = {k: t for k, t in self.test_cases.items() if t.problem_id != problem_id}
+        self.submissions = {k: s for k, s in self.submissions.items() if s.problem_id != problem_id}
+
+    # ---------- test cases ----------
+
+    async def list_test_cases(self, problem_id, samples_only=False):
+        self._check()
+        cases = [t for t in self.test_cases.values() if t.problem_id == problem_id]
+        if samples_only:
+            cases = [t for t in cases if t.is_sample]
+        return sorted(cases, key=lambda t: t.ordinal)
+
+    async def create_test_case(self, test_case):
+        await self.get_problem(test_case.problem_id)
+        t = types_pb2.TestCase()
+        t.CopyFrom(test_case)
+        t.id = self._id()
+        t.ordinal = 1 + max((x.ordinal for x in await self.list_test_cases(t.problem_id)), default=0)
+        self.test_cases[t.id] = t
+        return t
+
+    async def delete_test_case(self, problem_id, test_case_id):
+        self._check()
+        t = self.test_cases.get(test_case_id)
+        if t is None or t.problem_id != problem_id:
+            raise NotFound("test case not found")
+        del self.test_cases[test_case_id]
+
+    # ---------- submissions ----------
+
+    async def create_submission(self, submission):
+        await self.get_problem(submission.problem_id)
+        s = types_pb2.Submission(
+            id=self._id(),
+            problem_id=submission.problem_id,
+            username=submission.username,
+            language=submission.language,
+            source=submission.source,
+            status=types_pb2.SUBMISSION_STATUS_PENDING,
+            create_time=Timestamp(seconds=1_700_000_000),
+            update_time=Timestamp(seconds=1_700_000_000),
+        )
+        self.submissions[s.id] = s
+        return s
+
+    async def get_submission(self, submission_id):
+        self._check()
+        if submission_id not in self.submissions:
+            raise NotFound(f"submission {submission_id} not found")
+        return self.submissions[submission_id]
+
+    async def list_submissions(self, req):
+        self._check()
+        self.list_requests.append(req)
+        subs = sorted(self.submissions.values(), key=lambda s: -s.id)
+        if req.problem_id:
+            subs = [s for s in subs if s.problem_id == req.problem_id]
+        if req.username:
+            subs = [s for s in subs if s.username == req.username]
+        if req.statuses:
+            subs = [s for s in subs if s.status in req.statuses]
+        if req.HasField("updated_before"):
+            subs = [s for s in subs if s.update_time.ToDatetime() < req.updated_before.ToDatetime()]
+        return subs[req.offset : req.offset + (req.limit or 50)]
+
+    async def update_submission(self, req):
+        s = await self.get_submission(req.id)
+        if req.expected_statuses and s.status not in req.expected_statuses:
+            raise PreconditionFailed(f"status is {types_pb2.SubmissionStatus.Name(s.status)}")
+        self.updates.append(req)
+        for name in UPDATABLE:
+            if req.HasField(name):
+                setattr(s, name, getattr(req, name))
+        if req.HasField("results"):
+            del s.results[:]
+            s.results.extend(req.results.results)
+        return s
 
 
-class FakeRunner:
-    """Interprets a tiny 'language': the source names a behaviour.
+class FakeQueue:
+    """Stands in for app.repositories.JobQueue."""
 
-    * ``echo``     -> stdout = stdin
-    * ``double``   -> stdout = 2 * int(stdin)
-    * ``tle``/``re``/``mle`` -> that runner status
-    * ``ce``       -> compilation error
-    * ``boom``     -> raises (simulates runner outage)
-    """
-
-    LANGS = [{"id": "python", "name": "Python 3"}, {"id": "cpp", "name": "C++17"}]
+    events_queue = "judge.events"
+    dead_queue = "judge.jobs.dead"
 
     def __init__(self):
-        self.calls = []
+        self.published: list[runner_pb2.ExecuteJob] = []
+        self.run_jobs: list[tuple[runner_pb2.ExecuteJob, float]] = []
+        self.run_result: runner_pb2.ExecuteResult | Exception = runner_pb2.ExecuteResult()
+        self.depth = 0
+        self.consumers = 2
+        self.down = False
+        self.handlers: dict[str, object] = {}
+        self.started = self.closed = False
 
-    async def aclose(self):
-        pass
+    async def start(self):
+        self.started = True
 
-    async def health(self):
-        return {"status": "ok"}
+    async def close(self):
+        self.closed = True
 
-    async def languages(self):
-        return list(self.LANGS)
+    async def consume(self, queue, handler):
+        self.handlers[queue] = handler
 
-    async def execute(self, language, source, tests, time_limit_ms, memory_limit_mb):
-        self.calls.append({"language": language, "source": source, "tests": tests})
-        src = source.strip()
-        if src == "boom":
-            raise Unavailable("runner down")
-        if src == "ce":
-            return {"status": "CE", "compile_output": "main.cpp:1: error", "results": []}
-        results = []
-        for t in tests:
-            res = {"id": t["id"], "status": "OK", "stdout": "", "stderr": "", "exit_code": 0, "time_ms": 5, "memory_kb": 1000}
-            if src == "echo":
-                res["stdout"] = t["stdin"]
-            elif src == "double":
-                res["stdout"] = f"{2 * int(t['stdin'])}\n"
-            elif src in ("tle", "re", "mle"):
-                res["status"] = src.upper()
-            results.append(res)
-        return {"status": "OK", "compile_output": "", "results": results}
+    async def publish_submission_job(self, job):
+        if self.down:
+            raise Unavailable("RabbitMQ unavailable: fake is down")
+        self.published.append(job)
+
+    async def run_job(self, job, timeout_s):
+        if self.down:
+            raise Unavailable("RabbitMQ unavailable: fake is down")
+        self.run_jobs.append((job, timeout_s))
+        if isinstance(self.run_result, Exception):
+            raise self.run_result
+        return self.run_result
+
+    async def queue_stats(self):
+        if self.down:
+            raise Unavailable("RabbitMQ unavailable: fake is down")
+        return self.depth, self.consumers
+
+
+async def seed_problem(dao: FakeDao, *, cases=(("1", "2", True), ("5", "10", False)), **kwargs):
+    problem = types_pb2.Problem(
+        slug=kwargs.get("slug", "double"),
+        title="Double",
+        statement="Print 2x.",
+        difficulty=types_pb2.DIFFICULTY_EASY,
+        time_limit_ms=kwargs.get("time_limit_ms", 1000),
+        memory_limit_mb=kwargs.get("memory_limit_mb", 64),
+    )
+    test_cases = [types_pb2.TestCase(input=i, expected_output=o, is_sample=s) for i, o, s in cases]
+    return await dao.create_problem(problem, test_cases)
