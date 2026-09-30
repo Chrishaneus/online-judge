@@ -25,45 +25,33 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11oj/v1/types.proto\x12\x05oj.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd1\x01\n\x07Problem\x12\x0e\n\x02id\x18\x01 \x01(\x03\x42\x02\x30\x02\x12\x0c\n\x04slug\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x11\n\tstatement\x18\x04 \x01(\t\x12%\n\ndifficulty\x18\x05 \x01(\x0e\x32\x11.oj.v1.Difficulty\x12\x15\n\rtime_limit_ms\x18\x06 \x01(\x05\x12\x17\n\x0fmemory_limit_mb\x18\x07 \x01(\x05\x12/\n\x0b\x63reate_time\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"~\n\x08TestCase\x12\x0e\n\x02id\x18\x01 \x01(\x03\x42\x02\x30\x02\x12\x16\n\nproblem_id\x18\x02 \x01(\x03\x42\x02\x30\x02\x12\r\n\x05input\x18\x03 \x01(\t\x12\x17\n\x0f\x65xpected_output\x18\x04 \x01(\t\x12\x11\n\tis_sample\x18\x05 \x01(\x08\x12\x0f\n\x07ordinal\x18\x06 \x01(\x05\"\'\n\x06Sample\x12\r\n\x05input\x18\x01 \x01(\t\x12\x0e\n\x06output\x18\x02 \x01(\t\"s\n\nTestResult\x12\x0c\n\x04test\x18\x01 \x01(\x05\x12\x1f\n\x07verdict\x18\x02 \x01(\x0e\x32\x0e.oj.v1.Verdict\x12\x0f\n\x07time_ms\x18\x03 \x01(\x05\x12\x15\n\tmemory_kb\x18\x04 \x01(\x03\x42\x02\x30\x02\x12\x0e\n\x06sample\x18\x05 \x01(\x08\"\x8a\x03\n\nSubmission\x12\x0e\n\x02id\x18\x01 \x01(\x03\x42\x02\x30\x02\x12\x16\n\nproblem_id\x18\x02 \x01(\x03\x42\x02\x30\x02\x12\x10\n\x08username\x18\x03 \x01(\t\x12!\n\x08language\x18\x04 \x01(\x0e\x32\x0f.oj.v1.Language\x12\x0e\n\x06source\x18\x05 \x01(\t\x12\'\n\x06status\x18\x06 \x01(\x0e\x32\x17.oj.v1.SubmissionStatus\x12\x1f\n\x07verdict\x18\x07 \x01(\x0e\x32\x0e.oj.v1.Verdict\x12\x0e\n\x06passed\x18\x08 \x01(\x05\x12\r\n\x05total\x18\t \x01(\x05\x12\x0f\n\x07time_ms\x18\n \x01(\x05\x12\x0f\n\x07message\x18\x0b \x01(\t\x12\"\n\x07results\x18\x0c \x03(\x0b\x32\x11.oj.v1.TestResult\x12/\n\x0b\x63reate_time\x18\r \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0bupdate_time\x18\x0e \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"/\n\rErrorResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x02 \x03(\t*t\n\x08Language\x12\x18\n\x14LANGUAGE_UNSPECIFIED\x10\x00\x12\x13\n\x0fLANGUAGE_PYTHON\x10\x01\x12\x0e\n\nLANGUAGE_C\x10\x02\x12\x10\n\x0cLANGUAGE_CPP\x10\x03\x12\x17\n\x13LANGUAGE_JAVASCRIPT\x10\x04*i\n\nDifficulty\x12\x1a\n\x16\x44IFFICULTY_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x44IFFICULTY_EASY\x10\x01\x12\x15\n\x11\x44IFFICULTY_MEDIUM\x10\x02\x12\x13\n\x0f\x44IFFICULTY_HARD\x10\x03*\xb1\x01\n\x10SubmissionStatus\x12!\n\x1dSUBMISSION_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n\x19SUBMISSION_STATUS_PENDING\x10\x01\x12\x1d\n\x19SUBMISSION_STATUS_JUDGING\x10\x02\x12\x1e\n\x1aSUBMISSION_STATUS_FINISHED\x10\x03\x12\x1c\n\x18SUBMISSION_STATUS_FAILED\x10\x04*\x8f\x02\n\x07Verdict\x12\x17\n\x13VERDICT_UNSPECIFIED\x10\x00\x12\x14\n\x10VERDICT_ACCEPTED\x10\x01\x12\x18\n\x14VERDICT_WRONG_ANSWER\x10\x02\x12\x1f\n\x1bVERDICT_TIME_LIMIT_EXCEEDED\x10\x03\x12!\n\x1dVERDICT_MEMORY_LIMIT_EXCEEDED\x10\x04\x12!\n\x1dVERDICT_OUTPUT_LIMIT_EXCEEDED\x10\x05\x12\x19\n\x15VERDICT_RUNTIME_ERROR\x10\x06\x12\x1d\n\x19VERDICT_COMPILATION_ERROR\x10\x07\x12\x1a\n\x16VERDICT_INTERNAL_ERROR\x10\x08*\xea\x01\n\tRunStatus\x12\x1a\n\x16RUN_STATUS_UNSPECIFIED\x10\x00\x12\x11\n\rRUN_STATUS_OK\x10\x01\x12\"\n\x1eRUN_STATUS_TIME_LIMIT_EXCEEDED\x10\x02\x12$\n RUN_STATUS_MEMORY_LIMIT_EXCEEDED\x10\x03\x12$\n RUN_STATUS_OUTPUT_LIMIT_EXCEEDED\x10\x04\x12\x1c\n\x18RUN_STATUS_RUNTIME_ERROR\x10\x05\x12 \n\x1cRUN_STATUS_COMPILATION_ERROR\x10\x06\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11oj/v1/types.proto\x12\x05oj.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x01\n\x07Problem\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0c\n\x04slug\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x11\n\tstatement\x18\x04 \x01(\t\x12%\n\ndifficulty\x18\x05 \x01(\x0e\x32\x11.oj.v1.Difficulty\x12\x15\n\rtime_limit_ms\x18\x06 \x01(\x05\x12\x17\n\x0fmemory_limit_mb\x18\x07 \x01(\x05\x12/\n\x0b\x63reate_time\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"v\n\x08TestCase\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x12\n\nproblem_id\x18\x02 \x01(\x03\x12\r\n\x05input\x18\x03 \x01(\t\x12\x17\n\x0f\x65xpected_output\x18\x04 \x01(\t\x12\x11\n\tis_sample\x18\x05 \x01(\x08\x12\x0f\n\x07ordinal\x18\x06 \x01(\x05\"\'\n\x06Sample\x12\r\n\x05input\x18\x01 \x01(\t\x12\x0e\n\x06output\x18\x02 \x01(\t\"o\n\nTestResult\x12\x0c\n\x04test\x18\x01 \x01(\x05\x12\x1f\n\x07verdict\x18\x02 \x01(\x0e\x32\x0e.oj.v1.Verdict\x12\x0f\n\x07time_ms\x18\x03 \x01(\x05\x12\x11\n\tmemory_kb\x18\x04 \x01(\x03\x12\x0e\n\x06sample\x18\x05 \x01(\x08\"\x82\x03\n\nSubmission\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x12\n\nproblem_id\x18\x02 \x01(\x03\x12\x10\n\x08username\x18\x03 \x01(\t\x12!\n\x08language\x18\x04 \x01(\x0e\x32\x0f.oj.v1.Language\x12\x0e\n\x06source\x18\x05 \x01(\t\x12\'\n\x06status\x18\x06 \x01(\x0e\x32\x17.oj.v1.SubmissionStatus\x12\x1f\n\x07verdict\x18\x07 \x01(\x0e\x32\x0e.oj.v1.Verdict\x12\x0e\n\x06passed\x18\x08 \x01(\x05\x12\r\n\x05total\x18\t \x01(\x05\x12\x0f\n\x07time_ms\x18\n \x01(\x05\x12\x0f\n\x07message\x18\x0b \x01(\t\x12\"\n\x07results\x18\x0c \x03(\x0b\x32\x11.oj.v1.TestResult\x12/\n\x0b\x63reate_time\x18\r \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0bupdate_time\x18\x0e \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"/\n\rErrorResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x02 \x03(\t*t\n\x08Language\x12\x18\n\x14LANGUAGE_UNSPECIFIED\x10\x00\x12\x13\n\x0fLANGUAGE_PYTHON\x10\x01\x12\x0e\n\nLANGUAGE_C\x10\x02\x12\x10\n\x0cLANGUAGE_CPP\x10\x03\x12\x17\n\x13LANGUAGE_JAVASCRIPT\x10\x04*i\n\nDifficulty\x12\x1a\n\x16\x44IFFICULTY_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x44IFFICULTY_EASY\x10\x01\x12\x15\n\x11\x44IFFICULTY_MEDIUM\x10\x02\x12\x13\n\x0f\x44IFFICULTY_HARD\x10\x03*\xb1\x01\n\x10SubmissionStatus\x12!\n\x1dSUBMISSION_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n\x19SUBMISSION_STATUS_PENDING\x10\x01\x12\x1d\n\x19SUBMISSION_STATUS_JUDGING\x10\x02\x12\x1e\n\x1aSUBMISSION_STATUS_FINISHED\x10\x03\x12\x1c\n\x18SUBMISSION_STATUS_FAILED\x10\x04*\x8f\x02\n\x07Verdict\x12\x17\n\x13VERDICT_UNSPECIFIED\x10\x00\x12\x14\n\x10VERDICT_ACCEPTED\x10\x01\x12\x18\n\x14VERDICT_WRONG_ANSWER\x10\x02\x12\x1f\n\x1bVERDICT_TIME_LIMIT_EXCEEDED\x10\x03\x12!\n\x1dVERDICT_MEMORY_LIMIT_EXCEEDED\x10\x04\x12!\n\x1dVERDICT_OUTPUT_LIMIT_EXCEEDED\x10\x05\x12\x19\n\x15VERDICT_RUNTIME_ERROR\x10\x06\x12\x1d\n\x19VERDICT_COMPILATION_ERROR\x10\x07\x12\x1a\n\x16VERDICT_INTERNAL_ERROR\x10\x08*\xea\x01\n\tRunStatus\x12\x1a\n\x16RUN_STATUS_UNSPECIFIED\x10\x00\x12\x11\n\rRUN_STATUS_OK\x10\x01\x12\"\n\x1eRUN_STATUS_TIME_LIMIT_EXCEEDED\x10\x02\x12$\n RUN_STATUS_MEMORY_LIMIT_EXCEEDED\x10\x03\x12$\n RUN_STATUS_OUTPUT_LIMIT_EXCEEDED\x10\x04\x12\x1c\n\x18RUN_STATUS_RUNTIME_ERROR\x10\x05\x12 \n\x1cRUN_STATUS_COMPILATION_ERROR\x10\x06\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'oj.v1.types_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_PROBLEM'].fields_by_name['id']._loaded_options = None
-  _globals['_PROBLEM'].fields_by_name['id']._serialized_options = b'0\002'
-  _globals['_TESTCASE'].fields_by_name['id']._loaded_options = None
-  _globals['_TESTCASE'].fields_by_name['id']._serialized_options = b'0\002'
-  _globals['_TESTCASE'].fields_by_name['problem_id']._loaded_options = None
-  _globals['_TESTCASE'].fields_by_name['problem_id']._serialized_options = b'0\002'
-  _globals['_TESTRESULT'].fields_by_name['memory_kb']._loaded_options = None
-  _globals['_TESTRESULT'].fields_by_name['memory_kb']._serialized_options = b'0\002'
-  _globals['_SUBMISSION'].fields_by_name['id']._loaded_options = None
-  _globals['_SUBMISSION'].fields_by_name['id']._serialized_options = b'0\002'
-  _globals['_SUBMISSION'].fields_by_name['problem_id']._loaded_options = None
-  _globals['_SUBMISSION'].fields_by_name['problem_id']._serialized_options = b'0\002'
-  _globals['_LANGUAGE']._serialized_start=1005
-  _globals['_LANGUAGE']._serialized_end=1121
-  _globals['_DIFFICULTY']._serialized_start=1123
-  _globals['_DIFFICULTY']._serialized_end=1228
-  _globals['_SUBMISSIONSTATUS']._serialized_start=1231
-  _globals['_SUBMISSIONSTATUS']._serialized_end=1408
-  _globals['_VERDICT']._serialized_start=1411
-  _globals['_VERDICT']._serialized_end=1682
-  _globals['_RUNSTATUS']._serialized_start=1685
-  _globals['_RUNSTATUS']._serialized_end=1919
+  _globals['_LANGUAGE']._serialized_start=981
+  _globals['_LANGUAGE']._serialized_end=1097
+  _globals['_DIFFICULTY']._serialized_start=1099
+  _globals['_DIFFICULTY']._serialized_end=1204
+  _globals['_SUBMISSIONSTATUS']._serialized_start=1207
+  _globals['_SUBMISSIONSTATUS']._serialized_end=1384
+  _globals['_VERDICT']._serialized_start=1387
+  _globals['_VERDICT']._serialized_end=1658
+  _globals['_RUNSTATUS']._serialized_start=1661
+  _globals['_RUNSTATUS']._serialized_end=1895
   _globals['_PROBLEM']._serialized_start=62
-  _globals['_PROBLEM']._serialized_end=271
-  _globals['_TESTCASE']._serialized_start=273
-  _globals['_TESTCASE']._serialized_end=399
-  _globals['_SAMPLE']._serialized_start=401
-  _globals['_SAMPLE']._serialized_end=440
-  _globals['_TESTRESULT']._serialized_start=442
-  _globals['_TESTRESULT']._serialized_end=557
-  _globals['_SUBMISSION']._serialized_start=560
-  _globals['_SUBMISSION']._serialized_end=954
-  _globals['_ERRORRESPONSE']._serialized_start=956
-  _globals['_ERRORRESPONSE']._serialized_end=1003
+  _globals['_PROBLEM']._serialized_end=267
+  _globals['_TESTCASE']._serialized_start=269
+  _globals['_TESTCASE']._serialized_end=387
+  _globals['_SAMPLE']._serialized_start=389
+  _globals['_SAMPLE']._serialized_end=428
+  _globals['_TESTRESULT']._serialized_start=430
+  _globals['_TESTRESULT']._serialized_end=541
+  _globals['_SUBMISSION']._serialized_start=544
+  _globals['_SUBMISSION']._serialized_end=930
+  _globals['_ERRORRESPONSE']._serialized_start=932
+  _globals['_ERRORRESPONSE']._serialized_end=979
 # @@protoc_insertion_point(module_scope)
