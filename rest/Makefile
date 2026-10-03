@@ -10,4 +10,4 @@ run:
 	go run ./cmd/rest
 
 docker:
-	docker build -t oj-rest .
+	docker build -t online-judge/rest:latest .
