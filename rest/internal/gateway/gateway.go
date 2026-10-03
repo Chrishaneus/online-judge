@@ -1,33 +1,32 @@
-// Package gateway implements the public REST edge of the online judge: an
-// explicit allowlist of routes reverse-proxied to the midlayer, wrapped in
-// auth, rate limiting, CORS and observability middleware.
+// Package gateway implements the public REST edge of the online judge: each
+// /api/v1 route translates canonical proto JSON into one oj.v1.JudgeService
+// gRPC call on oj-midlayer, wrapped in auth, rate limiting, CORS and
+// observability middleware. It holds no business logic.
 package gateway
 
 import (
-	"context"
-	"errors"
-	"log/slog"
-	"net"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"regexp"
 	"time"
+
+	ojv1 "github.com/online-judge/oj-rest/internal/gen/oj/v1"
 )
 
 type Config struct {
-	MidlayerURL     *url.URL
+	// Client is the oj-midlayer JudgeService client.
+	Client          ojv1.JudgeServiceClient
 	AdminToken      string
 	CORSOrigins     []string
 	RateLimitPerMin int
 	RateLimitBurst  int
 	TrustProxy      bool
+	// UpstreamTimeout is the deadline of every gRPC call except RunCode.
 	UpstreamTimeout time.Duration
+	// RunTimeout is the deadline of RunCode (compile + run on a runner).
+	RunTimeout time.Duration
 }
 
 type Gateway struct {
 	cfg     Config
-	proxy   *httputil.ReverseProxy
 	handler http.Handler
 }
 
@@ -39,30 +38,12 @@ const (
 
 func New(cfg Config) *Gateway {
 	if cfg.UpstreamTimeout <= 0 {
-		cfg.UpstreamTimeout = 2 * time.Minute
+		cfg.UpstreamTimeout = 60 * time.Second
+	}
+	if cfg.RunTimeout <= 0 {
+		cfg.RunTimeout = cfg.UpstreamTimeout
 	}
 	g := &Gateway{cfg: cfg}
-	g.proxy = &httputil.ReverseProxy{
-		Rewrite: func(pr *httputil.ProxyRequest) {
-			pr.SetURL(cfg.MidlayerURL)
-			pr.SetXForwarded()
-			pr.Out.Header.Del("Authorization") // never leak credentials downstream
-			pr.Out.Header.Del("Cookie")
-		},
-		Transport: &http.Transport{
-			DialContext:           (&net.Dialer{Timeout: 5 * time.Second}).DialContext,
-			ResponseHeaderTimeout: cfg.UpstreamTimeout,
-			MaxIdleConnsPerHost:   32,
-			IdleConnTimeout:       90 * time.Second,
-		},
-		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-			if errors.Is(err, context.Canceled) {
-				return // client went away
-			}
-			slog.Error("upstream error", "path", r.URL.Path, "err", err)
-			writeError(w, http.StatusBadGateway, "upstream unavailable")
-		},
-	}
 	g.handler = chain(g.routes(),
 		Recover(),
 		RequestID(),
@@ -74,68 +55,61 @@ func New(cfg Config) *Gateway {
 
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) { g.handler.ServeHTTP(w, r) }
 
-var (
-	idParam     = regexp.MustCompile(`^[1-9][0-9]{0,17}$`)
-	placeholder = regexp.MustCompile(`\{([a-z]+)\}`)
-)
-
-// forward proxies to upstreamTemplate, substituting {name} path parameters
-// after checking they are positive integers.
-func (g *Gateway) forward(upstreamTemplate string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		valid := true
-		path := placeholder.ReplaceAllStringFunc(upstreamTemplate, func(m string) string {
-			v := r.PathValue(m[1 : len(m)-1])
-			if !idParam.MatchString(v) {
-				valid = false
-			}
-			return v
-		})
-		if !valid {
-			writeError(w, http.StatusBadRequest, "invalid id")
-			return
-		}
-		out := r.Clone(r.Context())
-		out.URL.Path, out.URL.RawPath = path, ""
-		g.proxy.ServeHTTP(w, out)
-	})
-}
-
 func (g *Gateway) routes() http.Handler {
 	mux := http.NewServeMux()
+	c := g.cfg.Client
+	t, runT := g.cfg.UpstreamTimeout, g.cfg.RunTimeout
 	limited := RateLimit(NewRateLimiter(g.cfg.RateLimitPerMin, g.cfg.RateLimitBurst), g.cfg.TrustProxy)
 	admin := RequireAdmin(g.cfg.AdminToken)
-
-	route := func(pattern, upstream string, mws ...Middleware) {
-		mux.Handle(pattern, chain(g.forward(upstream), mws...))
-	}
+	handle := func(pattern string, h http.Handler, mws ...Middleware) { mux.Handle(pattern, chain(h, mws...)) }
 
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 
 	// Public, read-only.
-	route("GET /api/v1/status", "/readyz")
-	route("GET /api/v1/languages", "/languages")
-	route("GET /api/v1/problems", "/problems")
-	route("GET /api/v1/problems/{id}", "/problems/{id}")
-	route("GET /api/v1/submissions", "/submissions")
-	route("GET /api/v1/submissions/{id}", "/submissions/{id}")
+	handle("GET /api/v1/status", rpc(t, http.StatusOK, nil, c.GetStatus))
+	handle("GET /api/v1/languages", rpc(t, http.StatusOK, nil, c.ListLanguages))
+	handle("GET /api/v1/problems", rpc(t, http.StatusOK, nil, c.ListProblemSummaries))
+	handle("GET /api/v1/problems/{id}", rpc(t, http.StatusOK,
+		func(r *http.Request, m *ojv1.GetProblemDetailRequest) error { return pathID(r, "id", &m.Id) },
+		c.GetProblemDetail))
+	handle("GET /api/v1/submissions", rpc(t, http.StatusOK, bindSubmissionQuery, c.ListSubmissionSummaries))
+	handle("GET /api/v1/submissions/{id}", rpc(t, http.StatusOK,
+		func(r *http.Request, m *ojv1.GetSubmissionDetailRequest) error { return pathID(r, "id", &m.Id) },
+		c.GetSubmissionDetail))
 
 	// Public, executes code: rate limited.
-	route("POST /api/v1/submissions", "/submissions", limited, MaxBody(maxSubmissionBody))
-	route("POST /api/v1/run", "/run", limited, MaxBody(maxRunBody))
+	handle("POST /api/v1/submissions", rpc(t, http.StatusAccepted, nil, c.Submit), limited, MaxBody(maxSubmissionBody))
+	handle("POST /api/v1/run", rpc(runT, http.StatusOK, nil, c.RunCode), limited, MaxBody(maxRunBody))
 
 	// Admin.
-	mux.Handle("GET /api/v1/admin/verify", admin(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	handle("GET /api/v1/admin/verify", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]bool{"admin": true})
-	})))
-	route("POST /api/v1/admin/problems", "/problems", admin, MaxBody(maxAdminBody))
-	route("PUT /api/v1/admin/problems/{id}", "/problems/{id}", admin, MaxBody(maxAdminBody))
-	route("DELETE /api/v1/admin/problems/{id}", "/problems/{id}", admin)
-	route("GET /api/v1/admin/problems/{id}/testcases", "/problems/{id}/testcases", admin)
-	route("POST /api/v1/admin/problems/{id}/testcases", "/problems/{id}/testcases", admin, MaxBody(maxAdminBody))
-	route("DELETE /api/v1/admin/problems/{id}/testcases/{tcid}", "/problems/{id}/testcases/{tcid}", admin)
+	}), admin)
+	handle("POST /api/v1/admin/problems", rpc(t, http.StatusCreated, nil, c.AddProblem), admin, MaxBody(maxAdminBody))
+	handle("PUT /api/v1/admin/problems/{id}", rpc(t, http.StatusOK,
+		func(r *http.Request, m *ojv1.EditProblemRequest) error { return pathID(r, "id", &m.Id) },
+		c.EditProblem), admin, MaxBody(maxAdminBody))
+	handle("DELETE /api/v1/admin/problems/{id}", rpc(t, http.StatusNoContent,
+		func(r *http.Request, m *ojv1.RemoveProblemRequest) error { return pathID(r, "id", &m.Id) },
+		c.RemoveProblem), admin)
+	handle("GET /api/v1/admin/problems/{problemId}/testcases", rpc(t, http.StatusOK,
+		func(r *http.Request, m *ojv1.ListProblemTestCasesRequest) error {
+			return pathID(r, "problemId", &m.ProblemId)
+		},
+		c.ListProblemTestCases), admin)
+	handle("POST /api/v1/admin/problems/{problemId}/testcases", rpc(t, http.StatusCreated,
+		func(r *http.Request, m *ojv1.AddTestCaseRequest) error { return pathID(r, "problemId", &m.ProblemId) },
+		c.AddTestCase), admin, MaxBody(maxAdminBody))
+	handle("DELETE /api/v1/admin/problems/{problemId}/testcases/{id}", rpc(t, http.StatusNoContent,
+		func(r *http.Request, m *ojv1.RemoveTestCaseRequest) error {
+			if err := pathID(r, "problemId", &m.ProblemId); err != nil {
+				return err
+			}
+			return pathID(r, "id", &m.Id)
+		},
+		c.RemoveTestCase), admin)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		writeError(w, http.StatusNotFound, "not found")

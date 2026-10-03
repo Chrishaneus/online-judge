@@ -29,12 +29,6 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// writeError uses the same {"detail": "..."} shape as the midlayer so clients
-// only need to handle one error format.
-func writeError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"detail": msg})
-}
-
 // ---------- request id ----------
 
 const requestIDHeader = "X-Request-ID"

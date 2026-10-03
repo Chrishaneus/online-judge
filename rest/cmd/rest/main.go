@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -15,8 +14,15 @@ import (
 	"syscall"
 	"time"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/online-judge/oj-rest/internal/gateway"
+	ojv1 "github.com/online-judge/oj-rest/internal/gen/oj/v1"
 )
+
+// maxMsgSize allows admin uploads of large test cases (see MaxBody limits).
+const maxMsgSize = 64 << 20
 
 func main() {
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
@@ -33,10 +39,21 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	upstream, err := url.Parse(envOr("MIDLAYER_URL", "http://localhost:8003"))
-	if err != nil || upstream.Scheme == "" || upstream.Host == "" {
-		return fmt.Errorf("invalid MIDLAYER_URL %q", os.Getenv("MIDLAYER_URL"))
+	// The midlayer is on the internal network: plaintext gRPC. NewClient
+	// connects lazily and reconnects on its own.
+	upstream := envOr("MIDLAYER_ADDR", "localhost:50051")
+	conn, err := grpc.NewClient(upstream,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(maxMsgSize),
+			grpc.MaxCallSendMsgSize(maxMsgSize),
+		),
+	)
+	if err != nil {
+		return fmt.Errorf("midlayer client %q: %w", upstream, err)
 	}
+	defer conn.Close()
+
 	token := os.Getenv("ADMIN_TOKEN")
 	if token == "" {
 		slog.Warn("ADMIN_TOKEN not set: admin API disabled")
@@ -45,13 +62,14 @@ func run() error {
 	}
 
 	cfg := gateway.Config{
-		MidlayerURL:     upstream,
+		Client:          ojv1.NewJudgeServiceClient(conn),
 		AdminToken:      token,
 		CORSOrigins:     strings.Split(envOr("CORS_ORIGINS", "*"), ","),
 		RateLimitPerMin: envInt("RATE_LIMIT_PER_MIN", 20),
 		RateLimitBurst:  envInt("RATE_LIMIT_BURST", 5),
 		TrustProxy:      os.Getenv("TRUST_PROXY_HEADERS") == "true",
-		UpstreamTimeout: time.Duration(envInt("UPSTREAM_TIMEOUT_S", 120)) * time.Second,
+		UpstreamTimeout: time.Duration(envInt("UPSTREAM_TIMEOUT_S", 60)) * time.Second,
+		RunTimeout:      time.Duration(envInt("RUN_TIMEOUT_S", 60)) * time.Second,
 	}
 	addr := envOr("REST_ADDR", ":8000")
 	srv := &http.Server{
@@ -59,13 +77,13 @@ func run() error {
 		Handler:           gateway.New(cfg),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      cfg.UpstreamTimeout + 10*time.Second,
+		WriteTimeout:      max(cfg.UpstreamTimeout, cfg.RunTimeout) + 10*time.Second,
 		IdleTimeout:       120 * time.Second,
 	}
 
 	errCh := make(chan error, 1)
 	go func() {
-		slog.Info("rest gateway listening", "addr", addr, "upstream", upstream.String())
+		slog.Info("rest gateway listening", "addr", addr, "midlayer", upstream)
 		errCh <- srv.ListenAndServe()
 	}()
 	select {
