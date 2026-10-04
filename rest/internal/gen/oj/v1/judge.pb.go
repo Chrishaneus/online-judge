@@ -1797,12 +1797,12 @@ var File_oj_v1_judge_proto protoreflect.FileDescriptor
 const file_oj_v1_judge_proto_rawDesc = "" +
 	"\n" +
 	"\x11oj/v1/judge.proto\x12\x05oj.v1\x1a\x11oj/v1/types.proto\"\x12\n" +
-	"\x10GetStatusRequest\"\x96\x01\n" +
+	"\x10GetStatusRequest\"\x92\x01\n" +
 	"\x11GetStatusResponse\x12\x18\n" +
 	"\ahealthy\x18\x01 \x01(\bR\ahealthy\x12\x10\n" +
 	"\x03dao\x18\x02 \x01(\tR\x03dao\x12\x16\n" +
-	"\x06broker\x18\x03 \x01(\tR\x06broker\x12#\n" +
-	"\vqueue_depth\x18\x04 \x01(\x03B\x020\x02R\n" +
+	"\x06broker\x18\x03 \x01(\tR\x06broker\x12\x1f\n" +
+	"\vqueue_depth\x18\x04 \x01(\x03R\n" +
 	"queueDepth\x12\x18\n" +
 	"\arunners\x18\x05 \x01(\x05R\arunners\"O\n" +
 	"\fLanguageInfo\x12+\n" +
@@ -1810,18 +1810,18 @@ const file_oj_v1_judge_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\x16\n" +
 	"\x14ListLanguagesRequest\"J\n" +
 	"\x15ListLanguagesResponse\x121\n" +
-	"\tlanguages\x18\x01 \x03(\v2\x13.oj.v1.LanguageInfoR\tlanguages\"\xcd\x01\n" +
-	"\x0eProblemSummary\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\x12\x12\n" +
+	"\tlanguages\x18\x01 \x03(\v2\x13.oj.v1.LanguageInfoR\tlanguages\"\xc9\x01\n" +
+	"\x0eProblemSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x121\n" +
 	"\n" +
 	"difficulty\x18\x04 \x01(\x0e2\x11.oj.v1.DifficultyR\n" +
 	"difficulty\x12\"\n" +
 	"\rtime_limit_ms\x18\x05 \x01(\x05R\vtimeLimitMs\x12&\n" +
-	"\x0fmemory_limit_mb\x18\x06 \x01(\x05R\rmemoryLimitMb\"\x93\x02\n" +
-	"\rProblemDetail\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\x12\x12\n" +
+	"\x0fmemory_limit_mb\x18\x06 \x01(\x05R\rmemoryLimitMb\"\x8f\x02\n" +
+	"\rProblemDetail\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x121\n" +
 	"\n" +
@@ -1833,49 +1833,49 @@ const file_oj_v1_judge_proto_rawDesc = "" +
 	"\asamples\x18\b \x03(\v2\r.oj.v1.SampleR\asamples\"\x1d\n" +
 	"\x1bListProblemSummariesRequest\"Q\n" +
 	"\x1cListProblemSummariesResponse\x121\n" +
-	"\bproblems\x18\x01 \x03(\v2\x15.oj.v1.ProblemSummaryR\bproblems\"-\n" +
-	"\x17GetProblemDetailRequest\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\"J\n" +
+	"\bproblems\x18\x01 \x03(\v2\x15.oj.v1.ProblemSummaryR\bproblems\")\n" +
+	"\x17GetProblemDetailRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"J\n" +
 	"\x18GetProblemDetailResponse\x12.\n" +
-	"\aproblem\x18\x01 \x01(\v2\x14.oj.v1.ProblemDetailR\aproblem\"\x93\x01\n" +
-	"\rSubmitRequest\x12!\n" +
+	"\aproblem\x18\x01 \x01(\v2\x14.oj.v1.ProblemDetailR\aproblem\"\x8f\x01\n" +
+	"\rSubmitRequest\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x01 \x01(\x03B\x020\x02R\tproblemId\x12+\n" +
+	"problem_id\x18\x01 \x01(\x03R\tproblemId\x12+\n" +
 	"\blanguage\x18\x02 \x01(\x0e2\x0f.oj.v1.LanguageR\blanguage\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12\x1a\n" +
 	"\busername\x18\x04 \x01(\tR\busername\"C\n" +
 	"\x0eSubmitResponse\x121\n" +
 	"\n" +
 	"submission\x18\x01 \x01(\v2\x11.oj.v1.SubmissionR\n" +
-	"submission\"\x8d\x01\n" +
-	"\x1eListSubmissionSummariesRequest\x12!\n" +
+	"submission\"\x89\x01\n" +
+	"\x1eListSubmissionSummariesRequest\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x01 \x01(\x03B\x020\x02R\tproblemId\x12\x1a\n" +
+	"problem_id\x18\x01 \x01(\x03R\tproblemId\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x04 \x01(\x05R\x06offset\"V\n" +
 	"\x1fListSubmissionSummariesResponse\x123\n" +
-	"\vsubmissions\x18\x01 \x03(\v2\x11.oj.v1.SubmissionR\vsubmissions\"0\n" +
-	"\x1aGetSubmissionDetailRequest\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\"P\n" +
+	"\vsubmissions\x18\x01 \x03(\v2\x11.oj.v1.SubmissionR\vsubmissions\",\n" +
+	"\x1aGetSubmissionDetailRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"P\n" +
 	"\x1bGetSubmissionDetailResponse\x121\n" +
 	"\n" +
 	"submission\x18\x01 \x01(\v2\x11.oj.v1.SubmissionR\n" +
-	"submission\"\x8e\x01\n" +
+	"submission\"\x8a\x01\n" +
 	"\x0eRunCodeRequest\x12+\n" +
 	"\blanguage\x18\x01 \x01(\x0e2\x0f.oj.v1.LanguageR\blanguage\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12\x14\n" +
-	"\x05stdin\x18\x03 \x01(\tR\x05stdin\x12!\n" +
+	"\x05stdin\x18\x03 \x01(\tR\x05stdin\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x04 \x01(\x03B\x020\x02R\tproblemId\"\xe9\x01\n" +
+	"problem_id\x18\x04 \x01(\x03R\tproblemId\"\xe5\x01\n" +
 	"\x0fRunCodeResponse\x12(\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x10.oj.v1.RunStatusR\x06status\x12%\n" +
 	"\x0ecompile_output\x18\x02 \x01(\tR\rcompileOutput\x12\x16\n" +
 	"\x06stdout\x18\x03 \x01(\tR\x06stdout\x12\x16\n" +
 	"\x06stderr\x18\x04 \x01(\tR\x06stderr\x12\x1b\n" +
 	"\texit_code\x18\x05 \x01(\x05R\bexitCode\x12\x17\n" +
-	"\atime_ms\x18\x06 \x01(\x05R\x06timeMs\x12\x1f\n" +
-	"\tmemory_kb\x18\a \x01(\x03B\x020\x02R\bmemoryKb\"i\n" +
+	"\atime_ms\x18\x06 \x01(\x05R\x06timeMs\x12\x1b\n" +
+	"\tmemory_kb\x18\a \x01(\x03R\bmemoryKb\"i\n" +
 	"\vNewTestCase\x12\x14\n" +
 	"\x05input\x18\x01 \x01(\tR\x05input\x12'\n" +
 	"\x0fexpected_output\x18\x02 \x01(\tR\x0eexpectedOutput\x12\x1b\n" +
@@ -1892,9 +1892,9 @@ const file_oj_v1_judge_proto_rawDesc = "" +
 	"\n" +
 	"test_cases\x18\a \x03(\v2\x12.oj.v1.NewTestCaseR\ttestCases\"D\n" +
 	"\x12AddProblemResponse\x12.\n" +
-	"\aproblem\x18\x01 \x01(\v2\x14.oj.v1.ProblemDetailR\aproblem\"\xef\x01\n" +
-	"\x12EditProblemRequest\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\x12\x12\n" +
+	"\aproblem\x18\x01 \x01(\v2\x14.oj.v1.ProblemDetailR\aproblem\"\xeb\x01\n" +
+	"\x12EditProblemRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x1c\n" +
 	"\tstatement\x18\x04 \x01(\tR\tstatement\x121\n" +
@@ -1904,26 +1904,26 @@ const file_oj_v1_judge_proto_rawDesc = "" +
 	"\rtime_limit_ms\x18\x06 \x01(\x05R\vtimeLimitMs\x12&\n" +
 	"\x0fmemory_limit_mb\x18\a \x01(\x05R\rmemoryLimitMb\"F\n" +
 	"\x13EditProblemResponse\x12/\n" +
-	"\aproblem\x18\x01 \x01(\v2\x15.oj.v1.ProblemSummaryR\aproblem\"*\n" +
-	"\x14RemoveProblemRequest\x12\x12\n" +
-	"\x02id\x18\x01 \x01(\x03B\x020\x02R\x02id\"\x17\n" +
-	"\x15RemoveProblemResponse\"@\n" +
-	"\x1bListProblemTestCasesRequest\x12!\n" +
+	"\aproblem\x18\x01 \x01(\v2\x15.oj.v1.ProblemSummaryR\aproblem\"&\n" +
+	"\x14RemoveProblemRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\x17\n" +
+	"\x15RemoveProblemResponse\"<\n" +
+	"\x1bListProblemTestCasesRequest\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x01 \x01(\x03B\x020\x02R\tproblemId\"N\n" +
+	"problem_id\x18\x01 \x01(\x03R\tproblemId\"N\n" +
 	"\x1cListProblemTestCasesResponse\x12.\n" +
 	"\n" +
-	"test_cases\x18\x01 \x03(\v2\x0f.oj.v1.TestCaseR\ttestCases\"h\n" +
-	"\x12AddTestCaseRequest\x12!\n" +
+	"test_cases\x18\x01 \x03(\v2\x0f.oj.v1.TestCaseR\ttestCases\"d\n" +
+	"\x12AddTestCaseRequest\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x01 \x01(\x03B\x020\x02R\tproblemId\x12/\n" +
+	"problem_id\x18\x01 \x01(\x03R\tproblemId\x12/\n" +
 	"\ttest_case\x18\x02 \x01(\v2\x12.oj.v1.NewTestCaseR\btestCase\"C\n" +
 	"\x13AddTestCaseResponse\x12,\n" +
-	"\ttest_case\x18\x01 \x01(\v2\x0f.oj.v1.TestCaseR\btestCase\"N\n" +
-	"\x15RemoveTestCaseRequest\x12!\n" +
+	"\ttest_case\x18\x01 \x01(\v2\x0f.oj.v1.TestCaseR\btestCase\"F\n" +
+	"\x15RemoveTestCaseRequest\x12\x1d\n" +
 	"\n" +
-	"problem_id\x18\x01 \x01(\x03B\x020\x02R\tproblemId\x12\x12\n" +
-	"\x02id\x18\x02 \x01(\x03B\x020\x02R\x02id\"\x18\n" +
+	"problem_id\x18\x01 \x01(\x03R\tproblemId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\x03R\x02id\"\x18\n" +
 	"\x16RemoveTestCaseResponse2\xd4\b\n" +
 	"\fJudgeService\x12>\n" +
 	"\tGetStatus\x12\x17.oj.v1.GetStatusRequest\x1a\x18.oj.v1.GetStatusResponse\x12J\n" +
