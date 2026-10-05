@@ -1,0 +1,10 @@
+{
+  "name": "oj-webapp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Online Judge web frontend (static, no build step)",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}
