@@ -225,8 +225,8 @@ async function problemView(id, token) {
           }
         } }, 'reset'),
         h('span', { class: 'spacer' }), runBtn, submitBtn),
-      h('div', { style: 'margin-top:10px' }, editor),
-      h('label', { class: 'field', style: 'margin-top:10px' }, 'Custom input (for Run)', stdin),
+      h('div', { class: 'mt' }, editor),
+      h('label', { class: 'field mt' }, 'Custom input (for Run)', stdin),
       output));
 }
 
@@ -239,7 +239,7 @@ async function submissionsView(params, token) {
   ]);
 
   const userInput = h('input', { value: user, placeholder: 'any user', maxlength: 32 });
-  const problemInput = h('input', { value: problemId, placeholder: 'any', type: 'number', min: 1, style: 'width:90px' });
+  const problemInput = h('input', { value: problemId, placeholder: 'any', type: 'number', min: 1, class: 'narrow' });
   const applyFilter = (e) => {
     e?.preventDefault();
     const q = new URLSearchParams();
@@ -275,7 +275,7 @@ async function submissionsView(params, token) {
 
   return [
     h('h1', {}, 'Submissions'),
-    h('form', { class: 'row', style: 'margin:12px 0', onsubmit: applyFilter },
+    h('form', { class: 'row my', onsubmit: applyFilter },
       h('label', { class: 'handle' }, 'User', userInput),
       h('label', { class: 'handle' }, 'Problem', problemInput),
       h('button', { type: 'submit' }, 'Filter'),
@@ -298,7 +298,7 @@ async function submissionView(id, token) {
       h('div', { class: 'muted' },
         `Problem `, h('a', { href: `#/problems/${s.problem_id}` }, `#${s.problem_id}`),
         ` · ${s.username} · ${langName(langs, s.language)} · ${new Date(s.created_at).toLocaleString()}`),
-      s.message ? h(s.verdict === 'CE' ? 'pre' : 'p', { style: 'margin-top:10px' }, s.message) : null,
+      s.message ? h(s.verdict === 'CE' ? 'pre' : 'p', { class: 'mt' }, s.message) : null,
       s.results?.length ? testChips(s.results) : null),
     h('h2', {}, 'Source'),
     h('pre', {}, h('code', {}, s.source)));
@@ -325,7 +325,7 @@ function testCaseRow(container, tc = { input: '', expected_output: '', is_sample
 }
 
 async function adminView() {
-  const tokenInput = h('input', { type: 'password', placeholder: 'admin token', value: getAdminToken(), autocomplete: 'off', style: 'min-width:260px' });
+  const tokenInput = h('input', { type: 'password', placeholder: 'admin token', value: getAdminToken(), autocomplete: 'off', class: 'wide' });
   const status = h('span', { class: 'muted' });
   const verify = async () => {
     setAdminToken(tokenInput.value.trim());
@@ -388,14 +388,14 @@ async function adminView() {
       btn.disabled = false;
     }
   } },
-  h('h2', { style: 'margin-top:0' }, 'New problem'),
+  h('h2', { class: 'mt0' }, 'New problem'),
   h('div', { class: 'grid-form' },
     h('label', { class: 'field' }, 'Slug', f.slug),
     h('label', { class: 'field' }, 'Title', f.title),
     h('label', { class: 'field' }, 'Difficulty', f.difficulty),
     h('label', { class: 'field' }, 'Time limit (ms)', f.time),
     h('label', { class: 'field' }, 'Memory (MB)', f.memory)),
-  h('label', { class: 'field', style: 'margin-top:12px' }, 'Statement (Markdown)', f.statement),
+  h('label', { class: 'field mt' }, 'Statement (Markdown)', f.statement),
   h('h3', {}, 'Test cases'),
   tcs,
   h('div', { class: 'row' },
@@ -406,7 +406,7 @@ async function adminView() {
   if (getAdminToken()) verify();
   return [
     h('h1', {}, 'Admin'),
-    h('div', { class: 'card row', style: 'margin:12px 0' },
+    h('div', { class: 'card row my' },
       tokenInput,
       h('button', { type: 'button', onclick: verify }, 'Use token'),
       h('button', { type: 'button', class: 'link', onclick: () => { tokenInput.value = ''; setAdminToken(''); status.textContent = 'signed out'; status.className = 'muted'; } }, 'sign out'),

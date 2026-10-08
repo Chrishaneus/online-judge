@@ -73,6 +73,12 @@ h3 { font-size: 1.02rem; margin: 18px 0 6px; }
 
 main { max-width: 1280px; margin: 0 auto; padding: 24px; outline: none; }
 .muted { color: var(--muted); }
+/* Spacing utilities (inline style attributes are blocked by the CSP). */
+.mt { margin-top: 10px; }
+.mt0 { margin-top: 0; }
+.my { margin-top: 12px; margin-bottom: 12px; }
+input.narrow { width: 90px; }
+input.wide { min-width: 260px; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .spacer { flex: 1; }
 
