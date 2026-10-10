@@ -56,5 +56,8 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"@bufbuild/protobuf": "^2.17.0"
 	}
 }
