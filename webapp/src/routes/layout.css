@@ -127,3 +127,38 @@
 		@apply font-sans;
 	}
 }
+
+@layer components {
+	.code-block {
+		@apply overflow-auto rounded-md bg-muted px-3 py-2 font-mono text-[13px] leading-5 break-words whitespace-pre-wrap;
+	}
+
+	/* Problem statements rendered by #lib/markdown.ts (fixed, attribute-less tags only). */
+	.markdown {
+		@apply space-y-3 leading-relaxed;
+	}
+	.markdown h1 {
+		@apply text-xl font-semibold;
+	}
+	.markdown h2 {
+		@apply mt-5 text-lg font-semibold;
+	}
+	.markdown :is(h3, h4, h5, h6) {
+		@apply mt-4 font-semibold;
+	}
+	.markdown ul {
+		@apply list-disc pl-6;
+	}
+	.markdown ol {
+		@apply list-decimal pl-6;
+	}
+	.markdown code {
+		@apply rounded bg-muted px-1 py-0.5 font-mono text-[0.9em];
+	}
+	.markdown pre {
+		@apply overflow-auto rounded-md bg-muted px-3 py-2 text-[13px];
+	}
+	.markdown pre code {
+		@apply bg-transparent p-0;
+	}
+}
