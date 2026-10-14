@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file oj/v1/judge.proto.
  */
 export const file_oj_v1_judge: GenFile = /*@__PURE__*/
-  fileDesc("ChFvai92MS9qdWRnZS5wcm90bxIFb2oudjEiEgoQR2V0U3RhdHVzUmVxdWVzdCJrChFHZXRTdGF0dXNSZXNwb25zZRIPCgdoZWFsdGh5GAEgASgIEgsKA2RhbxgCIAEoCRIOCgZicm9rZXIYAyABKAkSFwoLcXVldWVfZGVwdGgYBCABKANCAjACEg8KB3J1bm5lcnMYBSABKAUiPwoMTGFuZ3VhZ2VJbmZvEiEKCGxhbmd1YWdlGAEgASgOMg8ub2oudjEuTGFuZ3VhZ2USDAoEbmFtZRgCIAEoCSIWChRMaXN0TGFuZ3VhZ2VzUmVxdWVzdCI/ChVMaXN0TGFuZ3VhZ2VzUmVzcG9uc2USJgoJbGFuZ3VhZ2VzGAEgAygLMhMub2oudjEuTGFuZ3VhZ2VJbmZvIpQBCg5Qcm9ibGVtU3VtbWFyeRIOCgJpZBgBIAEoA0ICMAISDAoEc2x1ZxgCIAEoCRINCgV0aXRsZRgDIAEoCRIlCgpkaWZmaWN1bHR5GAQgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAUgASgFEhcKD21lbW9yeV9saW1pdF9tYhgGIAEoBSLGAQoNUHJvYmxlbURldGFpbBIOCgJpZBgBIAEoA0ICMAISDAoEc2x1ZxgCIAEoCRINCgV0aXRsZRgDIAEoCRIlCgpkaWZmaWN1bHR5GAQgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAUgASgFEhcKD21lbW9yeV9saW1pdF9tYhgGIAEoBRIRCglzdGF0ZW1lbnQYByABKAkSHgoHc2FtcGxlcxgIIAMoCzINLm9qLnYxLlNhbXBsZSIdChtMaXN0UHJvYmxlbVN1bW1hcmllc1JlcXVlc3QiRwocTGlzdFByb2JsZW1TdW1tYXJpZXNSZXNwb25zZRInCghwcm9ibGVtcxgBIAMoCzIVLm9qLnYxLlByb2JsZW1TdW1tYXJ5IikKF0dldFByb2JsZW1EZXRhaWxSZXF1ZXN0Eg4KAmlkGAEgASgDQgIwAiJBChhHZXRQcm9ibGVtRGV0YWlsUmVzcG9uc2USJQoHcHJvYmxlbRgBIAEoCzIULm9qLnYxLlByb2JsZW1EZXRhaWwibAoNU3VibWl0UmVxdWVzdBIWCgpwcm9ibGVtX2lkGAEgASgDQgIwAhIhCghsYW5ndWFnZRgCIAEoDjIPLm9qLnYxLkxhbmd1YWdlEg4KBnNvdXJjZRgDIAEoCRIQCgh1c2VybmFtZRgEIAEoCSI3Cg5TdWJtaXRSZXNwb25zZRIlCgpzdWJtaXNzaW9uGAEgASgLMhEub2oudjEuU3VibWlzc2lvbiJpCh5MaXN0U3VibWlzc2lvblN1bW1hcmllc1JlcXVlc3QSFgoKcHJvYmxlbV9pZBgBIAEoA0ICMAISEAoIdXNlcm5hbWUYAiABKAkSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIkkKH0xpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVzcG9uc2USJgoLc3VibWlzc2lvbnMYASADKAsyES5vai52MS5TdWJtaXNzaW9uIiwKGkdldFN1Ym1pc3Npb25EZXRhaWxSZXF1ZXN0Eg4KAmlkGAEgASgDQgIwAiJEChtHZXRTdWJtaXNzaW9uRGV0YWlsUmVzcG9uc2USJQoKc3VibWlzc2lvbhgBIAEoCzIRLm9qLnYxLlN1Ym1pc3Npb24iagoOUnVuQ29kZVJlcXVlc3QSIQoIbGFuZ3VhZ2UYASABKA4yDy5vai52MS5MYW5ndWFnZRIOCgZzb3VyY2UYAiABKAkSDQoFc3RkaW4YAyABKAkSFgoKcHJvYmxlbV9pZBgEIAEoA0ICMAIipgEKD1J1bkNvZGVSZXNwb25zZRIgCgZzdGF0dXMYASABKA4yEC5vai52MS5SdW5TdGF0dXMSFgoOY29tcGlsZV9vdXRwdXQYAiABKAkSDgoGc3Rkb3V0GAMgASgJEg4KBnN0ZGVychgEIAEoCRIRCglleGl0X2NvZGUYBSABKAUSDwoHdGltZV9tcxgGIAEoBRIVCgltZW1vcnlfa2IYByABKANCAjACIkgKC05ld1Rlc3RDYXNlEg0KBWlucHV0GAEgASgJEhcKD2V4cGVjdGVkX291dHB1dBgCIAEoCRIRCglpc19zYW1wbGUYAyABKAgiwgEKEUFkZFByb2JsZW1SZXF1ZXN0EgwKBHNsdWcYASABKAkSDQoFdGl0bGUYAiABKAkSEQoJc3RhdGVtZW50GAMgASgJEiUKCmRpZmZpY3VsdHkYBCABKA4yES5vai52MS5EaWZmaWN1bHR5EhUKDXRpbWVfbGltaXRfbXMYBSABKAUSFwoPbWVtb3J5X2xpbWl0X21iGAYgASgFEiYKCnRlc3RfY2FzZXMYByADKAsyEi5vai52MS5OZXdUZXN0Q2FzZSI7ChJBZGRQcm9ibGVtUmVzcG9uc2USJQoHcHJvYmxlbRgBIAEoCzIULm9qLnYxLlByb2JsZW1EZXRhaWwiqwEKEkVkaXRQcm9ibGVtUmVxdWVzdBIOCgJpZBgBIAEoA0ICMAISDAoEc2x1ZxgCIAEoCRINCgV0aXRsZRgDIAEoCRIRCglzdGF0ZW1lbnQYBCABKAkSJQoKZGlmZmljdWx0eRgFIAEoDjIRLm9qLnYxLkRpZmZpY3VsdHkSFQoNdGltZV9saW1pdF9tcxgGIAEoBRIXCg9tZW1vcnlfbGltaXRfbWIYByABKAUiPQoTRWRpdFByb2JsZW1SZXNwb25zZRImCgdwcm9ibGVtGAEgASgLMhUub2oudjEuUHJvYmxlbVN1bW1hcnkiJgoUUmVtb3ZlUHJvYmxlbVJlcXVlc3QSDgoCaWQYASABKANCAjACIhcKFVJlbW92ZVByb2JsZW1SZXNwb25zZSI1ChtMaXN0UHJvYmxlbVRlc3RDYXNlc1JlcXVlc3QSFgoKcHJvYmxlbV9pZBgBIAEoA0ICMAIiQwocTGlzdFByb2JsZW1UZXN0Q2FzZXNSZXNwb25zZRIjCgp0ZXN0X2Nhc2VzGAEgAygLMg8ub2oudjEuVGVzdENhc2UiUwoSQWRkVGVzdENhc2VSZXF1ZXN0EhYKCnByb2JsZW1faWQYASABKANCAjACEiUKCXRlc3RfY2FzZRgCIAEoCzISLm9qLnYxLk5ld1Rlc3RDYXNlIjkKE0FkZFRlc3RDYXNlUmVzcG9uc2USIgoJdGVzdF9jYXNlGAEgASgLMg8ub2oudjEuVGVzdENhc2UiPwoVUmVtb3ZlVGVzdENhc2VSZXF1ZXN0EhYKCnByb2JsZW1faWQYASABKANCAjACEg4KAmlkGAIgASgDQgIwAiIYChZSZW1vdmVUZXN0Q2FzZVJlc3BvbnNlMtQICgxKdWRnZVNlcnZpY2USPgoJR2V0U3RhdHVzEhcub2oudjEuR2V0U3RhdHVzUmVxdWVzdBoYLm9qLnYxLkdldFN0YXR1c1Jlc3BvbnNlEkoKDUxpc3RMYW5ndWFnZXMSGy5vai52MS5MaXN0TGFuZ3VhZ2VzUmVxdWVzdBocLm9qLnYxLkxpc3RMYW5ndWFnZXNSZXNwb25zZRJfChRMaXN0UHJvYmxlbVN1bW1hcmllcxIiLm9qLnYxLkxpc3RQcm9ibGVtU3VtbWFyaWVzUmVxdWVzdBojLm9qLnYxLkxpc3RQcm9ibGVtU3VtbWFyaWVzUmVzcG9uc2USUwoQR2V0UHJvYmxlbURldGFpbBIeLm9qLnYxLkdldFByb2JsZW1EZXRhaWxSZXF1ZXN0Gh8ub2oudjEuR2V0UHJvYmxlbURldGFpbFJlc3BvbnNlEjUKBlN1Ym1pdBIULm9qLnYxLlN1Ym1pdFJlcXVlc3QaFS5vai52MS5TdWJtaXRSZXNwb25zZRJoChdMaXN0U3VibWlzc2lvblN1bW1hcmllcxIlLm9qLnYxLkxpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVxdWVzdBomLm9qLnYxLkxpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVzcG9uc2USXAoTR2V0U3VibWlzc2lvbkRldGFpbBIhLm9qLnYxLkdldFN1Ym1pc3Npb25EZXRhaWxSZXF1ZXN0GiIub2oudjEuR2V0U3VibWlzc2lvbkRldGFpbFJlc3BvbnNlEjgKB1J1bkNvZGUSFS5vai52MS5SdW5Db2RlUmVxdWVzdBoWLm9qLnYxLlJ1bkNvZGVSZXNwb25zZRJBCgpBZGRQcm9ibGVtEhgub2oudjEuQWRkUHJvYmxlbVJlcXVlc3QaGS5vai52MS5BZGRQcm9ibGVtUmVzcG9uc2USRAoLRWRpdFByb2JsZW0SGS5vai52MS5FZGl0UHJvYmxlbVJlcXVlc3QaGi5vai52MS5FZGl0UHJvYmxlbVJlc3BvbnNlEkoKDVJlbW92ZVByb2JsZW0SGy5vai52MS5SZW1vdmVQcm9ibGVtUmVxdWVzdBocLm9qLnYxLlJlbW92ZVByb2JsZW1SZXNwb25zZRJfChRMaXN0UHJvYmxlbVRlc3RDYXNlcxIiLm9qLnYxLkxpc3RQcm9ibGVtVGVzdENhc2VzUmVxdWVzdBojLm9qLnYxLkxpc3RQcm9ibGVtVGVzdENhc2VzUmVzcG9uc2USRAoLQWRkVGVzdENhc2USGS5vai52MS5BZGRUZXN0Q2FzZVJlcXVlc3QaGi5vai52MS5BZGRUZXN0Q2FzZVJlc3BvbnNlEk0KDlJlbW92ZVRlc3RDYXNlEhwub2oudjEuUmVtb3ZlVGVzdENhc2VSZXF1ZXN0Gh0ub2oudjEuUmVtb3ZlVGVzdENhc2VSZXNwb25zZWIGcHJvdG8z", [file_oj_v1_types]);
+  fileDesc("ChFvai92MS9qdWRnZS5wcm90bxIFb2oudjEiEgoQR2V0U3RhdHVzUmVxdWVzdCJnChFHZXRTdGF0dXNSZXNwb25zZRIPCgdoZWFsdGh5GAEgASgIEgsKA2RhbxgCIAEoCRIOCgZicm9rZXIYAyABKAkSEwoLcXVldWVfZGVwdGgYBCABKAMSDwoHcnVubmVycxgFIAEoBSI/CgxMYW5ndWFnZUluZm8SIQoIbGFuZ3VhZ2UYASABKA4yDy5vai52MS5MYW5ndWFnZRIMCgRuYW1lGAIgASgJIhYKFExpc3RMYW5ndWFnZXNSZXF1ZXN0Ij8KFUxpc3RMYW5ndWFnZXNSZXNwb25zZRImCglsYW5ndWFnZXMYASADKAsyEy5vai52MS5MYW5ndWFnZUluZm8ikAEKDlByb2JsZW1TdW1tYXJ5EgoKAmlkGAEgASgDEgwKBHNsdWcYAiABKAkSDQoFdGl0bGUYAyABKAkSJQoKZGlmZmljdWx0eRgEIAEoDjIRLm9qLnYxLkRpZmZpY3VsdHkSFQoNdGltZV9saW1pdF9tcxgFIAEoBRIXCg9tZW1vcnlfbGltaXRfbWIYBiABKAUiwgEKDVByb2JsZW1EZXRhaWwSCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRINCgV0aXRsZRgDIAEoCRIlCgpkaWZmaWN1bHR5GAQgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAUgASgFEhcKD21lbW9yeV9saW1pdF9tYhgGIAEoBRIRCglzdGF0ZW1lbnQYByABKAkSHgoHc2FtcGxlcxgIIAMoCzINLm9qLnYxLlNhbXBsZSIdChtMaXN0UHJvYmxlbVN1bW1hcmllc1JlcXVlc3QiRwocTGlzdFByb2JsZW1TdW1tYXJpZXNSZXNwb25zZRInCghwcm9ibGVtcxgBIAMoCzIVLm9qLnYxLlByb2JsZW1TdW1tYXJ5IiUKF0dldFByb2JsZW1EZXRhaWxSZXF1ZXN0EgoKAmlkGAEgASgDIkEKGEdldFByb2JsZW1EZXRhaWxSZXNwb25zZRIlCgdwcm9ibGVtGAEgASgLMhQub2oudjEuUHJvYmxlbURldGFpbCJoCg1TdWJtaXRSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMSIQoIbGFuZ3VhZ2UYAiABKA4yDy5vai52MS5MYW5ndWFnZRIOCgZzb3VyY2UYAyABKAkSEAoIdXNlcm5hbWUYBCABKAkiNwoOU3VibWl0UmVzcG9uc2USJQoKc3VibWlzc2lvbhgBIAEoCzIRLm9qLnYxLlN1Ym1pc3Npb24iZQoeTGlzdFN1Ym1pc3Npb25TdW1tYXJpZXNSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMSEAoIdXNlcm5hbWUYAiABKAkSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIkkKH0xpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVzcG9uc2USJgoLc3VibWlzc2lvbnMYASADKAsyES5vai52MS5TdWJtaXNzaW9uIigKGkdldFN1Ym1pc3Npb25EZXRhaWxSZXF1ZXN0EgoKAmlkGAEgASgDIkQKG0dldFN1Ym1pc3Npb25EZXRhaWxSZXNwb25zZRIlCgpzdWJtaXNzaW9uGAEgASgLMhEub2oudjEuU3VibWlzc2lvbiJmCg5SdW5Db2RlUmVxdWVzdBIhCghsYW5ndWFnZRgBIAEoDjIPLm9qLnYxLkxhbmd1YWdlEg4KBnNvdXJjZRgCIAEoCRINCgVzdGRpbhgDIAEoCRISCgpwcm9ibGVtX2lkGAQgASgDIqIBCg9SdW5Db2RlUmVzcG9uc2USIAoGc3RhdHVzGAEgASgOMhAub2oudjEuUnVuU3RhdHVzEhYKDmNvbXBpbGVfb3V0cHV0GAIgASgJEg4KBnN0ZG91dBgDIAEoCRIOCgZzdGRlcnIYBCABKAkSEQoJZXhpdF9jb2RlGAUgASgFEg8KB3RpbWVfbXMYBiABKAUSEQoJbWVtb3J5X2tiGAcgASgDIkgKC05ld1Rlc3RDYXNlEg0KBWlucHV0GAEgASgJEhcKD2V4cGVjdGVkX291dHB1dBgCIAEoCRIRCglpc19zYW1wbGUYAyABKAgiwgEKEUFkZFByb2JsZW1SZXF1ZXN0EgwKBHNsdWcYASABKAkSDQoFdGl0bGUYAiABKAkSEQoJc3RhdGVtZW50GAMgASgJEiUKCmRpZmZpY3VsdHkYBCABKA4yES5vai52MS5EaWZmaWN1bHR5EhUKDXRpbWVfbGltaXRfbXMYBSABKAUSFwoPbWVtb3J5X2xpbWl0X21iGAYgASgFEiYKCnRlc3RfY2FzZXMYByADKAsyEi5vai52MS5OZXdUZXN0Q2FzZSI7ChJBZGRQcm9ibGVtUmVzcG9uc2USJQoHcHJvYmxlbRgBIAEoCzIULm9qLnYxLlByb2JsZW1EZXRhaWwipwEKEkVkaXRQcm9ibGVtUmVxdWVzdBIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEg0KBXRpdGxlGAMgASgJEhEKCXN0YXRlbWVudBgEIAEoCRIlCgpkaWZmaWN1bHR5GAUgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAYgASgFEhcKD21lbW9yeV9saW1pdF9tYhgHIAEoBSI9ChNFZGl0UHJvYmxlbVJlc3BvbnNlEiYKB3Byb2JsZW0YASABKAsyFS5vai52MS5Qcm9ibGVtU3VtbWFyeSIiChRSZW1vdmVQcm9ibGVtUmVxdWVzdBIKCgJpZBgBIAEoAyIXChVSZW1vdmVQcm9ibGVtUmVzcG9uc2UiMQobTGlzdFByb2JsZW1UZXN0Q2FzZXNSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMiQwocTGlzdFByb2JsZW1UZXN0Q2FzZXNSZXNwb25zZRIjCgp0ZXN0X2Nhc2VzGAEgAygLMg8ub2oudjEuVGVzdENhc2UiTwoSQWRkVGVzdENhc2VSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMSJQoJdGVzdF9jYXNlGAIgASgLMhIub2oudjEuTmV3VGVzdENhc2UiOQoTQWRkVGVzdENhc2VSZXNwb25zZRIiCgl0ZXN0X2Nhc2UYASABKAsyDy5vai52MS5UZXN0Q2FzZSI3ChVSZW1vdmVUZXN0Q2FzZVJlcXVlc3QSEgoKcHJvYmxlbV9pZBgBIAEoAxIKCgJpZBgCIAEoAyIYChZSZW1vdmVUZXN0Q2FzZVJlc3BvbnNlMtQICgxKdWRnZVNlcnZpY2USPgoJR2V0U3RhdHVzEhcub2oudjEuR2V0U3RhdHVzUmVxdWVzdBoYLm9qLnYxLkdldFN0YXR1c1Jlc3BvbnNlEkoKDUxpc3RMYW5ndWFnZXMSGy5vai52MS5MaXN0TGFuZ3VhZ2VzUmVxdWVzdBocLm9qLnYxLkxpc3RMYW5ndWFnZXNSZXNwb25zZRJfChRMaXN0UHJvYmxlbVN1bW1hcmllcxIiLm9qLnYxLkxpc3RQcm9ibGVtU3VtbWFyaWVzUmVxdWVzdBojLm9qLnYxLkxpc3RQcm9ibGVtU3VtbWFyaWVzUmVzcG9uc2USUwoQR2V0UHJvYmxlbURldGFpbBIeLm9qLnYxLkdldFByb2JsZW1EZXRhaWxSZXF1ZXN0Gh8ub2oudjEuR2V0UHJvYmxlbURldGFpbFJlc3BvbnNlEjUKBlN1Ym1pdBIULm9qLnYxLlN1Ym1pdFJlcXVlc3QaFS5vai52MS5TdWJtaXRSZXNwb25zZRJoChdMaXN0U3VibWlzc2lvblN1bW1hcmllcxIlLm9qLnYxLkxpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVxdWVzdBomLm9qLnYxLkxpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVzcG9uc2USXAoTR2V0U3VibWlzc2lvbkRldGFpbBIhLm9qLnYxLkdldFN1Ym1pc3Npb25EZXRhaWxSZXF1ZXN0GiIub2oudjEuR2V0U3VibWlzc2lvbkRldGFpbFJlc3BvbnNlEjgKB1J1bkNvZGUSFS5vai52MS5SdW5Db2RlUmVxdWVzdBoWLm9qLnYxLlJ1bkNvZGVSZXNwb25zZRJBCgpBZGRQcm9ibGVtEhgub2oudjEuQWRkUHJvYmxlbVJlcXVlc3QaGS5vai52MS5BZGRQcm9ibGVtUmVzcG9uc2USRAoLRWRpdFByb2JsZW0SGS5vai52MS5FZGl0UHJvYmxlbVJlcXVlc3QaGi5vai52MS5FZGl0UHJvYmxlbVJlc3BvbnNlEkoKDVJlbW92ZVByb2JsZW0SGy5vai52MS5SZW1vdmVQcm9ibGVtUmVxdWVzdBocLm9qLnYxLlJlbW92ZVByb2JsZW1SZXNwb25zZRJfChRMaXN0UHJvYmxlbVRlc3RDYXNlcxIiLm9qLnYxLkxpc3RQcm9ibGVtVGVzdENhc2VzUmVxdWVzdBojLm9qLnYxLkxpc3RQcm9ibGVtVGVzdENhc2VzUmVzcG9uc2USRAoLQWRkVGVzdENhc2USGS5vai52MS5BZGRUZXN0Q2FzZVJlcXVlc3QaGi5vai52MS5BZGRUZXN0Q2FzZVJlc3BvbnNlEk0KDlJlbW92ZVRlc3RDYXNlEhwub2oudjEuUmVtb3ZlVGVzdENhc2VSZXF1ZXN0Gh0ub2oudjEuUmVtb3ZlVGVzdENhc2VSZXNwb25zZWIGcHJvdG8z", [file_oj_v1_types]);
 
 /**
  * @generated from message oj.v1.GetStatusRequest
@@ -53,7 +53,7 @@ export type GetStatusResponse = Message<"oj.v1.GetStatusResponse"> & {
   /**
    * Judging jobs waiting in RabbitMQ.
    *
-   * @generated from field: int64 queue_depth = 4 [jstype = JS_NUMBER];
+   * @generated from field: int64 queue_depth = 4;
    */
   queueDepth: bigint;
 
@@ -131,7 +131,7 @@ export const ListLanguagesResponseSchema: GenMessage<ListLanguagesResponse> = /*
  */
 export type ProblemSummary = Message<"oj.v1.ProblemSummary"> & {
   /**
-   * @generated from field: int64 id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 1;
    */
   id: bigint;
 
@@ -173,7 +173,7 @@ export const ProblemSummarySchema: GenMessage<ProblemSummary> = /*@__PURE__*/
  */
 export type ProblemDetail = Message<"oj.v1.ProblemDetail"> & {
   /**
-   * @generated from field: int64 id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 1;
    */
   id: bigint;
 
@@ -259,7 +259,7 @@ export const ListProblemSummariesResponseSchema: GenMessage<ListProblemSummaries
  */
 export type GetProblemDetailRequest = Message<"oj.v1.GetProblemDetailRequest"> & {
   /**
-   * @generated from field: int64 id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 1;
    */
   id: bigint;
 };
@@ -293,7 +293,7 @@ export const GetProblemDetailResponseSchema: GenMessage<GetProblemDetailResponse
  */
 export type SubmitRequest = Message<"oj.v1.SubmitRequest"> & {
   /**
-   * @generated from field: int64 problem_id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 problem_id = 1;
    */
   problemId: bigint;
 
@@ -348,7 +348,7 @@ export const SubmitResponseSchema: GenMessage<SubmitResponse> = /*@__PURE__*/
  */
 export type ListSubmissionSummariesRequest = Message<"oj.v1.ListSubmissionSummariesRequest"> & {
   /**
-   * @generated from field: int64 problem_id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 problem_id = 1;
    */
   problemId: bigint;
 
@@ -401,7 +401,7 @@ export const ListSubmissionSummariesResponseSchema: GenMessage<ListSubmissionSum
  */
 export type GetSubmissionDetailRequest = Message<"oj.v1.GetSubmissionDetailRequest"> & {
   /**
-   * @generated from field: int64 id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 1;
    */
   id: bigint;
 };
@@ -454,7 +454,7 @@ export type RunCodeRequest = Message<"oj.v1.RunCodeRequest"> & {
   /**
    * When set, use this problem's time and memory limits (else 2000 ms / 256 MB).
    *
-   * @generated from field: int64 problem_id = 4 [jstype = JS_NUMBER];
+   * @generated from field: int64 problem_id = 4;
    */
   problemId: bigint;
 };
@@ -503,7 +503,7 @@ export type RunCodeResponse = Message<"oj.v1.RunCodeResponse"> & {
   timeMs: number;
 
   /**
-   * @generated from field: int64 memory_kb = 7 [jstype = JS_NUMBER];
+   * @generated from field: int64 memory_kb = 7;
    */
   memoryKb: bigint;
 };
@@ -619,7 +619,7 @@ export const AddProblemResponseSchema: GenMessage<AddProblemResponse> = /*@__PUR
  */
 export type EditProblemRequest = Message<"oj.v1.EditProblemRequest"> & {
   /**
-   * @generated from field: int64 id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 1;
    */
   id: bigint;
 
@@ -683,7 +683,7 @@ export const EditProblemResponseSchema: GenMessage<EditProblemResponse> = /*@__P
  */
 export type RemoveProblemRequest = Message<"oj.v1.RemoveProblemRequest"> & {
   /**
-   * @generated from field: int64 id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 1;
    */
   id: bigint;
 };
@@ -713,7 +713,7 @@ export const RemoveProblemResponseSchema: GenMessage<RemoveProblemResponse> = /*
  */
 export type ListProblemTestCasesRequest = Message<"oj.v1.ListProblemTestCasesRequest"> & {
   /**
-   * @generated from field: int64 problem_id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 problem_id = 1;
    */
   problemId: bigint;
 };
@@ -747,7 +747,7 @@ export const ListProblemTestCasesResponseSchema: GenMessage<ListProblemTestCases
  */
 export type AddTestCaseRequest = Message<"oj.v1.AddTestCaseRequest"> & {
   /**
-   * @generated from field: int64 problem_id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 problem_id = 1;
    */
   problemId: bigint;
 
@@ -786,12 +786,12 @@ export const AddTestCaseResponseSchema: GenMessage<AddTestCaseResponse> = /*@__P
  */
 export type RemoveTestCaseRequest = Message<"oj.v1.RemoveTestCaseRequest"> & {
   /**
-   * @generated from field: int64 problem_id = 1 [jstype = JS_NUMBER];
+   * @generated from field: int64 problem_id = 1;
    */
   problemId: bigint;
 
   /**
-   * @generated from field: int64 id = 2 [jstype = JS_NUMBER];
+   * @generated from field: int64 id = 2;
    */
   id: bigint;
 };
