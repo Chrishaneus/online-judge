@@ -17,8 +17,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/online-judge/oj-rest/internal/gateway"
-	ojv1 "github.com/online-judge/oj-rest/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/rest/internal/gateway"
+	ojv1 "github.com/online-judge/online-judge/rest/internal/gen/oj/v1"
 )
 
 // maxMsgSize allows admin uploads of large test cases (see MaxBody limits).

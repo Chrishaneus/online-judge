@@ -18,7 +18,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	ojv1 "github.com/online-judge/oj-rest/internal/gen/oj/v1"
+	ojv1 "github.com/online-judge/online-judge/rest/internal/gen/oj/v1"
 )
 
 // Canonical proto JSON: camelCase names, enums by name, int64 as strings and
@@ -103,7 +103,7 @@ func writeError(w http.ResponseWriter, status int, msg string, details ...string
 	_, _ = w.Write(b)
 }
 
-// httpStatus maps a gRPC code to HTTP (see oj-proto README). public reports
+// httpStatus maps a gRPC code to HTTP (see proto README). public reports
 // whether the status message is meant for clients.
 func httpStatus(c codes.Code) (code int, public bool) {
 	switch c {

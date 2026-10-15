@@ -80,7 +80,7 @@ export function saveDraft(
 	}
 }
 
-/** Usernames oj-rest accepts: [A-Za-z0-9_.-]{0,32} (empty means anonymous). */
+/** Usernames rest accepts: [A-Za-z0-9_.-]{0,32} (empty means anonymous). */
 export function sanitizeUsername(value: string): string {
 	return value.replace(/[^A-Za-z0-9_.-]/g, '').slice(0, 32);
 }

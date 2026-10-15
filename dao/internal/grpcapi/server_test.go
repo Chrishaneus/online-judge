@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	ojv1 "github.com/online-judge/oj-dao/internal/gen/oj/v1"
-	"github.com/online-judge/oj-dao/internal/grpcapi"
-	"github.com/online-judge/oj-dao/internal/store"
+	ojv1 "github.com/online-judge/online-judge/dao/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/dao/internal/grpcapi"
+	"github.com/online-judge/online-judge/dao/internal/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"

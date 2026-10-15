@@ -1,26 +1,23 @@
-# oj-deploy
+# Online Judge
 
-Docker Compose deployment for the Online Judge.
+Submit code in Python, C, C++ or JavaScript and get it judged in a sandbox.
+SvelteKit frontend, Go and Python services talking gRPC, judging distributed
+over RabbitMQ. One repo, one `docker compose up`.
 
-## Repositories
+## Layout
 
-| Repo          | Language                      | Role                                                                 |
-|---------------|-------------------------------|----------------------------------------------------------------------|
-| `oj-proto`    | Protobuf (buf)                | **Shared contract**: gRPC APIs, RabbitMQ messages, JSON types; generates code into every repo |
-| `oj-webapp`   | SvelteKit 3 / Svelte 5 / TS   | Web UI; talks to oj-rest server-side (proto JSON)                   |
-| `oj-rest`     | Go                            | Public REST edge `/api/v1`: proto JSON ⇄ gRPC, auth, rate limits, CORS |
-| `oj-midlayer` | Python (grpc.aio, aio-pika)   | Business logic: validation, judging rules and verdicts, job publishing |
-| `oj-runner`   | Go                            | RabbitMQ consumer: sandboxed compile & execute (Python, C, C++, JavaScript) |
-| `oj-dao`      | Go + PostgreSQL               | Persistence (gRPC); the only service that touches the DB            |
-| `oj-deploy`   | Compose                       | This repo: wiring, networks, broker setup, hardening, smoke test    |
+| Path        | Language                      | Role                                                                 |
+|-------------|-------------------------------|----------------------------------------------------------------------|
+| `proto/`    | Protobuf (buf)                | **Shared contract**: gRPC APIs, RabbitMQ messages, JSON types; generates code into every service |
+| `webapp/`   | SvelteKit 3 / Svelte 5 / TS   | Web UI; talks to rest server-side (proto JSON)                       |
+| `rest/`     | Go                            | Public REST edge `/api/v1`: proto JSON ⇄ gRPC, auth, rate limits, CORS |
+| `midlayer/` | Python (grpc.aio, aio-pika)   | Business logic: validation, judging rules and verdicts, job publishing |
+| `runner/`   | Go                            | RabbitMQ consumer: sandboxed compile & execute                       |
+| `dao/`      | Go + PostgreSQL               | Persistence (gRPC); the only service that touches the DB             |
+| `rabbitmq/` | RabbitMQ config               | Users, permissions and queues rendered from `.env` at startup        |
+| `scripts/`  | bash / Python                 | `setup.sh` (dev deps), `smoke.py` (end-to-end test)                  |
 
-Clone them side by side:
-
-```
-online-judge/
-├── oj-proto/  oj-dao/  oj-runner/  oj-midlayer/  oj-rest/  oj-webapp/
-└── oj-deploy/   <- run commands here
-```
+Every directory has a README; `AGENTS.md` files hold the rules for coding agents.
 
 ## Architecture
 
@@ -82,6 +79,7 @@ how many runners are consuming.
 make env     # create/upgrade .env with random secrets (keeps existing values)
 make up      # build + start everything, wait for healthchecks
 make smoke   # end-to-end test against the running stack
+make e2e     # Playwright browser flows against the running stack
 ```
 
 Open http://localhost:8080. Sign in on the **Admin** page with the
@@ -89,8 +87,15 @@ Open http://localhost:8080. Sign in on the **Admin** page with the
 seeded.
 
 `make logs`, `make ps`, `make down`; `make clean` also deletes the database
-and broker volumes. `make proto-check` verifies every repo's generated code
-matches `../oj-proto`.
+and broker volumes.
+
+## Development
+
+```bash
+make setup   # proto generators, Python venv, Go modules, npm + Playwright
+make gen     # after editing proto/oj/v1/*.proto: regenerate every service
+make check   # every CI gate: generated code, lint, types, unit + functional tests
+```
 
 ### Smoke test
 
@@ -108,9 +113,9 @@ python3 scripts/smoke.py --api http://host:8000/api/v1 --web http://host:8080
 
 ### API
 
-The public API is served by oj-rest and uses canonical proto JSON:
+The public API is served by rest and uses canonical proto JSON:
 camelCase fields, enums by name, and int64 values as strings. The request and
-response messages are in `../oj-proto/oj/v1/judge.proto`.
+response messages are in `proto/oj/v1/judge.proto`.
 
 ```bash
 curl localhost:8000/api/v1/problems

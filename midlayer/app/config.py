@@ -17,7 +17,7 @@ class Settings:
     max_queue_depth: int = 1000
     recover_after_s: float = 300.0
     dao_timeout_s: float = 10.0
-    # Topology names. Fixed by oj-proto's runner.proto; only overridden by tests that share a broker.
+    # Topology names. Fixed by proto's runner.proto; only overridden by tests that share a broker.
     jobs_queue: str = "judge.jobs"
     dead_queue: str = "judge.jobs.dead"
     events_queue: str = "judge.events"

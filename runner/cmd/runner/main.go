@@ -1,6 +1,6 @@
 // Command runner is the online judge code execution worker. It consumes
 // oj.v1.ExecuteJob messages from RabbitMQ, runs them in the sandbox and
-// publishes oj.v1.JobEvent messages back (see oj-proto/oj/v1/runner.proto).
+// publishes oj.v1.JobEvent messages back (see proto/oj/v1/runner.proto).
 //
 // Usage:
 //
@@ -19,8 +19,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/online-judge/oj-runner/internal/consumer"
-	"github.com/online-judge/oj-runner/internal/executor"
+	"github.com/online-judge/online-judge/runner/internal/consumer"
+	"github.com/online-judge/online-judge/runner/internal/executor"
 )
 
 // healthMaxAge is how old the heartbeat (written every 5s) may get.

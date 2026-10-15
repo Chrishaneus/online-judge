@@ -585,7 +585,7 @@ const file_oj_v1_runner_proto_rawDesc = "" +
 	" EXECUTE_STATUS_COMPILATION_ERROR\x10\x02\x12\x1b\n" +
 	"\x17EXECUTE_STATUS_REJECTED\x10\x03\x12!\n" +
 	"\x1dEXECUTE_STATUS_INTERNAL_ERROR\x10\x04B\x88\x01\n" +
-	"\tcom.oj.v1B\vRunnerProtoP\x01Z9github.com/online-judge/oj-runner/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
+	"\tcom.oj.v1B\vRunnerProtoP\x01Z9github.com/online-judge/online-judge/runner/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
 
 var (
 	file_oj_v1_runner_proto_rawDescOnce sync.Once

@@ -4,7 +4,7 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			/** Admin token from the session cookie, set only once oj-rest has verified it (admin pages only). */
+			/** Admin token from the session cookie, set only once rest has verified it (admin pages only). */
 			adminToken: string | null;
 		}
 		// interface PageData {}

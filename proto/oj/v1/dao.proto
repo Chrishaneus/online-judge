@@ -5,8 +5,8 @@ package oj.v1;
 import "google/protobuf/timestamp.proto";
 import "oj/v1/types.proto";
 
-// DaoService is oj-dao's internal gRPC API: plain persistence, no business
-// rules. Only oj-midlayer calls it. oj-dao is the only service that talks to
+// DaoService is dao's internal gRPC API: plain persistence, no business
+// rules. Only midlayer calls it. dao is the only service that talks to
 // PostgreSQL.
 //
 // Errors (gRPC status codes):

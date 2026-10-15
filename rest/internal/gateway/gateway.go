@@ -1,6 +1,6 @@
 // Package gateway implements the public REST edge of the online judge: each
 // /api/v1 route translates canonical proto JSON into one oj.v1.JudgeService
-// gRPC call on oj-midlayer, wrapped in auth, rate limiting, CORS and
+// gRPC call on midlayer, wrapped in auth, rate limiting, CORS and
 // observability middleware. It holds no business logic.
 package gateway
 
@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"time"
 
-	ojv1 "github.com/online-judge/oj-rest/internal/gen/oj/v1"
+	ojv1 "github.com/online-judge/online-judge/rest/internal/gen/oj/v1"
 )
 
 type Config struct {
-	// Client is the oj-midlayer JudgeService client.
+	// Client is the midlayer JudgeService client.
 	Client          ojv1.JudgeServiceClient
 	AdminToken      string
 	CORSOrigins     []string

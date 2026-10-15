@@ -1,4 +1,4 @@
-module github.com/online-judge/oj-rest
+module github.com/online-judge/online-judge/rest
 
 go 1.27
 

@@ -1,4 +1,4 @@
-"""oj-dao's DaoService over grpc.aio. Translates gRPC status codes into app.errors."""
+"""dao's DaoService over grpc.aio. Translates gRPC status codes into app.errors."""
 
 import logging
 from collections.abc import Awaitable, Callable
@@ -32,9 +32,9 @@ def translate_rpc_error(err: grpc.RpcError) -> AppError:
     details = (err.details() if hasattr(err, "details") else None) or code.name.lower()
     cls = _ERRORS.get(code, AppError)
     if cls is Unavailable:
-        return Unavailable(f"oj-dao unavailable: {details}")
+        return Unavailable(f"dao unavailable: {details}")
     if cls is AppError:
-        return AppError(f"oj-dao error {code.name}: {details}")
+        return AppError(f"dao error {code.name}: {details}")
     return cls(details)
 
 
@@ -75,10 +75,10 @@ class DaoRepository:
             raise translate_rpc_error(err) from err
 
     async def ping(self) -> None:
-        """Raises Unavailable unless oj-dao's health service reports SERVING."""
+        """Raises Unavailable unless dao's health service reports SERVING."""
         res = await self._call(self.health.Check, health_pb2.HealthCheckRequest(service=""))
         if res.status != health_pb2.HealthCheckResponse.SERVING:
-            raise Unavailable(f"oj-dao is {health_pb2.HealthCheckResponse.ServingStatus.Name(res.status)}")
+            raise Unavailable(f"dao is {health_pb2.HealthCheckResponse.ServingStatus.Name(res.status)}")
 
     # ---------- problems ----------
 

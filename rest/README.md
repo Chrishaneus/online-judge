@@ -1,10 +1,10 @@
-# oj-rest
+# rest
 
 Public REST API (edge gateway) of the Online Judge, written in Go.
 
 It is the only backend service exposed to clients. Each `/api/v1` route is
-translated into one call of oj-midlayer's gRPC API (`oj.v1.JudgeService`,
-defined in [oj-proto](../oj-proto)), and oj-rest adds the cross-cutting
+translated into one call of midlayer's gRPC API (`oj.v1.JudgeService`,
+defined in [proto](../proto)), and rest adds the cross-cutting
 concerns:
 
 * versioned routes under `/api/v1`, served as **canonical proto JSON**
@@ -19,12 +19,12 @@ concerns:
 * panic recovery and structured JSON access logs
 
 There is no business logic here: validation of the request *content* and all
-judging rules live in oj-midlayer.
+judging rules live in midlayer.
 
 ## JSON
 
 Bodies and responses are the RPC request/response messages from
-`oj-proto/oj/v1/judge.proto` in canonical proto JSON:
+`proto/oj/v1/judge.proto` in canonical proto JSON:
 
 * camelCase field names (`problemId`, `timeLimitMs`); snake_case is also
   accepted in request bodies
@@ -125,7 +125,7 @@ curl -s -X DELETE $API/admin/problems/1/testcases/3 -H "$AUTH" -o /dev/null -w '
 | Variable | Default | Description |
 |---|---|---|
 | `REST_ADDR` | `:8000` | HTTP listen address |
-| `MIDLAYER_ADDR` | `localhost:50051` (`midlayer:50051` in the image) | oj-midlayer gRPC address (plaintext, internal network) |
+| `MIDLAYER_ADDR` | `localhost:50051` (`midlayer:50051` in the image) | midlayer gRPC address (plaintext, internal network) |
 | `UPSTREAM_TIMEOUT_S` | `60` | Deadline of each gRPC call |
 | `RUN_TIMEOUT_S` | `60` | Deadline of `RunCode` (compile + run on a runner) |
 | `ADMIN_TOKEN` | *(empty → admin off)* | Bearer token for admin routes (≥ 16 random characters) |
@@ -146,5 +146,5 @@ MIDLAYER_ADDR=localhost:50051 ADMIN_TOKEN=dev-token-0123456789 make run
 make docker                     # online-judge/rest:latest
 ```
 
-`internal/gen/oj/v1` is generated from oj-proto (`make gen` there); never
+`internal/gen/oj/v1` is generated from proto (`make gen` at the repo root); never
 edit it by hand.

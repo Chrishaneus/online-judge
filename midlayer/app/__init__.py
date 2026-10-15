@@ -2,8 +2,8 @@
 
 transport/     gRPC JudgeService servicer + RabbitMQ consumers: decode, call ONE service method, map errors
 services/      business logic on proto messages; raises app.errors; no grpc/aio-pika imports
-repositories/  all I/O: oj-dao over gRPC, RabbitMQ over AMQP
-gen/           code generated from oj-proto - never edit
+repositories/  all I/O: dao over gRPC, RabbitMQ over AMQP
+gen/           code generated from proto - never edit
 """
 
 import asyncio

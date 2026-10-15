@@ -4,7 +4,7 @@ package oj.v1;
 
 import "oj/v1/types.proto";
 
-// Messages exchanged between oj-midlayer and oj-runner through RabbitMQ.
+// Messages exchanged between midlayer and runner through RabbitMQ.
 // There is no gRPC service: runners are queue consumers, so they need no
 // listening port and scale by adding replicas.
 //
@@ -14,7 +14,7 @@ import "oj/v1/types.proto";
 //   delivery_mode = 2 (persistent)
 //
 // Topology (all on the default exchange; declared by the broker's definitions
-// file in oj-deploy, and re-declared with identical arguments by oj-midlayer):
+// file in rabbitmq/render_definitions.py, and re-declared with identical arguments by midlayer):
 //
 //   judge.jobs       quorum queue. x-delivery-limit=3,
 //                    x-dead-letter-exchange="", x-dead-letter-routing-key=judge.jobs.dead

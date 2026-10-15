@@ -34,4 +34,4 @@ class DeadlineExceeded(AppError):
 
 
 class Unavailable(AppError):
-    """UNAVAILABLE (oj-dao or RabbitMQ unreachable)."""
+    """UNAVAILABLE (dao or RabbitMQ unreachable)."""

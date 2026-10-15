@@ -11,11 +11,11 @@ setup:
 	uv pip install --quiet --python $(PY) -r requirements.txt
 	GOBIN=$(CURDIR)/.bin go install $(GO_PLUGINS)
 
-## gen: lint, then regenerate code into every sibling repo
+## gen: lint, then regenerate code into every service
 gen:
 	$(PY) generate.py
 
-## check: fail if any sibling's generated code is stale (CI gate)
+## check: fail if any service's generated code is stale (CI gate)
 check:
 	$(PY) generate.py --check
 

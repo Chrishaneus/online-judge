@@ -1,4 +1,4 @@
-"""Logs every unary RPC: method, status code, duration and the x-request-id set by oj-rest."""
+"""Logs every unary RPC: method, status code, duration and the x-request-id set by rest."""
 
 import logging
 import time

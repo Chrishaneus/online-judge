@@ -1,5 +1,5 @@
 [project]
-name = "oj-midlayer"
+name = "midlayer"
 version = "2.0.0"
 requires-python = ">=3.13"
 

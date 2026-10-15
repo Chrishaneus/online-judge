@@ -26,20 +26,20 @@ if _version_not_supported:
 
 
 class JudgeServiceStub:
-    """JudgeService is oj-midlayer's gRPC API: the business logic of the Online
-    Judge. oj-rest exposes it to clients at /api/v1 (see oj-rest's README for
+    """JudgeService is midlayer's gRPC API: the business logic of the Online
+    Judge. rest exposes it to clients at /api/v1 (see rest's README for
     the HTTP mapping); authentication, rate limits and CORS live there, not here.
 
     The HTTP body of each route is the request message (minus path parameters)
     and its response is the response message, both as canonical proto JSON.
 
-    Errors (gRPC status codes, mapped to HTTP by oj-rest):
+    Errors (gRPC status codes, mapped to HTTP by rest):
     INVALID_ARGUMENT     validation failed (message says which field)  -> 422
     NOT_FOUND            problem / submission / test case not found    -> 404
     ALREADY_EXISTS       duplicate problem slug                        -> 409
     RESOURCE_EXHAUSTED   judging queue is full                         -> 429
     DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
-    UNAVAILABLE          oj-dao or RabbitMQ unreachable                -> 503
+    UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
     Liveness/readiness: the standard grpc.health.v1.Health service.
     """
 
@@ -122,20 +122,20 @@ class JudgeServiceStub:
 
 
 class JudgeServiceServicer:
-    """JudgeService is oj-midlayer's gRPC API: the business logic of the Online
-    Judge. oj-rest exposes it to clients at /api/v1 (see oj-rest's README for
+    """JudgeService is midlayer's gRPC API: the business logic of the Online
+    Judge. rest exposes it to clients at /api/v1 (see rest's README for
     the HTTP mapping); authentication, rate limits and CORS live there, not here.
 
     The HTTP body of each route is the request message (minus path parameters)
     and its response is the response message, both as canonical proto JSON.
 
-    Errors (gRPC status codes, mapped to HTTP by oj-rest):
+    Errors (gRPC status codes, mapped to HTTP by rest):
     INVALID_ARGUMENT     validation failed (message says which field)  -> 422
     NOT_FOUND            problem / submission / test case not found    -> 404
     ALREADY_EXISTS       duplicate problem slug                        -> 409
     RESOURCE_EXHAUSTED   judging queue is full                         -> 429
     DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
-    UNAVAILABLE          oj-dao or RabbitMQ unreachable                -> 503
+    UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
     Liveness/readiness: the standard grpc.health.v1.Health service.
     """
 
@@ -196,7 +196,7 @@ class JudgeServiceServicer:
         raise NotImplementedError('Method not implemented!')
 
     def AddProblem(self, request, context):
-        """Admin (oj-rest requires the admin bearer token for these).
+        """Admin (rest requires the admin bearer token for these).
         POST   /api/v1/admin/problems
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -320,20 +320,20 @@ def add_JudgeServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class JudgeService:
-    """JudgeService is oj-midlayer's gRPC API: the business logic of the Online
-    Judge. oj-rest exposes it to clients at /api/v1 (see oj-rest's README for
+    """JudgeService is midlayer's gRPC API: the business logic of the Online
+    Judge. rest exposes it to clients at /api/v1 (see rest's README for
     the HTTP mapping); authentication, rate limits and CORS live there, not here.
 
     The HTTP body of each route is the request message (minus path parameters)
     and its response is the response message, both as canonical proto JSON.
 
-    Errors (gRPC status codes, mapped to HTTP by oj-rest):
+    Errors (gRPC status codes, mapped to HTTP by rest):
     INVALID_ARGUMENT     validation failed (message says which field)  -> 422
     NOT_FOUND            problem / submission / test case not found    -> 404
     ALREADY_EXISTS       duplicate problem slug                        -> 409
     RESOURCE_EXHAUSTED   judging queue is full                         -> 429
     DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
-    UNAVAILABLE          oj-dao or RabbitMQ unreachable                -> 503
+    UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
     Liveness/readiness: the standard grpc.health.v1.Health service.
     """
 

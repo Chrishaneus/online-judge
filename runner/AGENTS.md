@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Instructions for any AI coding agent (Claude Code, Codex, Cursor, Gemini, Aider, Copilot…) working in this repo.
+Instructions for any AI coding agent (Claude Code, Codex, Cursor, Gemini, Aider, Copilot…) working in `runner/`.
 
-oj-runner executes untrusted code. It consumes `oj.v1.ExecuteJob` from
+runner executes untrusted code. It consumes `oj.v1.ExecuteJob` from
 RabbitMQ and publishes `oj.v1.JobEvent`s. See README.md for the flow and
 the security model.
 
@@ -27,11 +27,11 @@ the security model.
 ### Consumer
 - **Ack a job only after its `finished` event is confirmed** by the broker (publisher confirms). Anything else loses results.
 - Settle every delivery exactly once: bad message → `Nack(requeue=false)`; job problem → `finished` with `REJECTED`/`COMPILATION_ERROR` + ack; infrastructure error → requeue (dead-letter on the last attempt).
-- Don't declare queues or exchanges: the runner's broker user has no configure permission; topology comes from oj-deploy.
+- Don't declare queues or exchanges: the runner's broker user has no configure permission; topology comes from `rabbitmq/render_definitions.py` at the repo root.
 - AMQP access goes through the small interfaces in `handler.go` (`Executor`, `Publisher`, `amqp.Acknowledger`) so the logic stays unit-testable with fakes.
 
 ### Contract
-- The contract is `oj-proto/oj/v1/runner.proto` (its header defines topology, properties and ack semantics). To change it, edit oj-proto and run `make gen` there; it regenerates `internal/gen/`.
+- The contract is `../proto/oj/v1/runner.proto` (its header defines topology, properties and ack semantics). To change it, edit it and run `make gen` at the repo root; it regenerates `internal/gen/`.
 - **Never hand-edit `internal/gen/`.**
 
 ## Commands

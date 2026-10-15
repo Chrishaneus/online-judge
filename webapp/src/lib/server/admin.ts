@@ -1,6 +1,6 @@
 import { redirect, type Cookies } from '@sveltejs/kit';
 
-/** httpOnly cookie holding the admin bearer token (verified against oj-rest on every admin request). */
+/** httpOnly cookie holding the admin bearer token (verified against rest on every admin request). */
 export const ADMIN_COOKIE = 'oj_admin';
 
 export function setAdminCookie(cookies: Cookies, url: URL, token: string): void {

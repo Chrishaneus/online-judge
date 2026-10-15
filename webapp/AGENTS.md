@@ -1,15 +1,15 @@
 # AGENTS.md
 
-Instructions for any AI coding agent working in oj-webapp, the Online Judge frontend
+Instructions for any AI coding agent working in webapp, the Online Judge frontend
 (SvelteKit 3 + Svelte 5 runes + Tailwind 4 + shadcn-svelte, Node adapter).
 
 ## Rules (reviewers enforce these)
 
-- **All oj-rest calls are server-side**, through the repository in `src/lib/server/api.ts`
-  (load functions, form actions, `+server.ts`). The browser never talks to oj-rest.
+- **All rest calls are server-side**, through the repository in `src/lib/server/api.ts`
+  (load functions, form actions, `+server.ts`). The browser never talks to rest.
 - **Shared types come from protobuf.** `src/lib/gen/oj/v1/*_pb.ts` is generated from
-  oj-proto: never hand-edit it, and don't redeclare its types. To change a shape, edit
-  `oj-proto/oj/v1/*.proto` and run `make gen` there, then commit the regenerated files here.
+  `../proto`: never hand-edit it, and don't redeclare its types. To change a shape, edit
+  `../proto/oj/v1/*.proto` and run `make gen` at the repo root, then commit the regenerated files with it.
 - Over the wire: canonical proto JSON (camelCase, enums by name, int64 as strings, which
   are `bigint` in TS). Build request bodies with `create()` + `toJson()`, parse every
   response with `fromJson(Schema, json, { ignoreUnknownFields: true })`; a mismatch is a
@@ -39,10 +39,10 @@ Instructions for any AI coding agent working in oj-webapp, the Online Judge fron
 | Lint + types        | `npm run lint && npm run check`                                                        |
 | Unit tests          | `npm run test:unit`                                                                    |
 | Component tests     | `npm run test:component` (needs `npx playwright install chromium`)                     |
-| E2E vs mock oj-rest | `npx playwright test` (builds, starts `e2e/mock-api.ts` + `vite preview`)              |
+| E2E vs mock rest | `npx playwright test` (builds, starts `e2e/mock-api.ts` + `vite preview`)              |
 | E2E vs the stack    | `E2E_BASE_URL=http://localhost:8080 E2E_ADMIN_TOKEN=<ADMIN_TOKEN> npx playwright test` |
 | Build / image       | `npm run build` / `docker build -t online-judge/webapp:latest .`                       |
-| Regenerate types    | `make gen` (in `../oj-proto`)                                                          |
+| Regenerate types    | `make gen` (repo root)                                                              |
 
 ## Test levels: put each test where it belongs
 
@@ -51,7 +51,7 @@ Instructions for any AI coding agent working in oj-webapp, the Online Judge fron
 - **Component** (`src/**/*.svelte.spec.ts`, vitest browser / chromium): Svelte
   components in a real browser.
 - **E2E** (`e2e/*.e2e.ts`, Playwright): user flows through the app. Locally against the
-  mock oj-rest; for real judging, against the running stack with `E2E_BASE_URL`.
+  mock rest; for real judging, against the running stack with `E2E_BASE_URL`.
 
 ## Hard rules
 

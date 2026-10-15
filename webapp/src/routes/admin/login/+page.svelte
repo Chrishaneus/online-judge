@@ -16,7 +16,7 @@
 <Card.Root class="mx-auto mt-8 w-full max-w-sm">
 	<Card.Header>
 		<Card.Title><h1 class="text-xl">Admin sign in</h1></Card.Title>
-		<Card.Description>Use the ADMIN_TOKEN configured for oj-rest.</Card.Description>
+		<Card.Description>Use the ADMIN_TOKEN configured for rest.</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<form

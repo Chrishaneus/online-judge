@@ -1,9 +1,9 @@
-# oj-midlayer
+# midlayer
 
 Business-logic layer of the Online Judge (Python 3.13, grpc.aio, aio-pika).
 
-* Serves **`oj.v1.JudgeService`** over gRPC (`:50051`). oj-rest maps it to `/api/v1`.
-* Persists everything through **oj-dao** (`oj.v1.DaoService`, gRPC client).
+* Serves **`oj.v1.JudgeService`** over gRPC (`:50051`). rest maps it to `/api/v1`.
+* Persists everything through **dao** (`oj.v1.DaoService`, gRPC client).
 * Judges through **RabbitMQ**: it publishes an `ExecuteJob` per submission to
   `judge.jobs`, consumes the runners' `JobEvent`s from `judge.events`, compares
   outputs, computes the verdict and stores it.
@@ -15,8 +15,8 @@ Business-logic layer of the Online Judge (Python 3.13, grpc.aio, aio-pika).
   listings omit source, message and per-test results.
 * Validates domain input (slug, title, limits, languages, usernames, sizes).
 
-Authentication, rate limits and CORS live in oj-rest. The contract (all
-messages, the gRPC APIs and the RabbitMQ topology) lives in **oj-proto**; the
+Authentication, rate limits and CORS live in rest. The contract (all
+messages, the gRPC APIs and the RabbitMQ topology) lives in **proto**; the
 generated code is in `app/gen/` and must never be edited by hand.
 
 ## Layers
@@ -34,7 +34,7 @@ Dependencies point downward only (see `AGENTS.md`).
 
 ## gRPC API
 
-`oj.v1.JudgeService` (see `oj-proto/oj/v1/judge.proto` for every field):
+`oj.v1.JudgeService` (see `proto/oj/v1/judge.proto` for every field):
 `GetStatus`, `ListLanguages`, `ListProblemSummaries`, `GetProblemDetail`,
 `Submit`, `ListSubmissionSummaries`, `GetSubmissionDetail`, `RunCode`, and the
 admin RPCs `AddProblem`, `EditProblem`, `RemoveProblem`,
@@ -47,17 +47,17 @@ admin RPCs `AddProblem`, `EditProblem`, `RemoveProblem`,
 | `ALREADY_EXISTS` | duplicate problem slug |
 | `RESOURCE_EXHAUSTED` | `judge.jobs` holds `MAX_QUEUE_DEPTH` or more jobs (checked before creating) |
 | `DEADLINE_EXCEEDED` | `RunCode` got no answer within `RUN_TIMEOUT_S` |
-| `UNAVAILABLE` | oj-dao or RabbitMQ unreachable, or the runner failed a custom run |
+| `UNAVAILABLE` | dao or RabbitMQ unreachable, or the runner failed a custom run |
 | `INTERNAL` | anything unexpected (logged; details not leaked) |
 
 The standard `grpc.health.v1.Health` service reports SERVING (for `""` and
 `oj.v1.JudgeService`) once the broker is connected and the server started.
 Max message size is 64 MiB both ways. Each RPC is logged with method, status
-code, duration and the `x-request-id` metadata set by oj-rest.
+code, duration and the `x-request-id` metadata set by rest.
 
 ## Message flow
 
-Topology and AMQP properties follow the header of `oj-proto/oj/v1/runner.proto`.
+Topology and AMQP properties follow the header of `proto/oj/v1/runner.proto`.
 At startup the midlayer re-declares the quorum queues with identical arguments
 (`judge.jobs`: `x-delivery-limit=3`, dead-lettered to `judge.jobs.dead`).
 
@@ -70,7 +70,7 @@ runner ─> judge.events  started  -> UpdateSubmission JUDGING   if status in [P
                         finished -> evaluate -> FINISHED + verdict if status in [PENDING, JUDGING]
                                     REJECTED / INTERNAL_ERROR -> FAILED / INTERNAL_ERROR
         A FAILED_PRECONDITION (late or duplicate event) is ignored. Acked after the dao write;
-        oj-dao unavailable -> nack + requeue after a short delay.
+        dao unavailable -> nack + requeue after a short delay.
 
 judge.jobs.dead ─> submission jobs: FAILED / INTERNAL_ERROR (same CAS); custom runs: ack.
 
@@ -87,8 +87,8 @@ compare-and-set). Failure is logged, not fatal.
 | Variable | Default | Description |
 |---|---|---|
 | `GRPC_ADDR` | `[::]:50051` | Listen address |
-| `DAO_ADDR` | `localhost:50052` | oj-dao gRPC address |
-| `DAO_TIMEOUT_S` | `10` | Deadline for each oj-dao call |
+| `DAO_ADDR` | `localhost:50052` | dao gRPC address |
+| `DAO_TIMEOUT_S` | `10` | Deadline for each dao call |
 | `RABBITMQ_URL` | `amqp://guest:guest@localhost:5672/` | Broker URL |
 | `RUN_TIMEOUT_S` | `30` | `RunCode` wait (and the job's AMQP expiration) |
 | `MAX_QUEUE_DEPTH` | `1000` | `Submit` returns RESOURCE_EXHAUSTED at this depth |
@@ -109,8 +109,8 @@ uv venv --python 3.13 .venv && uv pip install --python .venv -r requirements-dev
 .venv/bin/pytest tests/unit
 .venv/bin/pytest tests/functional            # broker tests skip unless RABBITMQ_TEST_URL is set
 RABBITMQ_TEST_URL=amqp://oj:oj@127.0.0.1:5673/ .venv/bin/pytest
-.venv/bin/python -m app                     # needs oj-dao and RabbitMQ
+.venv/bin/python -m app                     # needs dao and RabbitMQ
 docker build -t online-judge/midlayer:latest .
 ```
 
-Regenerate `app/gen/` from oj-proto with `make gen` there.
+Regenerate `app/gen/` from proto with `make gen` at the repo root.

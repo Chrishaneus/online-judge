@@ -1,6 +1,51 @@
 COMPOSE := docker compose
+PROTO_PY := proto/.venv/bin/python
+MID_PY := midlayer/.venv/bin/python
+# Throwaway broker for the RabbitMQ integration tests (make test-broker).
+TEST_BROKER_URL := amqp://oj:oj@127.0.0.1:5673/
 
-.PHONY: env up down logs ps smoke proto-check clean
+.PHONY: help setup gen check check-proto check-dao check-rest check-runner check-midlayer check-webapp \
+        test-broker env up down logs ps smoke e2e clean
+
+help:
+	@grep -E '^## ' Makefile | sed 's/^## //'
+
+## setup: install every toolchain (proto generators, Python venv, npm, Playwright)
+setup:
+	bash scripts/setup.sh
+
+## gen: lint the .proto files and regenerate code into every service
+gen:
+	$(PROTO_PY) proto/generate.py
+
+## check: every gate CI runs (generated code, lint, types, unit + functional tests)
+check: check-proto check-dao check-rest check-runner check-midlayer check-webapp
+	@echo "all checks passed"
+
+check-proto:
+	$(PROTO_PY) proto/generate.py --check
+
+check-dao:
+	$(MAKE) -C dao check
+
+check-rest:
+	$(MAKE) -C rest check
+
+check-runner:
+	cd runner && test -z "$$(gofmt -l .)" && go vet ./... && go test ./...
+
+check-midlayer:
+	cd midlayer && .venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/pytest -q
+
+check-webapp:
+	cd webapp && npm run lint && npm run check && npm run test:unit && npm run test:component
+
+## test-broker: start a throwaway RabbitMQ on :5673; then run the broker tests with
+##              RABBITMQ_TEST_URL=amqp://oj:oj@127.0.0.1:5673/ (runner, midlayer)
+test-broker:
+	@docker start oj-test-rabbitmq >/dev/null 2>&1 || docker run -d --name oj-test-rabbitmq \
+	  -p 127.0.0.1:5673:5672 -e RABBITMQ_DEFAULT_USER=oj -e RABBITMQ_DEFAULT_PASS=oj rabbitmq:4-alpine >/dev/null
+	@echo "RABBITMQ_TEST_URL=$(TEST_BROKER_URL)   (stop: docker rm -f oj-test-rabbitmq)"
 
 SECRETS := POSTGRES_PASSWORD RABBITMQ_MIDLAYER_PASSWORD RABBITMQ_RUNNER_PASSWORD ADMIN_TOKEN
 
@@ -18,7 +63,7 @@ env:
 	done
 	@echo ".env ready (admin token: $$(grep ^ADMIN_TOKEN= .env | cut -d= -f2))"
 
-## up: build and start the whole stack, waiting until healthy
+## up: build and start the whole stack, waiting until healthy (http://localhost:8080)
 up:
 	$(COMPOSE) up -d --build --wait
 
@@ -31,13 +76,14 @@ logs:
 ps:
 	$(COMPOSE) ps
 
-## smoke: end-to-end test against the running stack
+## smoke: end-to-end API + sandbox test against the running stack
 smoke:
 	python3 scripts/smoke.py
 
-## proto-check: fail if any service's generated code is stale vs ../oj-proto
-proto-check:
-	$(MAKE) -C ../oj-proto check
+## e2e: Playwright browser flows against the running stack
+e2e:
+	cd webapp && E2E_BASE_URL=http://localhost:$${WEB_PORT:-8080} \
+	  E2E_ADMIN_TOKEN="$$(grep '^ADMIN_TOKEN=' ../.env | cut -d= -f2-)" npx playwright test
 
 ## clean: stop and delete all data (database and broker volumes included)
 clean:

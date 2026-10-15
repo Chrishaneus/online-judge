@@ -2,7 +2,7 @@
 // executor and publishes JobEvents back to the job's reply_to queue.
 //
 // The contract (topology, AMQP properties, ack semantics) is the header of
-// oj-proto/oj/v1/runner.proto. In short: publish `started`, execute, publish
+// proto/oj/v1/runner.proto. In short: publish `started`, execute, publish
 // `finished` with publisher confirms, and only then ack the job.
 package consumer
 
@@ -16,8 +16,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/online-judge/oj-runner/internal/executor"
-	ojv1 "github.com/online-judge/oj-runner/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/runner/internal/executor"
+	ojv1 "github.com/online-judge/online-judge/runner/internal/gen/oj/v1"
 )
 
 // AMQP properties from runner.proto.
@@ -181,7 +181,7 @@ func (h *Handler) publish(ctx context.Context, d amqp.Delivery, ev *ojv1.JobEven
 		Type:          TypeJobEvent,
 		DeliveryMode:  amqp.Persistent,
 		CorrelationId: d.CorrelationId,
-		AppId:         "oj-runner",
+		AppId:         "runner",
 		Timestamp:     time.Now(),
 		Body:          body,
 	})

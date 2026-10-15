@@ -1,4 +1,4 @@
-module github.com/online-judge/oj-dao
+module github.com/online-judge/online-judge/dao
 
 go 1.27
 

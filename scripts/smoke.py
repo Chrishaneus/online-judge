@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """End-to-end smoke test against a running Online Judge stack.
 
-Talks to oj-rest's public API (canonical proto JSON, see ../oj-proto) and checks
+Talks to rest's public API (canonical proto JSON, see proto/) and checks
 the webapp is serving. Standard library only.
 
     make smoke

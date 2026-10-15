@@ -1,7 +1,7 @@
 # AGENTS.md
 
-Instructions for any AI coding agent working in oj-midlayer (the Online Judge's business logic:
-gRPC `oj.v1.JudgeService` server, oj-dao gRPC client, RabbitMQ publisher/consumer).
+Instructions for any AI coding agent working in midlayer (the Online Judge's business logic:
+gRPC `oj.v1.JudgeService` server, dao gRPC client, RabbitMQ publisher/consumer).
 
 ## Architecture rules (reviewers enforce these)
 
@@ -14,16 +14,16 @@ gRPC `oj.v1.JudgeService` server, oj-dao gRPC client, RabbitMQ publisher/consume
   `app.errors.*` (`ValidationError` with a field-specific message, `NotFound`, `ResourceExhausted`, ...).
   **No `grpc` or `aio_pika` imports.** Talks to I/O only through the repository interfaces in
   `app/services/ports.py`.
-- `app/repositories/`: all I/O (oj-dao over gRPC, RabbitMQ over AMQP). Translates transport errors into
+- `app/repositories/`: all I/O (dao over gRPC, RabbitMQ over AMQP). Translates transport errors into
   `app.errors` (`NotFound`, `AlreadyExists`, `PreconditionFailed`, `Unavailable`, ...). No business rules.
 - Wiring happens in `app/__init__.py` (`create_app(settings, dao=..., queue=...)`): repositories are
   injected into services. Configuration comes from env vars via `app/config.py`.
 
 ### Contract (protobuf)
-- The contract lives in the sibling repo **oj-proto** (`oj/v1/*.proto`). To change a message or RPC, edit it
-  there and run `make gen`; never redeclare shapes here.
+- The contract lives in **`../proto/`** (`oj/v1/*.proto`). To change a message or RPC, edit it
+  there and run `make gen` at the repo root; never redeclare shapes here.
 - **Never hand-edit `app/gen/`.** It is generated and committed.
-- The RabbitMQ topology and AMQP properties are specified in the header of `oj-proto/oj/v1/runner.proto`;
+- The RabbitMQ topology and AMQP properties are specified in the header of `../proto/oj/v1/runner.proto`;
   `JobQueue` must declare queues with exactly those arguments.
 
 ### Judging invariants
@@ -32,7 +32,7 @@ gRPC `oj.v1.JudgeService` server, oj-dao gRPC client, RabbitMQ publisher/consume
   dao write; `Unavailable` means requeue.
 - Hidden test cases never leave the midlayer (only samples in `GetProblemDetail`).
 
-## Commands (cwd: repo root)
+## Commands (cwd: `midlayer/`)
 
 | What | Command |
 |---|---|
@@ -41,7 +41,7 @@ gRPC `oj.v1.JudgeService` server, oj-dao gRPC client, RabbitMQ publisher/consume
 | Unit tests | `.venv/bin/pytest tests/unit` |
 | Functional tests | `.venv/bin/pytest tests/functional` |
 | With a real broker | `RABBITMQ_TEST_URL=amqp://oj:oj@127.0.0.1:5673/ .venv/bin/pytest` |
-| Run | `.venv/bin/python -m app` (needs oj-dao and RabbitMQ) |
+| Run | `.venv/bin/python -m app` (needs dao and RabbitMQ) |
 | Image | `docker build -t online-judge/midlayer:latest .` |
 
 ## Test levels: put each test where it belongs

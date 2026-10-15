@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/online-judge/oj-runner/internal/lang"
-	"github.com/online-judge/oj-runner/internal/sandbox"
+	"github.com/online-judge/online-judge/runner/internal/lang"
+	"github.com/online-judge/online-judge/runner/internal/sandbox"
 )
 
 // Per-test statuses.

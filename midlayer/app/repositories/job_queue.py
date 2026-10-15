@@ -1,6 +1,6 @@
 """RabbitMQ I/O (aio-pika): topology, publishing ExecuteJobs, the custom-run RPC and consumers.
 
-Topology and message properties follow the header of oj-proto's oj/v1/runner.proto exactly.
+Topology and message properties follow the header of proto's oj/v1/runner.proto exactly.
 """
 
 import asyncio

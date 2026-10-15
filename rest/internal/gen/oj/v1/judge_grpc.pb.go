@@ -39,21 +39,21 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// JudgeService is oj-midlayer's gRPC API: the business logic of the Online
-// Judge. oj-rest exposes it to clients at /api/v1 (see oj-rest's README for
+// JudgeService is midlayer's gRPC API: the business logic of the Online
+// Judge. rest exposes it to clients at /api/v1 (see rest's README for
 // the HTTP mapping); authentication, rate limits and CORS live there, not here.
 //
 // The HTTP body of each route is the request message (minus path parameters)
 // and its response is the response message, both as canonical proto JSON.
 //
-// Errors (gRPC status codes, mapped to HTTP by oj-rest):
+// Errors (gRPC status codes, mapped to HTTP by rest):
 //
 //	INVALID_ARGUMENT     validation failed (message says which field)  -> 422
 //	NOT_FOUND            problem / submission / test case not found    -> 404
 //	ALREADY_EXISTS       duplicate problem slug                        -> 409
 //	RESOURCE_EXHAUSTED   judging queue is full                         -> 429
 //	DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
-//	UNAVAILABLE          oj-dao or RabbitMQ unreachable                -> 503
+//	UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
 //
 // Liveness/readiness: the standard grpc.health.v1.Health service.
 type JudgeServiceClient interface {
@@ -73,7 +73,7 @@ type JudgeServiceClient interface {
 	GetSubmissionDetail(ctx context.Context, in *GetSubmissionDetailRequest, opts ...grpc.CallOption) (*GetSubmissionDetailResponse, error)
 	// POST /api/v1/run (rate limited). Runs code against custom input, no judging.
 	RunCode(ctx context.Context, in *RunCodeRequest, opts ...grpc.CallOption) (*RunCodeResponse, error)
-	// Admin (oj-rest requires the admin bearer token for these).
+	// Admin (rest requires the admin bearer token for these).
 	// POST   /api/v1/admin/problems
 	AddProblem(ctx context.Context, in *AddProblemRequest, opts ...grpc.CallOption) (*AddProblemResponse, error)
 	// PUT    /api/v1/admin/problems/{id}
@@ -240,21 +240,21 @@ func (c *judgeServiceClient) RemoveTestCase(ctx context.Context, in *RemoveTestC
 // All implementations must embed UnimplementedJudgeServiceServer
 // for forward compatibility.
 //
-// JudgeService is oj-midlayer's gRPC API: the business logic of the Online
-// Judge. oj-rest exposes it to clients at /api/v1 (see oj-rest's README for
+// JudgeService is midlayer's gRPC API: the business logic of the Online
+// Judge. rest exposes it to clients at /api/v1 (see rest's README for
 // the HTTP mapping); authentication, rate limits and CORS live there, not here.
 //
 // The HTTP body of each route is the request message (minus path parameters)
 // and its response is the response message, both as canonical proto JSON.
 //
-// Errors (gRPC status codes, mapped to HTTP by oj-rest):
+// Errors (gRPC status codes, mapped to HTTP by rest):
 //
 //	INVALID_ARGUMENT     validation failed (message says which field)  -> 422
 //	NOT_FOUND            problem / submission / test case not found    -> 404
 //	ALREADY_EXISTS       duplicate problem slug                        -> 409
 //	RESOURCE_EXHAUSTED   judging queue is full                         -> 429
 //	DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
-//	UNAVAILABLE          oj-dao or RabbitMQ unreachable                -> 503
+//	UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
 //
 // Liveness/readiness: the standard grpc.health.v1.Health service.
 type JudgeServiceServer interface {
@@ -274,7 +274,7 @@ type JudgeServiceServer interface {
 	GetSubmissionDetail(context.Context, *GetSubmissionDetailRequest) (*GetSubmissionDetailResponse, error)
 	// POST /api/v1/run (rate limited). Runs code against custom input, no judging.
 	RunCode(context.Context, *RunCodeRequest) (*RunCodeResponse, error)
-	// Admin (oj-rest requires the admin bearer token for these).
+	// Admin (rest requires the admin bearer token for these).
 	// POST   /api/v1/admin/problems
 	AddProblem(context.Context, *AddProblemRequest) (*AddProblemResponse, error)
 	// PUT    /api/v1/admin/problems/{id}

@@ -26,8 +26,8 @@ if _version_not_supported:
 
 
 class DaoServiceStub:
-    """DaoService is oj-dao's internal gRPC API: plain persistence, no business
-    rules. Only oj-midlayer calls it. oj-dao is the only service that talks to
+    """DaoService is dao's internal gRPC API: plain persistence, no business
+    rules. Only midlayer calls it. dao is the only service that talks to
     PostgreSQL.
 
     Errors (gRPC status codes):
@@ -108,8 +108,8 @@ class DaoServiceStub:
 
 
 class DaoServiceServicer:
-    """DaoService is oj-dao's internal gRPC API: plain persistence, no business
-    rules. Only oj-midlayer calls it. oj-dao is the only service that talks to
+    """DaoService is dao's internal gRPC API: plain persistence, no business
+    rules. Only midlayer calls it. dao is the only service that talks to
     PostgreSQL.
 
     Errors (gRPC status codes):
@@ -269,8 +269,8 @@ def add_DaoServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class DaoService:
-    """DaoService is oj-dao's internal gRPC API: plain persistence, no business
-    rules. Only oj-midlayer calls it. oj-dao is the only service that talks to
+    """DaoService is dao's internal gRPC API: plain persistence, no business
+    rules. Only midlayer calls it. dao is the only service that talks to
     PostgreSQL.
 
     Errors (gRPC status codes):

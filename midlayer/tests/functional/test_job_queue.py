@@ -126,7 +126,7 @@ async def test_queue_stats(jq, names, raw):
 
 
 async def fake_runner(raw, names, result: runner_pb2.ExecuteResult, seen: list):
-    """Consume one job and answer like oj-runner: started, then finished, to reply_to."""
+    """Consume one job and answer like runner: started, then finished, to reply_to."""
     ch = await raw.channel()
     msg = await get_one(ch, names["jobs_queue"])
     seen.append(msg)

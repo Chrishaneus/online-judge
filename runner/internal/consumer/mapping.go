@@ -3,8 +3,8 @@ package consumer
 import (
 	"fmt"
 
-	"github.com/online-judge/oj-runner/internal/executor"
-	ojv1 "github.com/online-judge/oj-runner/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/runner/internal/executor"
+	ojv1 "github.com/online-judge/online-judge/runner/internal/gen/oj/v1"
 )
 
 // languageIDs maps the contract's Language enum to lang registry ids.

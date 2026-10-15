@@ -1,13 +1,13 @@
-# oj-dao
+# dao
 
 Persistence service for the Online Judge: a gRPC server implementing
-`oj.v1.DaoService` (contract: [`oj-proto/oj/v1/dao.proto`](../oj-proto/oj/v1/dao.proto)).
+`oj.v1.DaoService` (contract: [`proto/oj/v1/dao.proto`](../proto/oj/v1/dao.proto)).
 
-It is the **only** component that talks to PostgreSQL. Only oj-midlayer calls
+It is the **only** component that talks to PostgreSQL. Only midlayer calls
 it; it holds no business rules.
 
 ```
-oj-webapp -> oj-rest -> oj-midlayer -> oj-dao (gRPC :50052) -> postgres
+webapp -> rest -> midlayer -> dao (gRPC :50052) -> postgres
 ```
 
 ## Configuration
@@ -69,9 +69,9 @@ language `python|c|cpp|javascript`, difficulty `easy|medium|hard`, status
 | Tests incl. PostgreSQL | `TEST_DATABASE_URL=postgres://... make test-pg` (throwaway DB; tables are truncated) |
 | CI gate (gofmt, vet, tests) | `make check` |
 | Docker image | `make docker` (`online-judge/dao:latest`) |
-| Try it | `grpcurl -plaintext -import-path ../oj-proto -proto oj/v1/dao.proto localhost:50052 oj.v1.DaoService/ListProblems` |
+| Try it | `grpcurl -plaintext -import-path ../proto -proto oj/v1/dao.proto localhost:50052 oj.v1.DaoService/ListProblems` |
 
-Generated code in `internal/gen/oj/v1` comes from oj-proto (`make gen` there);
+Generated code in `internal/gen/oj/v1` comes from proto (`make gen` at the repo root);
 never edit it here. See [AGENTS.md](AGENTS.md) for the code layout and rules.
 
 ## Docker

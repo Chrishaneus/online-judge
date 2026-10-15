@@ -13,9 +13,9 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/online-judge/oj-runner/internal/executor"
-	ojv1 "github.com/online-judge/oj-runner/internal/gen/oj/v1"
-	"github.com/online-judge/oj-runner/internal/lang"
+	"github.com/online-judge/online-judge/runner/internal/executor"
+	ojv1 "github.com/online-judge/online-judge/runner/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/runner/internal/lang"
 )
 
 // recorder is a fake AMQP acknowledger and publisher that records every call

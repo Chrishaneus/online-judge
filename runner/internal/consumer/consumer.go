@@ -91,7 +91,7 @@ func (c *Consumer) Run(ctx context.Context) error {
 // consuming (used to reset the backoff).
 func (c *Consumer) session(ctx context.Context) (consumed bool, err error) {
 	props := amqp.NewConnectionProperties()
-	props.SetClientConnectionName("oj-runner " + c.cfg.RunnerID)
+	props.SetClientConnectionName("runner " + c.cfg.RunnerID)
 	conn, err := amqp.DialConfig(c.cfg.URL, amqp.Config{
 		Heartbeat:  10 * time.Second,
 		Properties: props,
@@ -118,7 +118,7 @@ func (c *Consumer) session(ctx context.Context) (consumed bool, err error) {
 	if err := conCh.Qos(c.cfg.Workers, 0, false); err != nil {
 		return false, fmt.Errorf("set prefetch: %w", err)
 	}
-	tag := fmt.Sprintf("oj-runner-%s-%d", c.cfg.RunnerID, time.Now().UnixNano())
+	tag := fmt.Sprintf("runner-%s-%d", c.cfg.RunnerID, time.Now().UnixNano())
 	// The queue is not declared here: the runner's broker user has no
 	// configure permission, the topology comes from the broker definitions.
 	deliveries, err := conCh.Consume(c.cfg.Queue, tag, false, false, false, false, nil)

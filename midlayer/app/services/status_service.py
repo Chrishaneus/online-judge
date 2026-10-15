@@ -1,4 +1,4 @@
-"""GetStatus: reachability of oj-dao and RabbitMQ plus queue metrics. Never raises for a down dependency."""
+"""GetStatus: reachability of dao and RabbitMQ plus queue metrics. Never raises for a down dependency."""
 
 import asyncio
 import logging

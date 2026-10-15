@@ -1,4 +1,4 @@
-# oj-runner
+# runner
 
 Code execution worker for the Online Judge. It takes `oj.v1.ExecuteJob`
 messages from RabbitMQ, compiles each submission once, runs it against every
@@ -12,7 +12,7 @@ the same queue.
 ## Message flow
 
 The contract (topology, AMQP properties, permissions) is the header of
-[`oj-proto/oj/v1/runner.proto`](../oj-proto/oj/v1/runner.proto).
+[`proto/oj/v1/runner.proto`](../proto/oj/v1/runner.proto).
 
 ```
 midlayer ──ExecuteJob──> judge.jobs ──> runner (prefetch = RUNNER_WORKERS)
@@ -68,7 +68,7 @@ after the cap keep their metrics, lose their output and are reported as
 * **Startup**: reads `RABBITMQ_URL`, removes it from its environment, then
   connects. If the broker is down or `judge.jobs` does not exist yet, it
   retries with backoff (0.5 s doubling to 30 s). The runner never declares
-  queues: the topology comes from the broker definitions in oj-deploy.
+  queues: the topology comes from the broker definitions (`rabbitmq/render_definitions.py` at the repo root).
 * **Connection loss**: in-flight jobs are aborted (they can no longer be
   acked, so the broker redelivers them) and the runner reconnects.
 * **SIGTERM**: cancels the consumer (no new jobs), waits up to
@@ -165,4 +165,4 @@ arguments from `runner.proto`, so they need a broker user with configure
 permission, and they are skipped when `RABBITMQ_TEST_URL` is unset.
 
 Generated protobuf code lives in `internal/gen/oj/v1` and comes from
-oj-proto (`make gen` there). Never edit it by hand.
+proto (`make gen` at the repo root). Never edit it by hand.

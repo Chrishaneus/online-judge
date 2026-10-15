@@ -21,7 +21,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	ojv1 "github.com/online-judge/oj-rest/internal/gen/oj/v1"
+	ojv1 "github.com/online-judge/online-judge/rest/internal/gen/oj/v1"
 )
 
 // fakeJudge records the last call and answers with a canned response or err.

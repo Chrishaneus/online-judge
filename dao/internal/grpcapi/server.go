@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	ojv1 "github.com/online-judge/oj-dao/internal/gen/oj/v1"
-	"github.com/online-judge/oj-dao/internal/store"
+	ojv1 "github.com/online-judge/online-judge/dao/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/dao/internal/store"
 )
 
 // Defaults applied when a problem's limits are left at zero.

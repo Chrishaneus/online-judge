@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Instructions for any AI coding agent working in this repo (oj-dao, the Online
+Instructions for any AI coding agent working in `dao/` (the Online
 Judge persistence service). The architecture of the whole system is described
-in `../oj-proto/README.md`.
+in `../proto/README.md`.
 
 ## Layout
 
@@ -11,7 +11,7 @@ in `../oj-proto/README.md`.
 | `cmd/dao/` | Entrypoint: env config, store selection, gRPC server, graceful shutdown, `dao healthcheck` subcommand |
 | `internal/grpcapi/` | `oj.v1.DaoService` implementation: validation, proto <-> store conversion (`convert.go`), error -> gRPC code mapping (`errors.go`), interceptors and server options (`grpc.go`), DB-driven health (`health.go`) |
 | `internal/store/` | Domain models, `Store` interface, `Memory` and `Postgres` implementations, embedded SQL migrations (`migrations/NNN_*.sql`) |
-| `internal/gen/oj/v1/` | **Generated** Go code from `oj-proto` (package `ojv1`). Never hand-edit |
+| `internal/gen/oj/v1/` | **Generated** Go code from `../proto` (package `ojv1`). Never hand-edit |
 
 ## Architecture rules (reviewers enforce these)
 
@@ -20,7 +20,7 @@ in `../oj-proto/README.md`.
   semantics; the shared tests in `store_test.go` run against both.
 - **`internal/grpcapi` translates only**: validate the request, convert to
   store types, make the store call(s), convert the result, map errors. No SQL,
-  no business rules (those belong to oj-midlayer).
+  no business rules (those belong to midlayer).
 - Enum <-> DB string mapping lives only in `internal/grpcapi/convert.go`. The
   stored strings and the `results` JSONB row format are part of the schema
   and must not change.
@@ -30,9 +30,9 @@ in `../oj-proto/README.md`.
   returned as a generic `INTERNAL`.
 - Schema changes: add a new `internal/store/migrations/NNN_*.sql`; never edit
   an applied migration. Existing deployments hold data.
-- The contract is `oj-proto/oj/v1/dao.proto`. To change it, edit it in
-  oj-proto, run `make gen` there (it regenerates `internal/gen` here) and
-  commit both repos. Never edit `internal/gen` by hand.
+- The contract is `../proto/oj/v1/dao.proto`. To change it, edit it there,
+  run `make gen` at the repo root (it regenerates `internal/gen` here) and
+  commit both in one commit. Never edit `internal/gen` by hand.
 
 ## Commands
 
@@ -44,7 +44,7 @@ in `../oj-proto/README.md`.
 | Run locally (memory store) | `make run` (listens on `:50052`) |
 | Health | `go run ./cmd/dao healthcheck` |
 | Image | `make docker` |
-| Regenerate gRPC code | `make gen` in `../oj-proto` |
+| Regenerate gRPC code | `make gen` (repo root) |
 
 Go 1.27 (`GOTOOLCHAIN=auto` downloads it when the local `go` is older).
 

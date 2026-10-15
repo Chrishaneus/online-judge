@@ -24,7 +24,7 @@ export async function writeSolution(
 
 export function adminToken(): string {
 	const token = process.env.E2E_ADMIN_TOKEN;
-	if (!token) throw new Error('Set E2E_ADMIN_TOKEN (oj-rest ADMIN_TOKEN) to run the admin specs.');
+	if (!token) throw new Error('Set E2E_ADMIN_TOKEN (rest ADMIN_TOKEN) to run the admin specs.');
 	return token;
 }
 

@@ -59,7 +59,7 @@ func (*GetStatusRequest) Descriptor() ([]byte, []int) {
 
 type GetStatusResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// True when oj-dao and RabbitMQ are both reachable.
+	// True when dao and RabbitMQ are both reachable.
 	Healthy bool `protobuf:"varint,1,opt,name=healthy,proto3" json:"healthy,omitempty"`
 	// "ok" or "error: <reason>".
 	Dao    string `protobuf:"bytes,2,opt,name=dao,proto3" json:"dao,omitempty"`
@@ -1942,7 +1942,7 @@ const file_oj_v1_judge_proto_rawDesc = "" +
 	"\vAddTestCase\x12\x19.oj.v1.AddTestCaseRequest\x1a\x1a.oj.v1.AddTestCaseResponse\x12M\n" +
 	"\x0eRemoveTestCase\x12\x1c.oj.v1.RemoveTestCaseRequest\x1a\x1d.oj.v1.RemoveTestCaseResponseB\x85\x01\n" +
 	"\tcom.oj.v1B\n" +
-	"JudgeProtoP\x01Z7github.com/online-judge/oj-rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
+	"JudgeProtoP\x01Z7github.com/online-judge/online-judge/rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
 
 var (
 	file_oj_v1_judge_proto_rawDescOnce sync.Once

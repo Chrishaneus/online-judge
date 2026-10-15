@@ -76,7 +76,7 @@ describe('drafts', () => {
 });
 
 describe('username and language', () => {
-	it('sanitizes usernames to what oj-rest accepts', () => {
+	it('sanitizes usernames to what rest accepts', () => {
 		expect(sanitizeUsername('al ice<script>!')).toBe('alicescript');
 		expect(sanitizeUsername('a.b-c_d9')).toBe('a.b-c_d9');
 		expect(sanitizeUsername('x'.repeat(40))).toHaveLength(32);

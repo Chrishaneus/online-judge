@@ -13,8 +13,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/online-judge/oj-runner/internal/executor"
-	ojv1 "github.com/online-judge/oj-runner/internal/gen/oj/v1"
+	"github.com/online-judge/online-judge/runner/internal/executor"
+	ojv1 "github.com/online-judge/online-judge/runner/internal/gen/oj/v1"
 )
 
 // Integration tests against a real broker. They run only when
@@ -58,7 +58,7 @@ func newBroker(t *testing.T) *broker {
 	}
 	b := make([]byte, 6)
 	_, _ = rand.Read(b)
-	prefix := "oj-runner-test." + hex.EncodeToString(b) + "."
+	prefix := "runner-test." + hex.EncodeToString(b) + "."
 	br := &broker{t: t, url: url, ch: ch, jobs: prefix + "judge.jobs", dead: prefix + "judge.jobs.dead", replies: prefix + "judge.events"}
 	t.Cleanup(func() {
 		for _, q := range []string{br.jobs, br.dead, br.replies} {

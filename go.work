@@ -1,0 +1,9 @@
+// Lets gopls / go commands at the repo root see all Go services. Each service is
+// still its own module (Docker builds use the service directory as context).
+go 1.27
+
+use (
+	./dao
+	./rest
+	./runner
+)

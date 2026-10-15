@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/online-judge/oj-runner/internal/sandbox"
+	"github.com/online-judge/online-judge/runner/internal/sandbox"
 )
 
 func newExec(t *testing.T, workers int) *Executor {

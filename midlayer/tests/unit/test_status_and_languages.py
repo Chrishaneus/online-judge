@@ -12,7 +12,7 @@ async def test_status_reports_down_dependencies(dao, queue):
     dao.down = queue.down = True
     res = await StatusService(dao, queue).get_status(judge_pb2.GetStatusRequest())
     assert not res.healthy
-    assert res.dao.startswith("error: oj-dao unavailable")
+    assert res.dao.startswith("error: dao unavailable")
     assert res.broker.startswith("error: RabbitMQ unavailable")
     assert (res.queue_depth, res.runners) == (0, 0)
 

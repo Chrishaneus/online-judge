@@ -1,7 +1,7 @@
 """Render RabbitMQ definitions (users, permissions, queues) from env vars.
 
 Runs once before the broker starts (broker-setup service). The topology must
-match the header of oj-proto/oj/v1/runner.proto exactly: oj-midlayer re-declares
+match the header of proto/oj/v1/runner.proto exactly: midlayer re-declares
 the same queues and RabbitMQ rejects a declare whose arguments differ.
 
     MIDLAYER_PASSWORD, RUNNER_PASSWORD  required

@@ -1,6 +1,6 @@
 """RabbitMQ consumers: decode the message, call one service method, decide ack vs. requeue.
 
-Handlers return True to ack and False to requeue (oj-dao unavailable). Undecodable messages are
+Handlers return True to ack and False to requeue (dao unavailable). Undecodable messages are
 acked and logged: redelivering them can never succeed.
 """
 

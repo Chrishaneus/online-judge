@@ -9,8 +9,8 @@
 #                                   rabbitmq  judge.jobs ─> runner × RUNNER_REPLICAS
 #                                             judge.events <─┘
 #
-# Service repositories are expected as siblings of this one (../oj-*).
-# Contract: ../oj-proto (README.md describes the whole architecture).
+# Each service is built from its directory; see README.md and AGENTS.md.
+# Contract: proto/oj/v1/*.proto (proto/README.md describes it).
 
 name: online-judge
 
@@ -41,7 +41,7 @@ services:
 
   dao:
     <<: [*restart, *hardened]
-    build: ../oj-dao
+    build: ./dao
     image: online-judge/dao:latest
     environment:
       DAO_ADDR: ":50052"
@@ -95,7 +95,7 @@ services:
 
   runner:
     <<: *restart
-    build: ../oj-runner
+    build: ./runner
     image: online-judge/runner:latest
     # Untrusted code runs here. Its only network is `jobs` (internal, nothing on
     # it but RabbitMQ's AMQP port). Broker credentials are least-privilege
@@ -125,7 +125,7 @@ services:
 
   midlayer:
     <<: [*restart, *hardened]
-    build: ../oj-midlayer
+    build: ./midlayer
     image: online-judge/midlayer:latest
     environment:
       GRPC_ADDR: "[::]:50051"
@@ -140,7 +140,7 @@ services:
 
   rest:
     <<: [*restart, *hardened]
-    build: ../oj-rest
+    build: ./rest
     image: online-judge/rest:latest
     environment:
       REST_ADDR: ":8000"
@@ -160,7 +160,7 @@ services:
   webapp:
     <<: [*restart, *hardened]
     build:
-      context: ../oj-webapp
+      context: ./webapp
       args:
         PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
     image: online-judge/webapp:latest

@@ -643,7 +643,7 @@ type Submission struct {
 	ProblemId int64                  `protobuf:"varint,2,opt,name=problem_id,json=problemId,proto3" json:"problem_id,omitempty"`
 	Username  string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	Language  Language               `protobuf:"varint,4,opt,name=language,proto3,enum=oj.v1.Language" json:"language,omitempty"`
-	// Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
+	// Empty in JudgeService.ListSubmissionSummaries (dao returns it).
 	Source  string           `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`
 	Status  SubmissionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=oj.v1.SubmissionStatus" json:"status,omitempty"`
 	Verdict Verdict          `protobuf:"varint,7,opt,name=verdict,proto3,enum=oj.v1.Verdict" json:"verdict,omitempty"`
@@ -652,9 +652,9 @@ type Submission struct {
 	// Slowest test, in milliseconds.
 	TimeMs int32 `protobuf:"varint,10,opt,name=time_ms,json=timeMs,proto3" json:"time_ms,omitempty"`
 	// Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
-	// Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
+	// Empty in JudgeService.ListSubmissionSummaries (dao returns it).
 	Message string `protobuf:"bytes,11,opt,name=message,proto3" json:"message,omitempty"`
-	// Empty in JudgeService.ListSubmissionSummaries (oj-dao returns it).
+	// Empty in JudgeService.ListSubmissionSummaries (dao returns it).
 	Results       []*TestResult          `protobuf:"bytes,12,rep,name=results,proto3" json:"results,omitempty"`
 	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
@@ -790,7 +790,7 @@ func (x *Submission) GetUpdateTime() *timestamppb.Timestamp {
 	return nil
 }
 
-// Body of every non-2xx HTTP response from oj-rest.
+// Body of every non-2xx HTTP response from rest.
 type ErrorResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Error         string                 `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`
@@ -939,7 +939,7 @@ const file_oj_v1_types_proto_rawDesc = "" +
 	"\x18RUN_STATUS_RUNTIME_ERROR\x10\x05\x12 \n" +
 	"\x1cRUN_STATUS_COMPILATION_ERROR\x10\x06B\x85\x01\n" +
 	"\tcom.oj.v1B\n" +
-	"TypesProtoP\x01Z7github.com/online-judge/oj-rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
+	"TypesProtoP\x01Z7github.com/online-judge/online-judge/rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
 
 var (
 	file_oj_v1_types_proto_rawDescOnce sync.Once

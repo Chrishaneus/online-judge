@@ -1,5 +1,5 @@
 {
-	"name": "oj-proto",
+	"name": "proto",
 	"private": true,
 	"description": "Code generators for the Online Judge protobuf contract (versions pinned).",
 	"devDependencies": {

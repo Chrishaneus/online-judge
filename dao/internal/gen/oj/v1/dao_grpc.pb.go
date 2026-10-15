@@ -37,8 +37,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// DaoService is oj-dao's internal gRPC API: plain persistence, no business
-// rules. Only oj-midlayer calls it. oj-dao is the only service that talks to
+// DaoService is dao's internal gRPC API: plain persistence, no business
+// rules. Only midlayer calls it. dao is the only service that talks to
 // PostgreSQL.
 //
 // Errors (gRPC status codes):
@@ -201,8 +201,8 @@ func (c *daoServiceClient) UpdateSubmission(ctx context.Context, in *UpdateSubmi
 // All implementations must embed UnimplementedDaoServiceServer
 // for forward compatibility.
 //
-// DaoService is oj-dao's internal gRPC API: plain persistence, no business
-// rules. Only oj-midlayer calls it. oj-dao is the only service that talks to
+// DaoService is dao's internal gRPC API: plain persistence, no business
+// rules. Only midlayer calls it. dao is the only service that talks to
 // PostgreSQL.
 //
 // Errors (gRPC status codes):

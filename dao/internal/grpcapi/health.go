@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	ojv1 "github.com/online-judge/oj-dao/internal/gen/oj/v1"
+	ojv1 "github.com/online-judge/online-judge/dao/internal/gen/oj/v1"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )

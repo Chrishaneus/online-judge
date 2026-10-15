@@ -1,4 +1,4 @@
-module github.com/online-judge/oj-runner
+module github.com/online-judge/online-judge/runner
 
 go 1.27
 

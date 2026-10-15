@@ -1,4 +1,4 @@
-"""In-memory fakes of the repositories (DaoRepository, JobQueue). Mimic oj-dao's semantics incl. CAS."""
+"""In-memory fakes of the repositories (DaoRepository, JobQueue). Mimic dao's semantics incl. CAS."""
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -24,7 +24,7 @@ class FakeDao:
 
     def _check(self):
         if self.down:
-            raise Unavailable("oj-dao unavailable: fake is down")
+            raise Unavailable("dao unavailable: fake is down")
 
     async def close(self):
         pass
