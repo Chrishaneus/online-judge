@@ -1358,8 +1358,8 @@ const file_oj_v1_dao_proto_rawDesc = "" +
 	"\x10CreateSubmission\x12\x1e.oj.v1.CreateSubmissionRequest\x1a\x1f.oj.v1.CreateSubmissionResponse\x12J\n" +
 	"\rGetSubmission\x12\x1b.oj.v1.GetSubmissionRequest\x1a\x1c.oj.v1.GetSubmissionResponse\x12P\n" +
 	"\x0fListSubmissions\x12\x1d.oj.v1.ListSubmissionsRequest\x1a\x1e.oj.v1.ListSubmissionsResponse\x12S\n" +
-	"\x10UpdateSubmission\x12\x1e.oj.v1.UpdateSubmissionRequest\x1a\x1f.oj.v1.UpdateSubmissionResponseB\x82\x01\n" +
-	"\tcom.oj.v1B\bDaoProtoP\x01Z6github.com/online-judge/online-judge/dao/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
+	"\x10UpdateSubmission\x12\x1e.oj.v1.UpdateSubmissionRequest\x1a\x1f.oj.v1.UpdateSubmissionResponseB\x8c\x01\n" +
+	"\tcom.oj.v1B\bDaoProtoP\x01Z@github.com/online-judge/online-judge/dao/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
 
 var (
 	file_oj_v1_dao_proto_rawDescOnce sync.Once

@@ -937,9 +937,9 @@ const file_oj_v1_types_proto_rawDesc = "" +
 	" RUN_STATUS_MEMORY_LIMIT_EXCEEDED\x10\x03\x12$\n" +
 	" RUN_STATUS_OUTPUT_LIMIT_EXCEEDED\x10\x04\x12\x1c\n" +
 	"\x18RUN_STATUS_RUNTIME_ERROR\x10\x05\x12 \n" +
-	"\x1cRUN_STATUS_COMPILATION_ERROR\x10\x06B\x85\x01\n" +
+	"\x1cRUN_STATUS_COMPILATION_ERROR\x10\x06B\x8f\x01\n" +
 	"\tcom.oj.v1B\n" +
-	"TypesProtoP\x01Z7github.com/online-judge/online-judge/rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
+	"TypesProtoP\x01ZAgithub.com/online-judge/online-judge/rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
 
 var (
 	file_oj_v1_types_proto_rawDescOnce sync.Once

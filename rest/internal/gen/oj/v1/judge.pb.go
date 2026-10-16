@@ -1940,9 +1940,9 @@ const file_oj_v1_judge_proto_rawDesc = "" +
 	"\rRemoveProblem\x12\x1b.oj.v1.RemoveProblemRequest\x1a\x1c.oj.v1.RemoveProblemResponse\x12_\n" +
 	"\x14ListProblemTestCases\x12\".oj.v1.ListProblemTestCasesRequest\x1a#.oj.v1.ListProblemTestCasesResponse\x12D\n" +
 	"\vAddTestCase\x12\x19.oj.v1.AddTestCaseRequest\x1a\x1a.oj.v1.AddTestCaseResponse\x12M\n" +
-	"\x0eRemoveTestCase\x12\x1c.oj.v1.RemoveTestCaseRequest\x1a\x1d.oj.v1.RemoveTestCaseResponseB\x85\x01\n" +
+	"\x0eRemoveTestCase\x12\x1c.oj.v1.RemoveTestCaseRequest\x1a\x1d.oj.v1.RemoveTestCaseResponseB\x8f\x01\n" +
 	"\tcom.oj.v1B\n" +
-	"JudgeProtoP\x01Z7github.com/online-judge/online-judge/rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
+	"JudgeProtoP\x01ZAgithub.com/online-judge/online-judge/rest/internal/gen/oj/v1;ojv1\xa2\x02\x03OXX\xaa\x02\x05Oj.V1\xca\x02\x05Oj\\V1\xe2\x02\x11Oj\\V1\\GPBMetadata\xea\x02\x06Oj::V1b\x06proto3"
 
 var (
 	file_oj_v1_judge_proto_rawDescOnce sync.Once
