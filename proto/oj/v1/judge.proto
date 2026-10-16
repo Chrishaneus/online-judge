@@ -4,66 +4,35 @@ package oj.v1;
 
 import "oj/v1/types.proto";
 
-// JudgeService is midlayer's gRPC API: the business logic of the Online
-// Judge. rest exposes it to clients at /api/v1 (see rest's README for
-// the HTTP mapping); authentication, rate limits and CORS live there, not here.
+// HTTP API of the api service, served at /api/v1. Each route's body is its
+// *Request message (minus path parameters) and its response is the matching
+// *Response message, both as canonical proto JSON. The route is written above
+// each request message.
 //
-// The HTTP body of each route is the request message (minus path parameters)
-// and its response is the response message, both as canonical proto JSON.
+// Errors: every non-2xx response body is oj.v1.ErrorResponse.
+//   400  malformed JSON / unknown field / non-numeric path or query parameter
+//   401  missing or invalid admin token (admin routes)
+//   404  problem / submission / test case not found
+//   409  duplicate problem slug
+//   413  body too large
+//   422  validation failed (error names the field)
+//   429  rate limited (Retry-After) or judging queue full
+//   503  database or RabbitMQ unreachable
+//   504  a custom run got no runner answer in time
 //
-// Errors (gRPC status codes, mapped to HTTP by rest):
-//   INVALID_ARGUMENT     validation failed (message says which field)  -> 422
-//   NOT_FOUND            problem / submission / test case not found    -> 404
-//   ALREADY_EXISTS       duplicate problem slug                        -> 409
-//   RESOURCE_EXHAUSTED   judging queue is full                         -> 429
-//   DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
-//   UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
-// Liveness/readiness: the standard grpc.health.v1.Health service.
-service JudgeService {
-  // GET /api/v1/status
-  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
-  // GET /api/v1/languages
-  rpc ListLanguages(ListLanguagesRequest) returns (ListLanguagesResponse);
-
-  // GET /api/v1/problems
-  rpc ListProblemSummaries(ListProblemSummariesRequest) returns (ListProblemSummariesResponse);
-  // GET /api/v1/problems/{id}
-  rpc GetProblemDetail(GetProblemDetailRequest) returns (GetProblemDetailResponse);
-
-  // POST /api/v1/submissions (rate limited)
-  rpc Submit(SubmitRequest) returns (SubmitResponse);
-  // GET /api/v1/submissions?problemId=&username=&limit=&offset=
-  rpc ListSubmissionSummaries(ListSubmissionSummariesRequest) returns (ListSubmissionSummariesResponse);
-  // GET /api/v1/submissions/{id}
-  rpc GetSubmissionDetail(GetSubmissionDetailRequest) returns (GetSubmissionDetailResponse);
-
-  // POST /api/v1/run (rate limited). Runs code against custom input, no judging.
-  rpc RunCode(RunCodeRequest) returns (RunCodeResponse);
-
-  // Admin (rest requires the admin bearer token for these).
-  // POST   /api/v1/admin/problems
-  rpc AddProblem(AddProblemRequest) returns (AddProblemResponse);
-  // PUT    /api/v1/admin/problems/{id}
-  rpc EditProblem(EditProblemRequest) returns (EditProblemResponse);
-  // DELETE /api/v1/admin/problems/{id}
-  rpc RemoveProblem(RemoveProblemRequest) returns (RemoveProblemResponse);
-  // GET    /api/v1/admin/problems/{problemId}/testcases
-  rpc ListProblemTestCases(ListProblemTestCasesRequest) returns (ListProblemTestCasesResponse);
-  // POST   /api/v1/admin/problems/{problemId}/testcases
-  rpc AddTestCase(AddTestCaseRequest) returns (AddTestCaseResponse);
-  // DELETE /api/v1/admin/problems/{problemId}/testcases/{id}
-  rpc RemoveTestCase(RemoveTestCaseRequest) returns (RemoveTestCaseResponse);
-}
+// GET /api/v1/admin/verify (admin token check, answers {"admin": true}) and
+// GET /healthz (liveness) have no messages.
 
 // ---------- status ----------
 
+// GET /api/v1/status
 message GetStatusRequest {}
 
 message GetStatusResponse {
-  // True when dao and RabbitMQ are both reachable.
+  // True when the database and RabbitMQ are both reachable.
   bool healthy = 1;
   // "ok" or "error: <reason>".
-  string dao = 2;
+  string database = 2;
   string broker = 3;
   // Judging jobs waiting in RabbitMQ.
   int64 queue_depth = 4;
@@ -77,6 +46,7 @@ message LanguageInfo {
   string name = 2;
 }
 
+// GET /api/v1/languages
 message ListLanguagesRequest {}
 
 message ListLanguagesResponse {
@@ -107,12 +77,14 @@ message ProblemDetail {
   repeated Sample samples = 8;
 }
 
+// GET /api/v1/problems
 message ListProblemSummariesRequest {}
 
 message ListProblemSummariesResponse {
   repeated ProblemSummary problems = 1;
 }
 
+// GET /api/v1/problems/{id}
 message GetProblemDetailRequest {
   int64 id = 1;
 }
@@ -123,6 +95,7 @@ message GetProblemDetailResponse {
 
 // ---------- submissions ----------
 
+// POST /api/v1/submissions (rate limited) -> 202
 message SubmitRequest {
   int64 problem_id = 1;
   Language language = 2;
@@ -137,6 +110,7 @@ message SubmitResponse {
   Submission submission = 1;
 }
 
+// GET /api/v1/submissions?problemId=&username=&limit=&offset=
 message ListSubmissionSummariesRequest {
   int64 problem_id = 1;
   string username = 2;
@@ -150,6 +124,7 @@ message ListSubmissionSummariesResponse {
   repeated Submission submissions = 1;
 }
 
+// GET /api/v1/submissions/{id}
 message GetSubmissionDetailRequest {
   int64 id = 1;
 }
@@ -160,6 +135,7 @@ message GetSubmissionDetailResponse {
 
 // ---------- custom run ----------
 
+// POST /api/v1/run (rate limited). Runs code against custom input, no judging.
 message RunCodeRequest {
   Language language = 1;
   string source = 2;
@@ -188,6 +164,7 @@ message NewTestCase {
   bool is_sample = 3;
 }
 
+// POST /api/v1/admin/problems -> 201
 message AddProblemRequest {
   string slug = 1;
   string title = 2;
@@ -206,6 +183,7 @@ message AddProblemResponse {
   ProblemDetail problem = 1;
 }
 
+// PUT /api/v1/admin/problems/{id}
 message EditProblemRequest {
   int64 id = 1;
   string slug = 2;
@@ -220,12 +198,14 @@ message EditProblemResponse {
   ProblemSummary problem = 1;
 }
 
+// DELETE /api/v1/admin/problems/{id} -> 204
 message RemoveProblemRequest {
   int64 id = 1;
 }
 
 message RemoveProblemResponse {}
 
+// GET /api/v1/admin/problems/{problemId}/testcases
 message ListProblemTestCasesRequest {
   int64 problem_id = 1;
 }
@@ -234,6 +214,7 @@ message ListProblemTestCasesResponse {
   repeated TestCase test_cases = 1;
 }
 
+// POST /api/v1/admin/problems/{problemId}/testcases -> 201
 message AddTestCaseRequest {
   int64 problem_id = 1;
   NewTestCase test_case = 2;
@@ -243,6 +224,7 @@ message AddTestCaseResponse {
   TestCase test_case = 1;
 }
 
+// DELETE /api/v1/admin/problems/{problemId}/testcases/{id} -> 204
 message RemoveTestCaseRequest {
   int64 problem_id = 1;
   int64 id = 2;

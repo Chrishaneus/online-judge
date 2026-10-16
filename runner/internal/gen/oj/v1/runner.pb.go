@@ -181,7 +181,7 @@ func (x *ExecuteJob) GetMemoryLimitMb() int32 {
 
 type TestInput struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Opaque id echoed in TestRun.id (the midlayer uses the test case id).
+	// Opaque id echoed in TestRun.id (api uses the test case id).
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Stdin         string `protobuf:"bytes,2,opt,name=stdin,proto3" json:"stdin,omitempty"`
 	unknownFields protoimpl.UnknownFields

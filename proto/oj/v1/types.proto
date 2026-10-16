@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 // Domain types shared by every Online Judge service.
 //
-// Over HTTP (webapp <-> rest) these travel as canonical proto JSON: camelCase
+// Over HTTP (webapp <-> api) these travel as canonical proto JSON: camelCase
 // field names, enum values by name ("LANGUAGE_PYTHON"), int64 as JSON strings,
 // Timestamps as RFC 3339. Between services they travel as binary protobuf over
 // gRPC or RabbitMQ. Regenerate code with `make gen` at the repo root.
@@ -107,7 +107,7 @@ message Submission {
   int64 problem_id = 2;
   string username = 3;
   Language language = 4;
-  // Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+  // Empty in GET /api/v1/submissions list responses.
   string source = 5;
   SubmissionStatus status = 6;
   Verdict verdict = 7;
@@ -116,15 +116,15 @@ message Submission {
   // Slowest test, in milliseconds.
   int32 time_ms = 10;
   // Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
-  // Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+  // Empty in GET /api/v1/submissions list responses.
   string message = 11;
-  // Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+  // Empty in GET /api/v1/submissions list responses.
   repeated TestResult results = 12;
   google.protobuf.Timestamp create_time = 13;
   google.protobuf.Timestamp update_time = 14;
 }
 
-// Body of every non-2xx HTTP response from rest.
+// Body of every non-2xx HTTP response from api.
 message ErrorResponse {
   string error = 1;
   repeated string details = 2;

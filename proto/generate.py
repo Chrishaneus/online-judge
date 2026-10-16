@@ -43,10 +43,8 @@ class Target:
 
 
 TARGETS = [
-    Target("dao", "internal/gen", "go", proto("types", "dao")),
-    Target("rest", "internal/gen", "go", proto("types", "judge")),
+    Target("api", "app/gen", "python", proto("types", "judge", "runner")),
     Target("runner", "internal/gen", "go", proto("types", "runner")),
-    Target("midlayer", "app/gen", "python", proto("types", "dao", "judge", "runner")),
     Target("webapp", "src/lib/gen", "ts", proto("types", "judge")),
 ]
 
@@ -81,7 +79,6 @@ def gen_go(t: Target, out: Path) -> None:
         },
         "plugins": [
             {"local": "protoc-gen-go", "out": ".", "opt": ["paths=source_relative"]},
-            {"local": "protoc-gen-go-grpc", "out": ".", "opt": ["paths=source_relative"]},
         ],
     }
     paths = [a for p in t.protos for a in ("--path", p)]
@@ -105,7 +102,6 @@ def gen_python(t: Target, out: Path) -> None:
         f"-I{wkt}",
         f"--python_out={out}",
         f"--pyi_out={out}",
-        f"--grpc_python_out={out}",
         *(str(PROTO_DIR / p) for p in t.protos),
     ]
     if protoc.main(args) != 0:

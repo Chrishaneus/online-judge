@@ -15,7 +15,7 @@
 			return {
 				dot: 'bg-red-500',
 				text: 'Degraded',
-				title: `dao: ${status.dao || '?'} · broker: ${status.broker || '?'}`
+				title: `database: ${status.database || '?'} · broker: ${status.broker || '?'}`
 			};
 		}
 		return {

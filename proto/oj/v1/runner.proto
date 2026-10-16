@@ -4,7 +4,7 @@ package oj.v1;
 
 import "oj/v1/types.proto";
 
-// Messages exchanged between midlayer and runner through RabbitMQ.
+// Messages exchanged between api and runner through RabbitMQ.
 // There is no gRPC service: runners are queue consumers, so they need no
 // listening port and scale by adding replicas.
 //
@@ -14,11 +14,11 @@ import "oj/v1/types.proto";
 //   delivery_mode = 2 (persistent)
 //
 // Topology (all on the default exchange; declared by the broker's definitions
-// file in rabbitmq/render_definitions.py, and re-declared with identical arguments by midlayer):
+// file in rabbitmq/render_definitions.py, and re-declared with identical arguments by api):
 //
 //   judge.jobs       quorum queue. x-delivery-limit=3,
 //                    x-dead-letter-exchange="", x-dead-letter-routing-key=judge.jobs.dead
-//                    midlayer publishes ExecuteJob; runners consume with
+//                    api publishes ExecuteJob; runners consume with
 //                    prefetch = their worker count and ack only after the
 //                    final JobEvent is published (at-least-once). A job may
 //                    therefore be delivered (and report `started`) more than
@@ -30,19 +30,19 @@ import "oj/v1/types.proto";
 //                    headers) and nack(requeue=false) on the 3rd failed attempt.
 //   judge.jobs.dead  quorum queue. Jobs that failed 3 times, were malformed
 //                    (missing type / reply_to, undecodable), or expired before
-//                    a runner took them. midlayer consumes it and marks the
+//                    a runner took them. The api worker consumes it and marks the
 //                    submission FAILED / INTERNAL_ERROR.
 //   judge.events     quorum queue. Runners publish JobEvents for submissions
-//                    here; midlayer consumes, judges and stores the verdict.
+//                    here; the api worker consumes, judges and stores the verdict.
 //
 // Routing of JobEvents: the runner publishes to the default exchange with
 // routing key = the job's AMQP reply_to and correlation_id = the job's
 // correlation_id. Submissions use reply_to=judge.events; custom runs use the
-// midlayer instance's exclusive reply queue (RPC) and set an AMQP expiration
+// api process's exclusive reply queue judge.rpc.<uuid> (RPC) and set an AMQP expiration
 // so a stale run is dropped instead of executed.
 //
 // Permissions: runners may only read judge.jobs and write to the default
-// exchange. They never see expected outputs: judging happens in the midlayer.
+// exchange. They never see expected outputs: judging happens in api.
 
 // A batch to compile once and run against every test input.
 message ExecuteJob {
@@ -61,7 +61,7 @@ message ExecuteJob {
 }
 
 message TestInput {
-  // Opaque id echoed in TestRun.id (the midlayer uses the test case id).
+  // Opaque id echoed in TestRun.id (api uses the test case id).
   string id = 1;
   string stdin = 2;
 }

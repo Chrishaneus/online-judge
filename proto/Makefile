@@ -1,10 +1,9 @@
-GO_PLUGINS := google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12 \
-              google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+GO_PLUGINS := google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
 PY := .venv/bin/python
 
 .PHONY: setup gen check lint breaking
 
-## setup: install the pinned generators (buf + protoc-gen-es, grpcio-tools, Go plugins)
+## setup: install the pinned generators (buf + protoc-gen-es, grpcio-tools for protoc, protoc-gen-go)
 setup:
 	npm ci --no-audit --no-fund
 	uv venv --quiet --python 3.13 .venv

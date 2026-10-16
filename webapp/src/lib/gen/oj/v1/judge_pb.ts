@@ -2,8 +2,8 @@
 // @generated from file oj/v1/judge.proto (package oj.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Difficulty, Language, RunStatus, Sample, Submission, TestCase } from "./types_pb.js";
 import { file_oj_v1_types } from "./types_pb.js";
 import type { Message } from "@bufbuild/protobuf";
@@ -12,9 +12,11 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file oj/v1/judge.proto.
  */
 export const file_oj_v1_judge: GenFile = /*@__PURE__*/
-  fileDesc("ChFvai92MS9qdWRnZS5wcm90bxIFb2oudjEiEgoQR2V0U3RhdHVzUmVxdWVzdCJnChFHZXRTdGF0dXNSZXNwb25zZRIPCgdoZWFsdGh5GAEgASgIEgsKA2RhbxgCIAEoCRIOCgZicm9rZXIYAyABKAkSEwoLcXVldWVfZGVwdGgYBCABKAMSDwoHcnVubmVycxgFIAEoBSI/CgxMYW5ndWFnZUluZm8SIQoIbGFuZ3VhZ2UYASABKA4yDy5vai52MS5MYW5ndWFnZRIMCgRuYW1lGAIgASgJIhYKFExpc3RMYW5ndWFnZXNSZXF1ZXN0Ij8KFUxpc3RMYW5ndWFnZXNSZXNwb25zZRImCglsYW5ndWFnZXMYASADKAsyEy5vai52MS5MYW5ndWFnZUluZm8ikAEKDlByb2JsZW1TdW1tYXJ5EgoKAmlkGAEgASgDEgwKBHNsdWcYAiABKAkSDQoFdGl0bGUYAyABKAkSJQoKZGlmZmljdWx0eRgEIAEoDjIRLm9qLnYxLkRpZmZpY3VsdHkSFQoNdGltZV9saW1pdF9tcxgFIAEoBRIXCg9tZW1vcnlfbGltaXRfbWIYBiABKAUiwgEKDVByb2JsZW1EZXRhaWwSCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRINCgV0aXRsZRgDIAEoCRIlCgpkaWZmaWN1bHR5GAQgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAUgASgFEhcKD21lbW9yeV9saW1pdF9tYhgGIAEoBRIRCglzdGF0ZW1lbnQYByABKAkSHgoHc2FtcGxlcxgIIAMoCzINLm9qLnYxLlNhbXBsZSIdChtMaXN0UHJvYmxlbVN1bW1hcmllc1JlcXVlc3QiRwocTGlzdFByb2JsZW1TdW1tYXJpZXNSZXNwb25zZRInCghwcm9ibGVtcxgBIAMoCzIVLm9qLnYxLlByb2JsZW1TdW1tYXJ5IiUKF0dldFByb2JsZW1EZXRhaWxSZXF1ZXN0EgoKAmlkGAEgASgDIkEKGEdldFByb2JsZW1EZXRhaWxSZXNwb25zZRIlCgdwcm9ibGVtGAEgASgLMhQub2oudjEuUHJvYmxlbURldGFpbCJoCg1TdWJtaXRSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMSIQoIbGFuZ3VhZ2UYAiABKA4yDy5vai52MS5MYW5ndWFnZRIOCgZzb3VyY2UYAyABKAkSEAoIdXNlcm5hbWUYBCABKAkiNwoOU3VibWl0UmVzcG9uc2USJQoKc3VibWlzc2lvbhgBIAEoCzIRLm9qLnYxLlN1Ym1pc3Npb24iZQoeTGlzdFN1Ym1pc3Npb25TdW1tYXJpZXNSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMSEAoIdXNlcm5hbWUYAiABKAkSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIkkKH0xpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVzcG9uc2USJgoLc3VibWlzc2lvbnMYASADKAsyES5vai52MS5TdWJtaXNzaW9uIigKGkdldFN1Ym1pc3Npb25EZXRhaWxSZXF1ZXN0EgoKAmlkGAEgASgDIkQKG0dldFN1Ym1pc3Npb25EZXRhaWxSZXNwb25zZRIlCgpzdWJtaXNzaW9uGAEgASgLMhEub2oudjEuU3VibWlzc2lvbiJmCg5SdW5Db2RlUmVxdWVzdBIhCghsYW5ndWFnZRgBIAEoDjIPLm9qLnYxLkxhbmd1YWdlEg4KBnNvdXJjZRgCIAEoCRINCgVzdGRpbhgDIAEoCRISCgpwcm9ibGVtX2lkGAQgASgDIqIBCg9SdW5Db2RlUmVzcG9uc2USIAoGc3RhdHVzGAEgASgOMhAub2oudjEuUnVuU3RhdHVzEhYKDmNvbXBpbGVfb3V0cHV0GAIgASgJEg4KBnN0ZG91dBgDIAEoCRIOCgZzdGRlcnIYBCABKAkSEQoJZXhpdF9jb2RlGAUgASgFEg8KB3RpbWVfbXMYBiABKAUSEQoJbWVtb3J5X2tiGAcgASgDIkgKC05ld1Rlc3RDYXNlEg0KBWlucHV0GAEgASgJEhcKD2V4cGVjdGVkX291dHB1dBgCIAEoCRIRCglpc19zYW1wbGUYAyABKAgiwgEKEUFkZFByb2JsZW1SZXF1ZXN0EgwKBHNsdWcYASABKAkSDQoFdGl0bGUYAiABKAkSEQoJc3RhdGVtZW50GAMgASgJEiUKCmRpZmZpY3VsdHkYBCABKA4yES5vai52MS5EaWZmaWN1bHR5EhUKDXRpbWVfbGltaXRfbXMYBSABKAUSFwoPbWVtb3J5X2xpbWl0X21iGAYgASgFEiYKCnRlc3RfY2FzZXMYByADKAsyEi5vai52MS5OZXdUZXN0Q2FzZSI7ChJBZGRQcm9ibGVtUmVzcG9uc2USJQoHcHJvYmxlbRgBIAEoCzIULm9qLnYxLlByb2JsZW1EZXRhaWwipwEKEkVkaXRQcm9ibGVtUmVxdWVzdBIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEg0KBXRpdGxlGAMgASgJEhEKCXN0YXRlbWVudBgEIAEoCRIlCgpkaWZmaWN1bHR5GAUgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAYgASgFEhcKD21lbW9yeV9saW1pdF9tYhgHIAEoBSI9ChNFZGl0UHJvYmxlbVJlc3BvbnNlEiYKB3Byb2JsZW0YASABKAsyFS5vai52MS5Qcm9ibGVtU3VtbWFyeSIiChRSZW1vdmVQcm9ibGVtUmVxdWVzdBIKCgJpZBgBIAEoAyIXChVSZW1vdmVQcm9ibGVtUmVzcG9uc2UiMQobTGlzdFByb2JsZW1UZXN0Q2FzZXNSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMiQwocTGlzdFByb2JsZW1UZXN0Q2FzZXNSZXNwb25zZRIjCgp0ZXN0X2Nhc2VzGAEgAygLMg8ub2oudjEuVGVzdENhc2UiTwoSQWRkVGVzdENhc2VSZXF1ZXN0EhIKCnByb2JsZW1faWQYASABKAMSJQoJdGVzdF9jYXNlGAIgASgLMhIub2oudjEuTmV3VGVzdENhc2UiOQoTQWRkVGVzdENhc2VSZXNwb25zZRIiCgl0ZXN0X2Nhc2UYASABKAsyDy5vai52MS5UZXN0Q2FzZSI3ChVSZW1vdmVUZXN0Q2FzZVJlcXVlc3QSEgoKcHJvYmxlbV9pZBgBIAEoAxIKCgJpZBgCIAEoAyIYChZSZW1vdmVUZXN0Q2FzZVJlc3BvbnNlMtQICgxKdWRnZVNlcnZpY2USPgoJR2V0U3RhdHVzEhcub2oudjEuR2V0U3RhdHVzUmVxdWVzdBoYLm9qLnYxLkdldFN0YXR1c1Jlc3BvbnNlEkoKDUxpc3RMYW5ndWFnZXMSGy5vai52MS5MaXN0TGFuZ3VhZ2VzUmVxdWVzdBocLm9qLnYxLkxpc3RMYW5ndWFnZXNSZXNwb25zZRJfChRMaXN0UHJvYmxlbVN1bW1hcmllcxIiLm9qLnYxLkxpc3RQcm9ibGVtU3VtbWFyaWVzUmVxdWVzdBojLm9qLnYxLkxpc3RQcm9ibGVtU3VtbWFyaWVzUmVzcG9uc2USUwoQR2V0UHJvYmxlbURldGFpbBIeLm9qLnYxLkdldFByb2JsZW1EZXRhaWxSZXF1ZXN0Gh8ub2oudjEuR2V0UHJvYmxlbURldGFpbFJlc3BvbnNlEjUKBlN1Ym1pdBIULm9qLnYxLlN1Ym1pdFJlcXVlc3QaFS5vai52MS5TdWJtaXRSZXNwb25zZRJoChdMaXN0U3VibWlzc2lvblN1bW1hcmllcxIlLm9qLnYxLkxpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVxdWVzdBomLm9qLnYxLkxpc3RTdWJtaXNzaW9uU3VtbWFyaWVzUmVzcG9uc2USXAoTR2V0U3VibWlzc2lvbkRldGFpbBIhLm9qLnYxLkdldFN1Ym1pc3Npb25EZXRhaWxSZXF1ZXN0GiIub2oudjEuR2V0U3VibWlzc2lvbkRldGFpbFJlc3BvbnNlEjgKB1J1bkNvZGUSFS5vai52MS5SdW5Db2RlUmVxdWVzdBoWLm9qLnYxLlJ1bkNvZGVSZXNwb25zZRJBCgpBZGRQcm9ibGVtEhgub2oudjEuQWRkUHJvYmxlbVJlcXVlc3QaGS5vai52MS5BZGRQcm9ibGVtUmVzcG9uc2USRAoLRWRpdFByb2JsZW0SGS5vai52MS5FZGl0UHJvYmxlbVJlcXVlc3QaGi5vai52MS5FZGl0UHJvYmxlbVJlc3BvbnNlEkoKDVJlbW92ZVByb2JsZW0SGy5vai52MS5SZW1vdmVQcm9ibGVtUmVxdWVzdBocLm9qLnYxLlJlbW92ZVByb2JsZW1SZXNwb25zZRJfChRMaXN0UHJvYmxlbVRlc3RDYXNlcxIiLm9qLnYxLkxpc3RQcm9ibGVtVGVzdENhc2VzUmVxdWVzdBojLm9qLnYxLkxpc3RQcm9ibGVtVGVzdENhc2VzUmVzcG9uc2USRAoLQWRkVGVzdENhc2USGS5vai52MS5BZGRUZXN0Q2FzZVJlcXVlc3QaGi5vai52MS5BZGRUZXN0Q2FzZVJlc3BvbnNlEk0KDlJlbW92ZVRlc3RDYXNlEhwub2oudjEuUmVtb3ZlVGVzdENhc2VSZXF1ZXN0Gh0ub2oudjEuUmVtb3ZlVGVzdENhc2VSZXNwb25zZWIGcHJvdG8z", [file_oj_v1_types]);
+  fileDesc("ChFvai92MS9qdWRnZS5wcm90bxIFb2oudjEiEgoQR2V0U3RhdHVzUmVxdWVzdCJsChFHZXRTdGF0dXNSZXNwb25zZRIPCgdoZWFsdGh5GAEgASgIEhAKCGRhdGFiYXNlGAIgASgJEg4KBmJyb2tlchgDIAEoCRITCgtxdWV1ZV9kZXB0aBgEIAEoAxIPCgdydW5uZXJzGAUgASgFIj8KDExhbmd1YWdlSW5mbxIhCghsYW5ndWFnZRgBIAEoDjIPLm9qLnYxLkxhbmd1YWdlEgwKBG5hbWUYAiABKAkiFgoUTGlzdExhbmd1YWdlc1JlcXVlc3QiPwoVTGlzdExhbmd1YWdlc1Jlc3BvbnNlEiYKCWxhbmd1YWdlcxgBIAMoCzITLm9qLnYxLkxhbmd1YWdlSW5mbyKQAQoOUHJvYmxlbVN1bW1hcnkSCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRINCgV0aXRsZRgDIAEoCRIlCgpkaWZmaWN1bHR5GAQgASgOMhEub2oudjEuRGlmZmljdWx0eRIVCg10aW1lX2xpbWl0X21zGAUgASgFEhcKD21lbW9yeV9saW1pdF9tYhgGIAEoBSLCAQoNUHJvYmxlbURldGFpbBIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEg0KBXRpdGxlGAMgASgJEiUKCmRpZmZpY3VsdHkYBCABKA4yES5vai52MS5EaWZmaWN1bHR5EhUKDXRpbWVfbGltaXRfbXMYBSABKAUSFwoPbWVtb3J5X2xpbWl0X21iGAYgASgFEhEKCXN0YXRlbWVudBgHIAEoCRIeCgdzYW1wbGVzGAggAygLMg0ub2oudjEuU2FtcGxlIh0KG0xpc3RQcm9ibGVtU3VtbWFyaWVzUmVxdWVzdCJHChxMaXN0UHJvYmxlbVN1bW1hcmllc1Jlc3BvbnNlEicKCHByb2JsZW1zGAEgAygLMhUub2oudjEuUHJvYmxlbVN1bW1hcnkiJQoXR2V0UHJvYmxlbURldGFpbFJlcXVlc3QSCgoCaWQYASABKAMiQQoYR2V0UHJvYmxlbURldGFpbFJlc3BvbnNlEiUKB3Byb2JsZW0YASABKAsyFC5vai52MS5Qcm9ibGVtRGV0YWlsImgKDVN1Ym1pdFJlcXVlc3QSEgoKcHJvYmxlbV9pZBgBIAEoAxIhCghsYW5ndWFnZRgCIAEoDjIPLm9qLnYxLkxhbmd1YWdlEg4KBnNvdXJjZRgDIAEoCRIQCgh1c2VybmFtZRgEIAEoCSI3Cg5TdWJtaXRSZXNwb25zZRIlCgpzdWJtaXNzaW9uGAEgASgLMhEub2oudjEuU3VibWlzc2lvbiJlCh5MaXN0U3VibWlzc2lvblN1bW1hcmllc1JlcXVlc3QSEgoKcHJvYmxlbV9pZBgBIAEoAxIQCgh1c2VybmFtZRgCIAEoCRINCgVsaW1pdBgDIAEoBRIOCgZvZmZzZXQYBCABKAUiSQofTGlzdFN1Ym1pc3Npb25TdW1tYXJpZXNSZXNwb25zZRImCgtzdWJtaXNzaW9ucxgBIAMoCzIRLm9qLnYxLlN1Ym1pc3Npb24iKAoaR2V0U3VibWlzc2lvbkRldGFpbFJlcXVlc3QSCgoCaWQYASABKAMiRAobR2V0U3VibWlzc2lvbkRldGFpbFJlc3BvbnNlEiUKCnN1Ym1pc3Npb24YASABKAsyES5vai52MS5TdWJtaXNzaW9uImYKDlJ1bkNvZGVSZXF1ZXN0EiEKCGxhbmd1YWdlGAEgASgOMg8ub2oudjEuTGFuZ3VhZ2USDgoGc291cmNlGAIgASgJEg0KBXN0ZGluGAMgASgJEhIKCnByb2JsZW1faWQYBCABKAMiogEKD1J1bkNvZGVSZXNwb25zZRIgCgZzdGF0dXMYASABKA4yEC5vai52MS5SdW5TdGF0dXMSFgoOY29tcGlsZV9vdXRwdXQYAiABKAkSDgoGc3Rkb3V0GAMgASgJEg4KBnN0ZGVychgEIAEoCRIRCglleGl0X2NvZGUYBSABKAUSDwoHdGltZV9tcxgGIAEoBRIRCgltZW1vcnlfa2IYByABKAMiSAoLTmV3VGVzdENhc2USDQoFaW5wdXQYASABKAkSFwoPZXhwZWN0ZWRfb3V0cHV0GAIgASgJEhEKCWlzX3NhbXBsZRgDIAEoCCLCAQoRQWRkUHJvYmxlbVJlcXVlc3QSDAoEc2x1ZxgBIAEoCRINCgV0aXRsZRgCIAEoCRIRCglzdGF0ZW1lbnQYAyABKAkSJQoKZGlmZmljdWx0eRgEIAEoDjIRLm9qLnYxLkRpZmZpY3VsdHkSFQoNdGltZV9saW1pdF9tcxgFIAEoBRIXCg9tZW1vcnlfbGltaXRfbWIYBiABKAUSJgoKdGVzdF9jYXNlcxgHIAMoCzISLm9qLnYxLk5ld1Rlc3RDYXNlIjsKEkFkZFByb2JsZW1SZXNwb25zZRIlCgdwcm9ibGVtGAEgASgLMhQub2oudjEuUHJvYmxlbURldGFpbCKnAQoSRWRpdFByb2JsZW1SZXF1ZXN0EgoKAmlkGAEgASgDEgwKBHNsdWcYAiABKAkSDQoFdGl0bGUYAyABKAkSEQoJc3RhdGVtZW50GAQgASgJEiUKCmRpZmZpY3VsdHkYBSABKA4yES5vai52MS5EaWZmaWN1bHR5EhUKDXRpbWVfbGltaXRfbXMYBiABKAUSFwoPbWVtb3J5X2xpbWl0X21iGAcgASgFIj0KE0VkaXRQcm9ibGVtUmVzcG9uc2USJgoHcHJvYmxlbRgBIAEoCzIVLm9qLnYxLlByb2JsZW1TdW1tYXJ5IiIKFFJlbW92ZVByb2JsZW1SZXF1ZXN0EgoKAmlkGAEgASgDIhcKFVJlbW92ZVByb2JsZW1SZXNwb25zZSIxChtMaXN0UHJvYmxlbVRlc3RDYXNlc1JlcXVlc3QSEgoKcHJvYmxlbV9pZBgBIAEoAyJDChxMaXN0UHJvYmxlbVRlc3RDYXNlc1Jlc3BvbnNlEiMKCnRlc3RfY2FzZXMYASADKAsyDy5vai52MS5UZXN0Q2FzZSJPChJBZGRUZXN0Q2FzZVJlcXVlc3QSEgoKcHJvYmxlbV9pZBgBIAEoAxIlCgl0ZXN0X2Nhc2UYAiABKAsyEi5vai52MS5OZXdUZXN0Q2FzZSI5ChNBZGRUZXN0Q2FzZVJlc3BvbnNlEiIKCXRlc3RfY2FzZRgBIAEoCzIPLm9qLnYxLlRlc3RDYXNlIjcKFVJlbW92ZVRlc3RDYXNlUmVxdWVzdBISCgpwcm9ibGVtX2lkGAEgASgDEgoKAmlkGAIgASgDIhgKFlJlbW92ZVRlc3RDYXNlUmVzcG9uc2ViBnByb3RvMw", [file_oj_v1_types]);
 
 /**
+ * GET /api/v1/status
+ *
  * @generated from message oj.v1.GetStatusRequest
  */
 export type GetStatusRequest = Message<"oj.v1.GetStatusRequest"> & {
@@ -32,7 +34,7 @@ export const GetStatusRequestSchema: GenMessage<GetStatusRequest> = /*@__PURE__*
  */
 export type GetStatusResponse = Message<"oj.v1.GetStatusResponse"> & {
   /**
-   * True when dao and RabbitMQ are both reachable.
+   * True when the database and RabbitMQ are both reachable.
    *
    * @generated from field: bool healthy = 1;
    */
@@ -41,9 +43,9 @@ export type GetStatusResponse = Message<"oj.v1.GetStatusResponse"> & {
   /**
    * "ok" or "error: <reason>".
    *
-   * @generated from field: string dao = 2;
+   * @generated from field: string database = 2;
    */
-  dao: string;
+  database: string;
 
   /**
    * @generated from field: string broker = 3;
@@ -97,6 +99,8 @@ export const LanguageInfoSchema: GenMessage<LanguageInfo> = /*@__PURE__*/
   messageDesc(file_oj_v1_judge, 2);
 
 /**
+ * GET /api/v1/languages
+ *
  * @generated from message oj.v1.ListLanguagesRequest
  */
 export type ListLanguagesRequest = Message<"oj.v1.ListLanguagesRequest"> & {
@@ -225,6 +229,8 @@ export const ProblemDetailSchema: GenMessage<ProblemDetail> = /*@__PURE__*/
   messageDesc(file_oj_v1_judge, 6);
 
 /**
+ * GET /api/v1/problems
+ *
  * @generated from message oj.v1.ListProblemSummariesRequest
  */
 export type ListProblemSummariesRequest = Message<"oj.v1.ListProblemSummariesRequest"> & {
@@ -255,6 +261,8 @@ export const ListProblemSummariesResponseSchema: GenMessage<ListProblemSummaries
   messageDesc(file_oj_v1_judge, 8);
 
 /**
+ * GET /api/v1/problems/{id}
+ *
  * @generated from message oj.v1.GetProblemDetailRequest
  */
 export type GetProblemDetailRequest = Message<"oj.v1.GetProblemDetailRequest"> & {
@@ -289,6 +297,8 @@ export const GetProblemDetailResponseSchema: GenMessage<GetProblemDetailResponse
   messageDesc(file_oj_v1_judge, 10);
 
 /**
+ * POST /api/v1/submissions (rate limited) -> 202
+ *
  * @generated from message oj.v1.SubmitRequest
  */
 export type SubmitRequest = Message<"oj.v1.SubmitRequest"> & {
@@ -344,6 +354,8 @@ export const SubmitResponseSchema: GenMessage<SubmitResponse> = /*@__PURE__*/
   messageDesc(file_oj_v1_judge, 12);
 
 /**
+ * GET /api/v1/submissions?problemId=&username=&limit=&offset=
+ *
  * @generated from message oj.v1.ListSubmissionSummariesRequest
  */
 export type ListSubmissionSummariesRequest = Message<"oj.v1.ListSubmissionSummariesRequest"> & {
@@ -397,6 +409,8 @@ export const ListSubmissionSummariesResponseSchema: GenMessage<ListSubmissionSum
   messageDesc(file_oj_v1_judge, 14);
 
 /**
+ * GET /api/v1/submissions/{id}
+ *
  * @generated from message oj.v1.GetSubmissionDetailRequest
  */
 export type GetSubmissionDetailRequest = Message<"oj.v1.GetSubmissionDetailRequest"> & {
@@ -431,6 +445,8 @@ export const GetSubmissionDetailResponseSchema: GenMessage<GetSubmissionDetailRe
   messageDesc(file_oj_v1_judge, 16);
 
 /**
+ * POST /api/v1/run (rate limited). Runs code against custom input, no judging.
+ *
  * @generated from message oj.v1.RunCodeRequest
  */
 export type RunCodeRequest = Message<"oj.v1.RunCodeRequest"> & {
@@ -543,6 +559,8 @@ export const NewTestCaseSchema: GenMessage<NewTestCase> = /*@__PURE__*/
   messageDesc(file_oj_v1_judge, 19);
 
 /**
+ * POST /api/v1/admin/problems -> 201
+ *
  * @generated from message oj.v1.AddProblemRequest
  */
 export type AddProblemRequest = Message<"oj.v1.AddProblemRequest"> & {
@@ -615,6 +633,8 @@ export const AddProblemResponseSchema: GenMessage<AddProblemResponse> = /*@__PUR
   messageDesc(file_oj_v1_judge, 21);
 
 /**
+ * PUT /api/v1/admin/problems/{id}
+ *
  * @generated from message oj.v1.EditProblemRequest
  */
 export type EditProblemRequest = Message<"oj.v1.EditProblemRequest"> & {
@@ -679,6 +699,8 @@ export const EditProblemResponseSchema: GenMessage<EditProblemResponse> = /*@__P
   messageDesc(file_oj_v1_judge, 23);
 
 /**
+ * DELETE /api/v1/admin/problems/{id} -> 204
+ *
  * @generated from message oj.v1.RemoveProblemRequest
  */
 export type RemoveProblemRequest = Message<"oj.v1.RemoveProblemRequest"> & {
@@ -709,6 +731,8 @@ export const RemoveProblemResponseSchema: GenMessage<RemoveProblemResponse> = /*
   messageDesc(file_oj_v1_judge, 25);
 
 /**
+ * GET /api/v1/admin/problems/{problemId}/testcases
+ *
  * @generated from message oj.v1.ListProblemTestCasesRequest
  */
 export type ListProblemTestCasesRequest = Message<"oj.v1.ListProblemTestCasesRequest"> & {
@@ -743,6 +767,8 @@ export const ListProblemTestCasesResponseSchema: GenMessage<ListProblemTestCases
   messageDesc(file_oj_v1_judge, 27);
 
 /**
+ * POST /api/v1/admin/problems/{problemId}/testcases -> 201
+ *
  * @generated from message oj.v1.AddTestCaseRequest
  */
 export type AddTestCaseRequest = Message<"oj.v1.AddTestCaseRequest"> & {
@@ -782,6 +808,8 @@ export const AddTestCaseResponseSchema: GenMessage<AddTestCaseResponse> = /*@__P
   messageDesc(file_oj_v1_judge, 29);
 
 /**
+ * DELETE /api/v1/admin/problems/{problemId}/testcases/{id} -> 204
+ *
  * @generated from message oj.v1.RemoveTestCaseRequest
  */
 export type RemoveTestCaseRequest = Message<"oj.v1.RemoveTestCaseRequest"> & {
@@ -815,168 +843,4 @@ export type RemoveTestCaseResponse = Message<"oj.v1.RemoveTestCaseResponse"> & {
  */
 export const RemoveTestCaseResponseSchema: GenMessage<RemoveTestCaseResponse> = /*@__PURE__*/
   messageDesc(file_oj_v1_judge, 31);
-
-/**
- * JudgeService is midlayer's gRPC API: the business logic of the Online
- * Judge. rest exposes it to clients at /api/v1 (see rest's README for
- * the HTTP mapping); authentication, rate limits and CORS live there, not here.
- *
- * The HTTP body of each route is the request message (minus path parameters)
- * and its response is the response message, both as canonical proto JSON.
- *
- * Errors (gRPC status codes, mapped to HTTP by rest):
- *   INVALID_ARGUMENT     validation failed (message says which field)  -> 422
- *   NOT_FOUND            problem / submission / test case not found    -> 404
- *   ALREADY_EXISTS       duplicate problem slug                        -> 409
- *   RESOURCE_EXHAUSTED   judging queue is full                         -> 429
- *   DEADLINE_EXCEEDED    a custom run got no runner answer in time     -> 504
- *   UNAVAILABLE          dao or RabbitMQ unreachable                -> 503
- * Liveness/readiness: the standard grpc.health.v1.Health service.
- *
- * @generated from service oj.v1.JudgeService
- */
-export const JudgeService: GenService<{
-  /**
-   * GET /api/v1/status
-   *
-   * @generated from rpc oj.v1.JudgeService.GetStatus
-   */
-  getStatus: {
-    methodKind: "unary";
-    input: typeof GetStatusRequestSchema;
-    output: typeof GetStatusResponseSchema;
-  },
-  /**
-   * GET /api/v1/languages
-   *
-   * @generated from rpc oj.v1.JudgeService.ListLanguages
-   */
-  listLanguages: {
-    methodKind: "unary";
-    input: typeof ListLanguagesRequestSchema;
-    output: typeof ListLanguagesResponseSchema;
-  },
-  /**
-   * GET /api/v1/problems
-   *
-   * @generated from rpc oj.v1.JudgeService.ListProblemSummaries
-   */
-  listProblemSummaries: {
-    methodKind: "unary";
-    input: typeof ListProblemSummariesRequestSchema;
-    output: typeof ListProblemSummariesResponseSchema;
-  },
-  /**
-   * GET /api/v1/problems/{id}
-   *
-   * @generated from rpc oj.v1.JudgeService.GetProblemDetail
-   */
-  getProblemDetail: {
-    methodKind: "unary";
-    input: typeof GetProblemDetailRequestSchema;
-    output: typeof GetProblemDetailResponseSchema;
-  },
-  /**
-   * POST /api/v1/submissions (rate limited)
-   *
-   * @generated from rpc oj.v1.JudgeService.Submit
-   */
-  submit: {
-    methodKind: "unary";
-    input: typeof SubmitRequestSchema;
-    output: typeof SubmitResponseSchema;
-  },
-  /**
-   * GET /api/v1/submissions?problemId=&username=&limit=&offset=
-   *
-   * @generated from rpc oj.v1.JudgeService.ListSubmissionSummaries
-   */
-  listSubmissionSummaries: {
-    methodKind: "unary";
-    input: typeof ListSubmissionSummariesRequestSchema;
-    output: typeof ListSubmissionSummariesResponseSchema;
-  },
-  /**
-   * GET /api/v1/submissions/{id}
-   *
-   * @generated from rpc oj.v1.JudgeService.GetSubmissionDetail
-   */
-  getSubmissionDetail: {
-    methodKind: "unary";
-    input: typeof GetSubmissionDetailRequestSchema;
-    output: typeof GetSubmissionDetailResponseSchema;
-  },
-  /**
-   * POST /api/v1/run (rate limited). Runs code against custom input, no judging.
-   *
-   * @generated from rpc oj.v1.JudgeService.RunCode
-   */
-  runCode: {
-    methodKind: "unary";
-    input: typeof RunCodeRequestSchema;
-    output: typeof RunCodeResponseSchema;
-  },
-  /**
-   * Admin (rest requires the admin bearer token for these).
-   * POST   /api/v1/admin/problems
-   *
-   * @generated from rpc oj.v1.JudgeService.AddProblem
-   */
-  addProblem: {
-    methodKind: "unary";
-    input: typeof AddProblemRequestSchema;
-    output: typeof AddProblemResponseSchema;
-  },
-  /**
-   * PUT    /api/v1/admin/problems/{id}
-   *
-   * @generated from rpc oj.v1.JudgeService.EditProblem
-   */
-  editProblem: {
-    methodKind: "unary";
-    input: typeof EditProblemRequestSchema;
-    output: typeof EditProblemResponseSchema;
-  },
-  /**
-   * DELETE /api/v1/admin/problems/{id}
-   *
-   * @generated from rpc oj.v1.JudgeService.RemoveProblem
-   */
-  removeProblem: {
-    methodKind: "unary";
-    input: typeof RemoveProblemRequestSchema;
-    output: typeof RemoveProblemResponseSchema;
-  },
-  /**
-   * GET    /api/v1/admin/problems/{problemId}/testcases
-   *
-   * @generated from rpc oj.v1.JudgeService.ListProblemTestCases
-   */
-  listProblemTestCases: {
-    methodKind: "unary";
-    input: typeof ListProblemTestCasesRequestSchema;
-    output: typeof ListProblemTestCasesResponseSchema;
-  },
-  /**
-   * POST   /api/v1/admin/problems/{problemId}/testcases
-   *
-   * @generated from rpc oj.v1.JudgeService.AddTestCase
-   */
-  addTestCase: {
-    methodKind: "unary";
-    input: typeof AddTestCaseRequestSchema;
-    output: typeof AddTestCaseResponseSchema;
-  },
-  /**
-   * DELETE /api/v1/admin/problems/{problemId}/testcases/{id}
-   *
-   * @generated from rpc oj.v1.JudgeService.RemoveTestCase
-   */
-  removeTestCase: {
-    methodKind: "unary";
-    input: typeof RemoveTestCaseRequestSchema;
-    output: typeof RemoveTestCaseResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_oj_v1_judge, 0);
 

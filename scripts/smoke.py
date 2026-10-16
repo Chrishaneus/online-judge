@@ -261,7 +261,7 @@ def main() -> int:
         s = client.get("/status").body
         ensure(s["healthy"] is True, f"unhealthy: {s}")
         ensure(s["runners"] >= 1, f"no runner is consuming judge.jobs: {s}")
-        return f"dao={s['dao']} broker={s['broker']} runners={s['runners']} queue={s['queueDepth']}"
+        return f"database={s['database']} broker={s['broker']} runners={s['runners']} queue={s['queueDepth']}"
 
     suite.check("webapp serves the home page", webapp_serves)
     suite.check("all dependencies healthy, runners consuming", status_healthy)
@@ -404,10 +404,10 @@ def main() -> int:
     )
 
     def no_internal_services() -> str:
-        targets = [("midlayer", 50051), ("dao", 50052), ("postgres", 5432), ("rest", 8000), ("webapp", 3000)]
+        targets = [("api", 8000), ("postgres", 5432), ("webapp", 3000)]
         out = sandbox(probe_connect.format(targets=targets))
         ensure(not out, out)
-        return "midlayer, dao, postgres, rest, webapp unreachable"
+        return "api, postgres, webapp unreachable"
 
     def no_internet() -> str:
         out = sandbox(probe_connect.format(targets=[("1.1.1.1", 443), ("8.8.8.8", 53)]))

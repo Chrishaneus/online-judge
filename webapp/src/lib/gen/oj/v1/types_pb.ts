@@ -206,7 +206,7 @@ export type Submission = Message<"oj.v1.Submission"> & {
   language: Language;
 
   /**
-   * Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+   * Empty in GET /api/v1/submissions list responses.
    *
    * @generated from field: string source = 5;
    */
@@ -241,14 +241,14 @@ export type Submission = Message<"oj.v1.Submission"> & {
 
   /**
    * Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
-   * Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+   * Empty in GET /api/v1/submissions list responses.
    *
    * @generated from field: string message = 11;
    */
   message: string;
 
   /**
-   * Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+   * Empty in GET /api/v1/submissions list responses.
    *
    * @generated from field: repeated oj.v1.TestResult results = 12;
    */
@@ -273,7 +273,7 @@ export const SubmissionSchema: GenMessage<Submission> = /*@__PURE__*/
   messageDesc(file_oj_v1_types, 4);
 
 /**
- * Body of every non-2xx HTTP response from rest.
+ * Body of every non-2xx HTTP response from api.
  *
  * @generated from message oj.v1.ErrorResponse
  */

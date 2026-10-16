@@ -643,7 +643,7 @@ type Submission struct {
 	ProblemId int64                  `protobuf:"varint,2,opt,name=problem_id,json=problemId,proto3" json:"problem_id,omitempty"`
 	Username  string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	Language  Language               `protobuf:"varint,4,opt,name=language,proto3,enum=oj.v1.Language" json:"language,omitempty"`
-	// Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+	// Empty in GET /api/v1/submissions list responses.
 	Source  string           `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`
 	Status  SubmissionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=oj.v1.SubmissionStatus" json:"status,omitempty"`
 	Verdict Verdict          `protobuf:"varint,7,opt,name=verdict,proto3,enum=oj.v1.Verdict" json:"verdict,omitempty"`
@@ -652,9 +652,9 @@ type Submission struct {
 	// Slowest test, in milliseconds.
 	TimeMs int32 `protobuf:"varint,10,opt,name=time_ms,json=timeMs,proto3" json:"time_ms,omitempty"`
 	// Human-readable summary ("Wrong Answer on test 3", compiler output, ...).
-	// Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+	// Empty in GET /api/v1/submissions list responses.
 	Message string `protobuf:"bytes,11,opt,name=message,proto3" json:"message,omitempty"`
-	// Empty in JudgeService.ListSubmissionSummaries (dao returns it).
+	// Empty in GET /api/v1/submissions list responses.
 	Results       []*TestResult          `protobuf:"bytes,12,rep,name=results,proto3" json:"results,omitempty"`
 	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
@@ -790,7 +790,7 @@ func (x *Submission) GetUpdateTime() *timestamppb.Timestamp {
 	return nil
 }
 
-// Body of every non-2xx HTTP response from rest.
+// Body of every non-2xx HTTP response from api.
 type ErrorResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Error         string                 `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`

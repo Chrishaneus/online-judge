@@ -204,7 +204,13 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 	}
 
 	if (path === '/status') {
-		return send(res, 200, { healthy: true, dao: 'ok', broker: 'ok', queueDepth: '0', runners: 1 });
+		return send(res, 200, {
+			healthy: true,
+			database: 'ok',
+			broker: 'ok',
+			queueDepth: '0',
+			runners: 1
+		});
 	}
 	if (path === '/languages') {
 		return send(res, 200, {

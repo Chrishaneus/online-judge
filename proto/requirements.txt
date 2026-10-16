@@ -1,3 +1,3 @@
-# Python generator. Its version must match grpcio in midlayer/requirements.txt
-# (generated *_pb2_grpc.py refuses to import with an older grpcio).
+# Python generator (bundles protoc; no gRPC stubs are generated). The protobuf
+# runtime in api/requirements.txt must be at least the gencode version.
 grpcio-tools==1.85.1
