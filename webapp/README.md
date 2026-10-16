@@ -52,12 +52,12 @@ docs/ai/                     Svelte 5 / shadcn-svelte reference for coding agent
 
 ## Configuration
 
-| Variable                       | Where     | Default                        | Description                                                                                                                                                                    |
-| ------------------------------ | --------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `API_URL`                      | runtime   | `http://127.0.0.1:8000/api/v1` | rest base URL including `/api/v1` (server-side only)                                                                                                                        |
-| `PORT`                         | runtime   | `3000`                         | Listen port                                                                                                                                                                    |
+| Variable                       | Where     | Default                        | Description                                                                                                                                                              |
+| ------------------------------ | --------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `API_URL`                      | runtime   | `http://127.0.0.1:8000/api/v1` | rest base URL including `/api/v1` (server-side only)                                                                                                                     |
+| `PORT`                         | runtime   | `3000`                         | Listen port                                                                                                                                                              |
 | `ADDRESS_HEADER` / `XFF_DEPTH` | runtime   | –                              | adapter-node: take the visitor IP from a proxy header. The IP is forwarded to rest as `X-Real-IP` on submit / run (rate limiting; rest needs `TRUST_PROXY_HEADERS=true`) |
-| `PUBLIC_ORIGIN`                | build arg | `http://localhost:8080`        | Public URL users open; SvelteKit's CSRF check compares form posts against it                                                                                                   |
+| `PUBLIC_ORIGIN`                | build arg | `http://localhost:8080`        | Public URL users open; SvelteKit's CSRF check compares form posts against it                                                                                             |
 
 ## Development
 

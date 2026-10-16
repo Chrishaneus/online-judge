@@ -34,15 +34,15 @@ Instructions for any AI coding agent working in webapp, the Online Judge fronten
 
 ## Commands
 
-| What                | Command                                                                                |
-| ------------------- | -------------------------------------------------------------------------------------- |
-| Lint + types        | `npm run lint && npm run check`                                                        |
-| Unit tests          | `npm run test:unit`                                                                    |
-| Component tests     | `npm run test:component` (needs `npx playwright install chromium`)                     |
+| What             | Command                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| Lint + types     | `npm run lint && npm run check`                                                        |
+| Unit tests       | `npm run test:unit`                                                                    |
+| Component tests  | `npm run test:component` (needs `npx playwright install chromium`)                     |
 | E2E vs mock rest | `npx playwright test` (builds, starts `e2e/mock-api.ts` + `vite preview`)              |
-| E2E vs the stack    | `E2E_BASE_URL=http://localhost:8080 E2E_ADMIN_TOKEN=<ADMIN_TOKEN> npx playwright test` |
-| Build / image       | `npm run build` / `docker build -t online-judge/webapp:latest .`                       |
-| Regenerate types    | `make gen` (repo root)                                                              |
+| E2E vs the stack | `E2E_BASE_URL=http://localhost:8080 E2E_ADMIN_TOKEN=<ADMIN_TOKEN> npx playwright test` |
+| Build / image    | `npm run build` / `docker build -t online-judge/webapp:latest .`                       |
+| Regenerate types | `make gen` (repo root)                                                                 |
 
 ## Test levels: put each test where it belongs
 
