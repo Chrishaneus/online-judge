@@ -1,5 +1,5 @@
 /**
- * In-memory stand-in for rest (/api/v1, canonical proto JSON) so the e2e specs can run
+ * In-memory stand-in for the api (/api/v1, canonical proto JSON) so the e2e specs can run
  * without the backend. Judging is faked: a submission is PENDING, then JUDGING, then
  * FINISHED; it is Accepted when the source computes `a + b` (or `sum(`), else Wrong Answer.
  *
@@ -281,4 +281,4 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 
 createServer((req, res) => {
 	handle(req, res).catch((err: unknown) => fail(res, 500, String(err)));
-}).listen(PORT, '127.0.0.1', () => console.log(`mock rest on http://127.0.0.1:${PORT}/api/v1`));
+}).listen(PORT, '127.0.0.1', () => console.log(`mock api on http://127.0.0.1:${PORT}/api/v1`));

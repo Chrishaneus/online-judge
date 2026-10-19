@@ -20,10 +20,25 @@ jobs:
       - run: make -C proto setup
       - run: make check-proto
 
-  go:
+  runner:
     runs-on: ubuntu-latest
-    strategy:
-      matrix: { service: [dao, rest, runner] }
+    services:
+      rabbitmq:
+        image: rabbitmq:4-alpine
+        env: { RABBITMQ_DEFAULT_USER: oj, RABBITMQ_DEFAULT_PASS: oj }
+        ports: ["5672:5672"]
+        options: --health-cmd "rabbitmq-diagnostics -q check_port_connectivity" --health-interval 5s --health-retries 30
+    defaults: { run: { working-directory: runner } }
+    env: { RABBITMQ_TEST_URL: "amqp://oj:oj@localhost:5672/" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: runner/go.mod, cache-dependency-path: runner/go.sum }
+      - run: test -z "$(gofmt -l .)" && go vet ./...
+      - run: go test -race ./...
+
+  api:
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:17-alpine
@@ -35,33 +50,16 @@ jobs:
         env: { RABBITMQ_DEFAULT_USER: oj, RABBITMQ_DEFAULT_PASS: oj }
         ports: ["5672:5672"]
         options: --health-cmd "rabbitmq-diagnostics -q check_port_connectivity" --health-interval 5s --health-retries 30
-    defaults: { run: { working-directory: "${{ matrix.service }}" } }
+    defaults: { run: { working-directory: api } }
     env:
-      TEST_DATABASE_URL: postgres://oj:oj@localhost:5432/oj_test?sslmode=disable
+      TEST_DATABASE_URL: postgresql+psycopg://oj:oj@localhost:5432/oj_test
       RABBITMQ_TEST_URL: amqp://oj:oj@localhost:5672/
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with: { go-version-file: "${{ matrix.service }}/go.mod", cache-dependency-path: "${{ matrix.service }}/go.sum" }
-      - run: test -z "$(gofmt -l .)" && go vet ./...
-      - run: go test -race ./...
-
-  midlayer:
-    runs-on: ubuntu-latest
-    services:
-      rabbitmq:
-        image: rabbitmq:4-alpine
-        env: { RABBITMQ_DEFAULT_USER: oj, RABBITMQ_DEFAULT_PASS: oj }
-        ports: ["5672:5672"]
-        options: --health-cmd "rabbitmq-diagnostics -q check_port_connectivity" --health-interval 5s --health-retries 30
-    defaults: { run: { working-directory: midlayer } }
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv venv --python 3.13 .venv && uv pip install --python .venv/bin/python -r requirements-dev.txt
       - run: .venv/bin/ruff check . && .venv/bin/ruff format --check .
       - run: .venv/bin/pytest -q
-        env: { RABBITMQ_TEST_URL: "amqp://oj:oj@localhost:5672/" }
 
   webapp:
     runs-on: ubuntu-latest
@@ -76,15 +74,17 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    needs: [proto, go, midlayer, webapp]
+    needs: [proto, runner, api, webapp]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 24 }
       - run: make env && make up
-      - run: make smoke
       - run: cd webapp && npm ci && npx playwright install --with-deps chromium
+      # e2e first: both suites hit the per-IP rate limit from the same address, and
+      # only smoke.py waits out 429s.
       - run: make e2e
         env: { CI: "1" }
+      - run: make smoke
       - if: failure()
         run: docker compose logs

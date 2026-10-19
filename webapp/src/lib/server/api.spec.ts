@@ -25,7 +25,7 @@ function fakeFetch(status: number, body: unknown = {}, headers: Record<string, s
 	return { fn, calls };
 }
 
-const BASE = 'http://rest:8000/api/v1/';
+const BASE = 'http://api:8000/api/v1/';
 
 const problemJson = {
 	id: '7',
@@ -41,7 +41,7 @@ describe('createApi responses', () => {
 		const { fn, calls } = fakeFetch(200, { problems: [problemJson] });
 		const res = await createApi(BASE, fn).problems();
 
-		expect(calls[0].url).toBe('http://rest:8000/api/v1/problems');
+		expect(calls[0].url).toBe('http://api:8000/api/v1/problems');
 		expect(res.ok).toBe(true);
 		if (!res.ok) return;
 		expect(res.data).toHaveLength(1);
@@ -164,7 +164,7 @@ describe('createApi requests', () => {
 
 		expect(res.ok && res.data.id).toBe(9n);
 		expect(calls[0]).toMatchObject({
-			url: 'http://rest:8000/api/v1/submissions',
+			url: 'http://api:8000/api/v1/submissions',
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', 'X-Real-IP': '203.0.113.5' },
 			body: { problemId: '7', language: 'LANGUAGE_CPP', source: 'int main(){}', username: 'bob' }
@@ -183,7 +183,7 @@ describe('createApi requests', () => {
 			'198.51.100.1'
 		);
 		expect(res.ok && res.data.stdout).toBe('3\n');
-		expect(calls[0].url).toBe('http://rest:8000/api/v1/run');
+		expect(calls[0].url).toBe('http://api:8000/api/v1/run');
 		expect(calls[0].headers['X-Real-IP']).toBe('198.51.100.1');
 		expect(calls[0].body).toEqual({
 			language: 'LANGUAGE_PYTHON',
@@ -209,11 +209,11 @@ describe('createApi requests', () => {
 			offset: 25
 		});
 		expect(calls[0].url).toBe(
-			'http://rest:8000/api/v1/submissions?problemId=7&username=alice&limit=26&offset=25'
+			'http://api:8000/api/v1/submissions?problemId=7&username=alice&limit=26&offset=25'
 		);
 
 		await createApi(BASE, fn).submissions({ problemId: 0n, username: '', limit: 26, offset: 0 });
-		expect(calls[1].url).toBe('http://rest:8000/api/v1/submissions?limit=26');
+		expect(calls[1].url).toBe('http://api:8000/api/v1/submissions?limit=26');
 	});
 
 	it('sends the admin token as bearer and accepts empty delete responses', async () => {
@@ -221,7 +221,7 @@ describe('createApi requests', () => {
 		const res = await createApi(BASE, fn).admin.deleteProblem('s3cret', 7n);
 		expect(res.ok).toBe(true);
 		expect(calls[0]).toMatchObject({
-			url: 'http://rest:8000/api/v1/admin/problems/7',
+			url: 'http://api:8000/api/v1/admin/problems/7',
 			method: 'DELETE',
 			headers: { Authorization: 'Bearer s3cret' }
 		});
@@ -273,7 +273,7 @@ describe('createApi requests', () => {
 			isSample: false
 		});
 		expect(res.ok && res.data.ordinal).toBe(3);
-		expect(calls[0].url).toBe('http://rest:8000/api/v1/admin/problems/7/testcases');
+		expect(calls[0].url).toBe('http://api:8000/api/v1/admin/problems/7/testcases');
 		expect(calls[0].body).toEqual({ testCase: { expectedOutput: '0' } });
 	});
 
@@ -284,7 +284,7 @@ describe('createApi requests', () => {
 		expect(list.ok && list.data[0].isSample).toBe(true);
 		await api.admin.deleteTestCase('t', 7n, 3n);
 		expect(calls[1]).toMatchObject({
-			url: 'http://rest:8000/api/v1/admin/problems/7/testcases/3',
+			url: 'http://api:8000/api/v1/admin/problems/7/testcases/3',
 			method: 'DELETE'
 		});
 	});

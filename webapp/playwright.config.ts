@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 // Two modes:
 // - E2E_BASE_URL set: test a running stack, e.g. `make up` at the repo root, then
 //     E2E_BASE_URL=http://localhost:8080 E2E_ADMIN_TOKEN=<ADMIN_TOKEN from ../.env> npx playwright test
-// - unset: start the in-memory mock rest (e2e/mock-api.ts) and a production build of the
+// - unset: start the in-memory mock api (e2e/mock-api.ts) and a production build of the
 //   webapp (`vite preview`) pointed at it. Judging is faked there; see the mock's header.
 const externalBaseURL = process.env.E2E_BASE_URL;
 const MOCK_PORT = 8099;

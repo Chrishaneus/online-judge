@@ -12,11 +12,14 @@ import "oj/v1/types.proto";
 // Errors: every non-2xx response body is oj.v1.ErrorResponse.
 //   400  malformed JSON / unknown field / non-numeric path or query parameter
 //   401  missing or invalid admin token (admin routes)
-//   404  problem / submission / test case not found
+//   403  admin API disabled (ADMIN_TOKEN not configured)
+//   404  problem / submission / test case not found, or unknown route
+//   405  method not allowed
 //   409  duplicate problem slug
 //   413  body too large
 //   422  validation failed (error names the field)
 //   429  rate limited (Retry-After) or judging queue full
+//   500  unexpected error (logged; details not exposed)
 //   503  database or RabbitMQ unreachable
 //   504  a custom run got no runner answer in time
 //

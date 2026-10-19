@@ -4,7 +4,7 @@ Code execution worker for the Online Judge. It takes `oj.v1.ExecuteJob`
 messages from RabbitMQ, compiles each submission once, runs it against every
 test input under resource limits and publishes the raw results (stdout, exit
 status, time, memory) as `oj.v1.JobEvent`s. It **does not** know expected
-outputs: judging is the midlayer's job.
+outputs: judging is the api's job.
 
 The runner has no listening port. It scales by adding replicas that consume
 the same queue.
@@ -15,12 +15,12 @@ The contract (topology, AMQP properties, permissions) is the header of
 [`proto/oj/v1/runner.proto`](../proto/oj/v1/runner.proto).
 
 ```
-midlayer ──ExecuteJob──> judge.jobs ──> runner (prefetch = RUNNER_WORKERS)
+api ──────ExecuteJob──> judge.jobs ──> runner (prefetch = RUNNER_WORKERS)
                                           │ 1. JobEvent{started}
                                           │ 2. execute in the sandbox
                                           │ 3. JobEvent{finished: ExecuteResult}  (confirmed)
                                           │ 4. ack the job
-midlayer <──JobEvent── reply_to (judge.events, or the midlayer's RPC queue)
+api worker <──JobEvent── reply_to (judge.events, or the api's RPC queue)
 ```
 
 Events go to the default exchange with routing key = the job's `reply_to` and

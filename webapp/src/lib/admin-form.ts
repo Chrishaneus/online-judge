@@ -1,7 +1,7 @@
 import { Difficulty } from '#lib/gen/oj/v1/types_pb.js';
 import { parseDifficulty } from '#lib/labels.js';
 
-/** Parsing and validation of the admin problem / test case forms (mirrors midlayer's rules). */
+/** Parsing and validation of the admin problem / test case forms (mirrors the api's rules). */
 
 export const SLUG_PATTERN = '[a-z0-9]+(-[a-z0-9]+)*';
 const SLUG_RE = new RegExp(`^${SLUG_PATTERN}$`);

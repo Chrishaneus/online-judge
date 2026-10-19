@@ -1,19 +1,17 @@
 # Online Judge
 
 Submit code in Python, C, C++ or JavaScript and get it judged in a sandbox.
-SvelteKit frontend, Go and Python services talking gRPC, judging distributed
-over RabbitMQ. One repo, one `docker compose up`.
+SvelteKit frontend, a Flask API, and Go runners that take judging jobs from
+RabbitMQ. One repo, one `docker compose up`.
 
 ## Layout
 
 | Path        | Language                      | Role                                                                 |
 |-------------|-------------------------------|----------------------------------------------------------------------|
-| `proto/`    | Protobuf (buf)                | **Shared contract**: gRPC APIs, RabbitMQ messages, JSON types; generates code into every service |
-| `webapp/`   | SvelteKit 3 / Svelte 5 / TS   | Web UI; talks to rest server-side (proto JSON)                       |
-| `rest/`     | Go                            | Public REST edge `/api/v1`: proto JSON ⇄ gRPC, auth, rate limits, CORS |
-| `midlayer/` | Python (grpc.aio, aio-pika)   | Business logic: validation, judging rules and verdicts, job publishing |
+| `proto/`    | Protobuf (buf)                | **Shared contract**: HTTP JSON types and RabbitMQ messages; generates code into every service |
+| `api/`      | Python 3.13 / Flask           | `/api/v1`: controllers → services → repositories (Postgres, RabbitMQ); plus the `worker` process that judges runner results |
+| `webapp/`   | SvelteKit 3 / Svelte 5 / TS   | Web UI; talks to the api server-side (proto JSON)                    |
 | `runner/`   | Go                            | RabbitMQ consumer: sandboxed compile & execute                       |
-| `dao/`      | Go + PostgreSQL               | Persistence (gRPC); the only service that touches the DB             |
 | `rabbitmq/` | RabbitMQ config               | Users, permissions and queues rendered from `.env` at startup        |
 | `scripts/`  | bash / Python                 | `setup.sh` (dev deps), `smoke.py` (end-to-end test)                  |
 
@@ -25,17 +23,18 @@ Every directory has a README; `AGENTS.md` files hold the rules for coding agents
 browser ─> webapp (:3000, published :8080)
              │ HTTP, proto JSON
              v
-           rest (:8000) ─gRPC─> midlayer (:50051) ─gRPC─> dao (:50052) ─> postgres
-                                   │ AMQP, binary protobuf
-                                   v
-                                rabbitmq ── judge.jobs ──> runner × RUNNER_REPLICAS
-                                         <─ judge.events ──┘
+           api (Flask :8000) ─────> postgres
+           worker (same image) ─┘
+             │ AMQP, binary protobuf
+             v
+           rabbitmq ── judge.jobs ──> runner × RUNNER_REPLICAS
+                    <─ judge.events ──┘
 ```
 
 A submission is stored as `PENDING` and published to `judge.jobs`, a durable
 quorum queue. The first free runner takes it, reports `started` (the
 submission becomes `JUDGING`), compiles once, runs every test and publishes
-the raw results. The midlayer compares outputs and stores the verdict. A
+the raw results. The api worker compares outputs and stores the verdict. A
 runner acknowledges a job only after its result is confirmed by the broker.
 If a runner dies mid-job, the job is redelivered. After 3 failed deliveries
 it goes to `judge.jobs.dead` and the submission is marked `FAILED`. Custom runs
@@ -49,9 +48,9 @@ how many runners are consuming.
 
 | Network | Members | Notes |
 |---|---|---|
-| `frontend` | webapp, rest | webapp published; rest published on loopback only |
-| `backend` (internal) | rest, midlayer, dao, rabbitmq | |
-| `db` (internal) | dao, postgres | |
+| `frontend` | webapp, api | webapp published; api published on loopback only |
+| `backend` (internal) | api, worker, rabbitmq | |
+| `db` (internal) | api, worker, postgres | |
 | `jobs` (internal) | runner, rabbitmq | the only network submitted code can touch |
 
 ### Security
@@ -78,9 +77,13 @@ how many runners are consuming.
 ```bash
 make env     # create/upgrade .env with random secrets (keeps existing values)
 make up      # build + start everything, wait for healthchecks
-make smoke   # end-to-end test against the running stack
 make e2e     # Playwright browser flows against the running stack
+make smoke   # end-to-end test against the running stack
 ```
+
+Both suites come from the same address and share the per-client rate limit
+(`RATE_LIMIT_PER_MIN`). `smoke` waits out 429s but the browser tests don't, so
+run `e2e` first or a minute after `smoke`.
 
 Open http://localhost:8080. Sign in on the **Admin** page with the
 `ADMIN_TOKEN` from `.env` to manage problems. Three starter problems are
@@ -92,7 +95,7 @@ and broker volumes.
 ## Development
 
 ```bash
-make setup   # proto generators, Python venv, Go modules, npm + Playwright
+make setup   # proto generators, api venv, runner Go modules, npm + Playwright
 make gen     # after editing proto/oj/v1/*.proto: regenerate every service
 make check   # every CI gate: generated code, lint, types, unit + functional tests
 ```
@@ -113,7 +116,7 @@ python3 scripts/smoke.py --api http://host:8000/api/v1 --web http://host:8080
 
 ### API
 
-The public API is served by rest and uses canonical proto JSON:
+The public API is served by the api service and uses canonical proto JSON:
 camelCase fields, enums by name, and int64 values as strings. The request and
 response messages are in `proto/oj/v1/judge.proto`.
 

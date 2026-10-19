@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """End-to-end smoke test against a running Online Judge stack.
 
-Talks to rest's public API (canonical proto JSON, see proto/) and checks
+Talks to the api service (canonical proto JSON, see proto/) and checks
 the webapp is serving. Standard library only.
 
     make smoke
     python3 scripts/smoke.py [--api URL] [--web URL] [--admin-token T] [-k PATTERN] [-v]
 
-Defaults come from ./.env (REST_PORT, WEB_PORT, ADMIN_TOKEN) when present.
+Defaults come from ./.env (API_PORT, WEB_PORT, ADMIN_TOKEN) when present.
 Exit status is 0 only when every check passed.
 """
 
@@ -63,7 +63,7 @@ def parse_args() -> Config:
         return os.environ.get(key) or dotenv.get(key) or default
 
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--api", default=setting("API_URL", host_url(setting("REST_PORT", "8000"), "8000") + "/api/v1"))
+    p.add_argument("--api", default=setting("API_URL", host_url(setting("API_PORT", "8000"), "8000") + "/api/v1"))
     p.add_argument("--web", default=setting("WEB_URL", host_url(setting("WEB_PORT", "8080"), "8080")))
     p.add_argument("--admin-token", default=setting("ADMIN_TOKEN"))
     p.add_argument("-k", dest="pattern", default="", help="only run checks whose name contains this")

@@ -18,12 +18,12 @@ fi
 step "proto: buf + protoc-gen-es, grpcio-tools, Go plugins"
 make -C proto setup
 
-step "midlayer: virtualenv + Python deps"
-uv venv --quiet --allow-existing --python 3.13 midlayer/.venv
-uv pip install --quiet --python midlayer/.venv/bin/python -r midlayer/requirements-dev.txt
+step "api: virtualenv + Python deps"
+uv venv --quiet --allow-existing --python 3.13 api/.venv
+uv pip install --quiet --python api/.venv/bin/python -r api/requirements-dev.txt
 
-step "dao, rest, runner: Go modules"
-for svc in dao rest runner; do (cd "$svc" && go mod download); done
+step "runner: Go modules"
+(cd runner && go mod download)
 
 step "webapp: npm deps + Playwright Chromium"
 (cd webapp && npm ci --no-audit --no-fund && npx playwright install chromium)

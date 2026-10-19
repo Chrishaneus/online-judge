@@ -3,11 +3,12 @@
 #   browser ─> webapp (SvelteKit :3000, published :8080)
 #                │ proto JSON
 #                v
-#              rest (:8000) ─gRPC─> midlayer (:50051) ─gRPC─> dao (:50052) ─> postgres
-#                                      │ AMQP
-#                                      v
-#                                   rabbitmq  judge.jobs ─> runner × RUNNER_REPLICAS
-#                                             judge.events <─┘
+#              api (Flask :8000) ──> postgres
+#              worker (same image) ─┘
+#                │ AMQP (api publishes jobs, worker consumes results)
+#                v
+#              rabbitmq  judge.jobs ─> runner × RUNNER_REPLICAS
+#                        judge.events <─┘
 #
 # Each service is built from its directory; see README.md and AGENTS.md.
 # Contract: proto/oj/v1/*.proto (proto/README.md describes it).
@@ -39,24 +40,13 @@ services:
       timeout: 3s
       retries: 20
 
-  dao:
-    <<: [*restart, *hardened]
-    build: ./dao
-    image: online-judge/dao:latest
-    environment:
-      DAO_ADDR: ":50052"
-      DATABASE_URL: postgres://oj:${POSTGRES_PASSWORD:-oj-dev-password}@postgres:5432/oj?sslmode=disable
-    depends_on:
-      postgres: { condition: service_healthy }
-    networks: [db, backend]
-
   # One-shot: renders RabbitMQ users/permissions/queues from the passwords
   # below (stored hashed) before the broker boots.
   broker-setup:
     image: python:3.13-alpine
     command: ["python", "/src/render_definitions.py"]
     environment:
-      MIDLAYER_PASSWORD: ${RABBITMQ_MIDLAYER_PASSWORD:-midlayer-dev-password}
+      API_PASSWORD: ${RABBITMQ_API_PASSWORD:-api-dev-password}
       RUNNER_PASSWORD: ${RABBITMQ_RUNNER_PASSWORD:-runner-dev-password}
       OUT: /defs/definitions.json
     volumes:
@@ -123,39 +113,48 @@ services:
     mem_limit: ${RUNNER_MEM_LIMIT:-2g}
     cpus: ${RUNNER_CPUS:-2}
 
-  midlayer:
+  # HTTP API (/api/v1): controllers -> services -> repositories (Postgres,
+  # RabbitMQ). Runs the DB migrations, then gunicorn.
+  api:
     <<: [*restart, *hardened]
-    build: ./midlayer
-    image: online-judge/midlayer:latest
-    environment:
-      GRPC_ADDR: "[::]:50051"
-      DAO_ADDR: dao:50052
-      RABBITMQ_URL: amqp://midlayer:${RABBITMQ_MIDLAYER_PASSWORD:-midlayer-dev-password}@rabbitmq:5672/
-      RUN_TIMEOUT_S: ${RUN_TIMEOUT_S:-30}
-      MAX_QUEUE_DEPTH: ${MAX_QUEUE_DEPTH:-1000}
-    depends_on:
-      dao: { condition: service_healthy }
-      rabbitmq: { condition: service_healthy }
-    networks: [backend]
-
-  rest:
-    <<: [*restart, *hardened]
-    build: ./rest
-    image: online-judge/rest:latest
-    environment:
-      REST_ADDR: ":8000"
-      MIDLAYER_ADDR: midlayer:50051
+    build: ./api
+    image: online-judge/api:latest
+    environment: &api-env
+      DATABASE_URL: postgresql+psycopg://oj:${POSTGRES_PASSWORD:-oj-dev-password}@postgres:5432/oj
+      RABBITMQ_URL: amqp://api:${RABBITMQ_API_PASSWORD:-api-dev-password}@rabbitmq:5672/
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-*}
       RATE_LIMIT_PER_MIN: ${RATE_LIMIT_PER_MIN:-20}
       RATE_LIMIT_BURST: ${RATE_LIMIT_BURST:-5}
       # The webapp forwards the visitor's IP in X-Real-IP.
       TRUST_PROXY_HEADERS: "true"
+      RUN_TIMEOUT_S: ${RUN_TIMEOUT_S:-30}
+      MAX_QUEUE_DEPTH: ${MAX_QUEUE_DEPTH:-1000}
+    tmpfs: [/tmp]
     depends_on:
-      midlayer: { condition: service_healthy }
-    networks: [backend, frontend]
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    networks: [db, backend, frontend]
     ports:
-      - "${REST_PORT:-127.0.0.1:8000}:8000"
+      - "${API_PORT:-127.0.0.1:8000}:8000"
+
+  # Background consumer (same image): judges runner results from judge.events,
+  # fails dead-lettered jobs, re-publishes stale submissions on start.
+  worker:
+    <<: [*restart, *hardened]
+    image: online-judge/api:latest
+    command: ["python", "-m", "app.worker"]
+    environment: *api-env
+    tmpfs: [/tmp]
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.worker", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [db, backend]
 
   webapp:
     <<: [*restart, *hardened]
@@ -165,22 +164,25 @@ services:
         PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
     image: online-judge/webapp:latest
     environment:
-      API_URL: http://rest:8000/api/v1
+      API_URL: http://api:8000/api/v1
     depends_on:
-      rest: { condition: service_healthy }
+      api: { condition: service_healthy }
     networks: [frontend]
     ports:
       - "${WEB_PORT:-8080}:3000"
     tmpfs: [/tmp]
 
 networks:
+  # postgres, api, worker
   db:
     internal: true
+  # rabbitmq, api, worker
   backend:
     internal: true
   # Runners + RabbitMQ only. Internal: no internet.
   jobs:
     internal: true
+  # webapp, api
   frontend: {}
 
 volumes:

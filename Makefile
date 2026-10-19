@@ -1,10 +1,9 @@
 COMPOSE := docker compose
 PROTO_PY := proto/.venv/bin/python
-MID_PY := midlayer/.venv/bin/python
 # Throwaway broker for the RabbitMQ integration tests (make test-broker).
 TEST_BROKER_URL := amqp://oj:oj@127.0.0.1:5673/
 
-.PHONY: help setup gen check check-proto check-dao check-rest check-runner check-midlayer check-webapp \
+.PHONY: help setup gen check check-proto check-api check-runner check-webapp \
         test-broker env up down logs ps smoke e2e clean
 
 help:
@@ -19,35 +18,29 @@ gen:
 	$(PROTO_PY) proto/generate.py
 
 ## check: every gate CI runs (generated code, lint, types, unit + functional tests)
-check: check-proto check-dao check-rest check-runner check-midlayer check-webapp
+check: check-proto check-api check-runner check-webapp
 	@echo "all checks passed"
 
 check-proto:
 	$(PROTO_PY) proto/generate.py --check
 
-check-dao:
-	$(MAKE) -C dao check
-
-check-rest:
-	$(MAKE) -C rest check
-
 check-runner:
 	cd runner && test -z "$$(gofmt -l .)" && go vet ./... && go test ./...
 
-check-midlayer:
-	cd midlayer && .venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/pytest -q
+check-api:
+	cd api && .venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/pytest -q
 
 check-webapp:
 	cd webapp && npm run lint && npm run check && npm run test:unit && npm run test:component
 
 ## test-broker: start a throwaway RabbitMQ on :5673; then run the broker tests with
-##              RABBITMQ_TEST_URL=amqp://oj:oj@127.0.0.1:5673/ (runner, midlayer)
+##              RABBITMQ_TEST_URL=amqp://oj:oj@127.0.0.1:5673/ (runner, api)
 test-broker:
 	@docker start oj-test-rabbitmq >/dev/null 2>&1 || docker run -d --name oj-test-rabbitmq \
 	  -p 127.0.0.1:5673:5672 -e RABBITMQ_DEFAULT_USER=oj -e RABBITMQ_DEFAULT_PASS=oj rabbitmq:4-alpine >/dev/null
 	@echo "RABBITMQ_TEST_URL=$(TEST_BROKER_URL)   (stop: docker rm -f oj-test-rabbitmq)"
 
-SECRETS := POSTGRES_PASSWORD RABBITMQ_MIDLAYER_PASSWORD RABBITMQ_RUNNER_PASSWORD ADMIN_TOKEN
+SECRETS := POSTGRES_PASSWORD RABBITMQ_API_PASSWORD RABBITMQ_RUNNER_PASSWORD ADMIN_TOKEN
 
 ## env: create .env, or add keys missing from an older one; every secret still
 ##      set to "change-me..." gets a random value. Existing values are kept.

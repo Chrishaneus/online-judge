@@ -5,8 +5,8 @@ Instructions for any AI coding agent working in webapp, the Online Judge fronten
 
 ## Rules (reviewers enforce these)
 
-- **All rest calls are server-side**, through the repository in `src/lib/server/api.ts`
-  (load functions, form actions, `+server.ts`). The browser never talks to rest.
+- **All api calls are server-side**, through the repository in `src/lib/server/api.ts`
+  (load functions, form actions, `+server.ts`). The browser never talks to the api.
 - **Shared types come from protobuf.** `src/lib/gen/oj/v1/*_pb.ts` is generated from
   `../proto`: never hand-edit it, and don't redeclare its types. To change a shape, edit
   `../proto/oj/v1/*.proto` and run `make gen` at the repo root, then commit the regenerated files with it.
@@ -39,7 +39,7 @@ Instructions for any AI coding agent working in webapp, the Online Judge fronten
 | Lint + types     | `npm run lint && npm run check`                                                        |
 | Unit tests       | `npm run test:unit`                                                                    |
 | Component tests  | `npm run test:component` (needs `npx playwright install chromium`)                     |
-| E2E vs mock rest | `npx playwright test` (builds, starts `e2e/mock-api.ts` + `vite preview`)              |
+| E2E vs mock api  | `npx playwright test` (builds, starts `e2e/mock-api.ts` + `vite preview`)              |
 | E2E vs the stack | `E2E_BASE_URL=http://localhost:8080 E2E_ADMIN_TOKEN=<ADMIN_TOKEN> npx playwright test` |
 | Build / image    | `npm run build` / `docker build -t online-judge/webapp:latest .`                       |
 | Regenerate types | `make gen` (repo root)                                                                 |
@@ -51,7 +51,7 @@ Instructions for any AI coding agent working in webapp, the Online Judge fronten
 - **Component** (`src/**/*.svelte.spec.ts`, vitest browser / chromium): Svelte
   components in a real browser.
 - **E2E** (`e2e/*.e2e.ts`, Playwright): user flows through the app. Locally against the
-  mock rest; for real judging, against the running stack with `E2E_BASE_URL`.
+  mock api; for real judging, against the running stack with `E2E_BASE_URL`.
 
 ## Hard rules
 

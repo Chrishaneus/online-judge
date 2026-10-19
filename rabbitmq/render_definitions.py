@@ -1,10 +1,10 @@
 """Render RabbitMQ definitions (users, permissions, queues) from env vars.
 
 Runs once before the broker starts (broker-setup service). The topology must
-match the header of proto/oj/v1/runner.proto exactly: midlayer re-declares
+match the header of proto/oj/v1/runner.proto exactly: api re-declares
 the same queues and RabbitMQ rejects a declare whose arguments differ.
 
-    MIDLAYER_PASSWORD, RUNNER_PASSWORD  required
+    API_PASSWORD, RUNNER_PASSWORD  required
     OUT                                 default /defs/definitions.json
 """
 
@@ -43,7 +43,7 @@ def quorum(name: str, **arguments: object) -> dict:
 
 
 def main() -> None:
-    passwords = {k: os.environ.get(k, "") for k in ("MIDLAYER_PASSWORD", "RUNNER_PASSWORD")}
+    passwords = {k: os.environ.get(k, "") for k in ("API_PASSWORD", "RUNNER_PASSWORD")}
     missing = [k for k, v in passwords.items() if not v]
     if missing:
         sys.exit(f"missing env: {', '.join(missing)}")
@@ -51,14 +51,14 @@ def main() -> None:
     definitions = {
         "vhosts": [{"name": "/"}],
         "users": [
-            user("midlayer", passwords["MIDLAYER_PASSWORD"]),
+            user("api", passwords["API_PASSWORD"]),
             user("runner", passwords["RUNNER_PASSWORD"]),
         ],
         "permissions": [
             # Declares the judge.* queues (incl. its exclusive judge.rpc.<uuid> reply
             # queue), publishes via the default exchange, consumes events / dead jobs / replies.
             {
-                "user": "midlayer",
+                "user": "api",
                 "vhost": "/",
                 "configure": r"^judge\..*$",
                 "write": r"^amq\.default$",

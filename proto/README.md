@@ -1,16 +1,15 @@
 # proto
 
 **Single source of truth for every type shared between Online Judge services.**
-The `.proto` files in `oj/v1/` define the gRPC APIs, the RabbitMQ job messages
-and the JSON the webapp sees. Code is generated from them into each service
-directory and committed there.
+The `.proto` files in `oj/v1/` define the HTTP API's JSON (shared by api and
+webapp) and the RabbitMQ job messages (shared by api and runner). Code is
+generated from them into each service directory and committed there.
 
 | File | Contents | Used by |
 |---|---|---|
-| `oj/v1/types.proto` | Domain types and enums (`Problem`, `Submission`, `Verdict`, `Language`, …) | everyone |
-| `oj/v1/dao.proto` | `DaoService`: dao's persistence API (gRPC) | dao (server), midlayer (client) |
-| `oj/v1/judge.proto` | `JudgeService`: midlayer's business API (gRPC); its HTTP mapping is served by rest | midlayer (server), rest (client), webapp (JSON types) |
-| `oj/v1/runner.proto` | `ExecuteJob` / `JobEvent`: RabbitMQ messages + topology | midlayer (publisher), runner (consumer) |
+| `oj/v1/types.proto` | Domain types and enums (`Problem`, `Submission`, `Verdict`, `Language`, …), `ErrorResponse` | everyone |
+| `oj/v1/judge.proto` | Request/response message of every `/api/v1` route (route written above each request) | api (server), webapp (client) |
+| `oj/v1/runner.proto` | `ExecuteJob` / `JobEvent`: RabbitMQ messages + topology | api (publisher, worker consumes events), runner (consumer) |
 
 ## Architecture
 
@@ -18,60 +17,43 @@ directory and committed there.
 browser ─> webapp (SvelteKit, node :3000)
              │  server-side fetch, canonical proto JSON
              v
-           rest (Go :8000)  /api/v1, auth, rate limit, CORS
-             │  gRPC  oj.v1.JudgeService
+           api (Flask :8000)  /api/v1: controllers -> services -> repositories ─> postgres
+           worker (same image)  consumes judge.events / judge.jobs.dead ──────────┘
+             │  AMQP (binary protobuf)
              v
-           midlayer (Python :50051)  business logic, judging rules
-             │  gRPC oj.v1.DaoService          │  AMQP (binary protobuf)
-             v                                 v
-           dao (Go :50052) ─> postgres    RabbitMQ  judge.jobs ─> runner × N
-                                                       judge.events <─┘
+           RabbitMQ  judge.jobs ─> runner × N
+                     judge.events <─┘
 ```
 
-* **Edge (webapp ⇄ rest): HTTP + canonical proto JSON.** camelCase fields,
-  enums by name (`"LANGUAGE_PYTHON"`), int64 as JSON strings (`bigint` in
-  the generated TS; protoc-gen-es v2 ignores `jstype`), Timestamps as RFC 3339. Each route's body
-  is the RPC request message, its response is the RPC response message, and
-  errors are `ErrorResponse`.
-* **Inside: gRPC.** `GET /api/v1/admin/verify` is the only route without an RPC: rest
-  answers it itself (`{"admin": true}`) to validate the admin token. Every gRPC server also serves the standard
-  `grpc.health.v1.Health` service. Docker healthchecks use it.
-* **Judging: RabbitMQ.** The midlayer publishes an `ExecuteJob` per
-  submission to `judge.jobs`. Runners consume it, compile once, run every test
-  and publish `JobEvent`s (`started`, then `finished`) to `judge.events`. The
-  midlayer compares outputs, computes the verdict and stores it through dao.
-  Custom runs (`RunCode`) use the same queue with an RPC reply queue. See the
+* **HTTP (webapp ⇄ api): canonical proto JSON.** camelCase fields, enums by
+  name (`"LANGUAGE_PYTHON"`), int64 as JSON strings (`bigint` in the generated
+  TS; protoc-gen-es v2 ignores `jstype`), Timestamps as RFC 3339, fields with
+  default values included. Each route's body is its `*Request` message and its
+  response the matching `*Response`; errors are `ErrorResponse` (the status
+  codes are listed at the top of `judge.proto`). `GET /api/v1/admin/verify`
+  and `GET /healthz` have no messages.
+* **Judging: RabbitMQ.** api publishes an `ExecuteJob` per submission to
+  `judge.jobs`. Runners consume it, compile once, run every test and publish
+  `JobEvent`s (`started`, then `finished`) to `judge.events`. The api worker
+  compares outputs, computes the verdict and stores it. Custom runs
+  (`POST /api/v1/run`) use the same queue with an RPC reply queue. See the
   header of `oj/v1/runner.proto` for the exact topology, AMQP properties and
   permissions.
-
-### gRPC status → HTTP (rest)
-
-| gRPC | HTTP |
-|---|---|
-| `INVALID_ARGUMENT` | 422 (400 when rest itself can't parse the JSON) |
-| `NOT_FOUND` | 404 |
-| `ALREADY_EXISTS`, `FAILED_PRECONDITION` | 409 |
-| `RESOURCE_EXHAUSTED` | 429 |
-| `DEADLINE_EXCEEDED` | 504 |
-| `UNAVAILABLE` | 503 |
-| anything else | 502 (logged; details not leaked) |
 
 ## Generated code
 
 | Service | Output (committed, never hand-edit) | Language | Files |
 |---|---|---|---|
-| dao | `internal/gen/oj/v1` (package `ojv1`) | Go + gRPC | types, dao |
-| rest | `internal/gen/oj/v1` | Go + gRPC | types, judge |
-| runner | `internal/gen/oj/v1` | Go | types, runner |
-| midlayer | `app/gen/oj/v1` (imports rewritten to `app.gen.oj.v1`) | Python + grpc + `.pyi` | all |
+| api | `app/gen/oj/v1` (imports rewritten to `app.gen.oj.v1`) | Python + `.pyi` | all |
+| runner | `internal/gen/oj/v1` (package `ojv1`) | Go | types, runner |
 | webapp | `src/lib/gen/oj/v1/*_pb.ts` | TypeScript (protobuf-es v2) | types, judge |
 
 Runtime versions must match the generators:
 
 | Generator (pinned here) | Runtime in the services |
 |---|---|
-| protoc-gen-go v1.36.12, protoc-gen-go-grpc v1.6.2 | `google.golang.org/protobuf` v1.36.x, `google.golang.org/grpc` v1.85.x (Go ≥ 1.26) |
-| grpcio-tools 1.85.1 | `grpcio==1.85.1`, `protobuf>=7.35.1,<8` |
+| protoc-gen-go v1.36.12 | `google.golang.org/protobuf` v1.36.x |
+| grpcio-tools 1.85.1 (only for its bundled protoc) | `protobuf` 7.x (≥ the gencode version) |
 | @bufbuild/protoc-gen-es 2.17.0 | `@bufbuild/protobuf` ^2.17.0 |
 
 ## Usage
@@ -79,7 +61,7 @@ Runtime versions must match the generators:
 From the repo root (`make setup` / `make gen` there call into this directory) or from `proto/`:
 
 ```bash
-make setup     # once: npm ci, .venv with grpcio-tools, Go plugins into .bin/
+make setup     # once: npm ci, .venv with grpcio-tools, protoc-gen-go into .bin/
 make gen       # buf lint + format check, then regenerate into every service
 make check     # CI gate: fail if any service's generated code is stale
 make breaking  # wire-compatibility check against main
@@ -88,8 +70,9 @@ make breaking  # wire-compatibility check against main
 ### Changing the contract
 
 1. Edit `oj/v1/*.proto`. Keep it wire compatible: never renumber or reuse
-   field numbers, and never change a field's type. Services are deployed
-   independently, so add new fields and leave old ones in place.
+   field numbers, and never change a field's type. Jobs can sit in RabbitMQ
+   across a deploy and runners may run an older version, so add new fields
+   and leave old ones in place. Renaming a field changes its JSON name: update
+   the webapp in the same commit.
 2. `make gen`, then commit the `.proto` change and the regenerated code
    together.
-3. Update the server first, then the clients.

@@ -112,7 +112,7 @@ func (h *Handler) Handle(ctx context.Context, d amqp.Delivery) {
 	}
 	if err := d.Ack(false); err != nil {
 		// The channel is gone: the job is redelivered and executed again,
-		// which the midlayer tolerates (at-least-once).
+		// which the api tolerates (at-least-once).
 		log.Error("ack failed", "err", err)
 		return
 	}

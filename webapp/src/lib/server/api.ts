@@ -32,7 +32,7 @@ import { ErrorResponseSchema } from '#lib/gen/oj/v1/types_pb.js';
 import { query } from '#lib/url.js';
 
 /**
- * Repository for the rest public API (/api/v1). Bodies are canonical proto JSON:
+ * Repository for the api's public HTTP API (/api/v1). Bodies are canonical proto JSON:
  * requests are built with `create()` + `toJson()`, every response is validated with
  * `fromJson()` against the shared schema, and errors are `ErrorResponse`.
  */
@@ -45,7 +45,7 @@ export interface RequestOptions {
 	body?: unknown;
 	/** Admin bearer token. */
 	token?: string | null;
-	/** Visitor IP, forwarded so rest rate-limits per visitor rather than per webapp. */
+	/** Visitor IP, forwarded so the api rate-limits per visitor rather than per webapp. */
 	clientIp?: string;
 }
 
@@ -202,7 +202,7 @@ export function createApi(baseUrl: string, fetchImpl: typeof fetch = fetch) {
 		},
 
 		admin: {
-			/** 2xx when the token is valid (rest-only route, not part of the proto contract). */
+			/** 2xx when the token is valid (api-only route, not part of the proto contract). */
 			verify: async (token: string, f?: typeof fetch) =>
 				request('/admin/verify', null, { token }, f),
 
@@ -278,7 +278,7 @@ export function createApi(baseUrl: string, fetchImpl: typeof fetch = fetch) {
 export type Api = ReturnType<typeof createApi>;
 export type { NewTestCase };
 
-/** The rest repository, bound to the configured API_URL. */
+/** The api repository, bound to the configured API_URL. */
 export const api = createApi(API_URL);
 
 /** Positive integer id from a route param or form field, else null. */
